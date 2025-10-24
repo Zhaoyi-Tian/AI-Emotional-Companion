@@ -1,0 +1,65 @@
+asr:
+  channels: 1
+  model_path_cn: asr_service/CN_model/offline_encoder.om
+  model_path_en: asr_service/EN_model/offline_encoder.om
+  model_type: CN
+  sample_rate: 16000
+  vocab_path_cn: asr_service/CN_model/vocab.txt
+  vocab_path_en: asr_service/EN_model/vocab.txt
+llm:
+  api:
+    api_key: sk-262419ac92684077aca08779a67e68a4
+    api_url: https://api.deepseek.com/v1/chat/completions
+    max_tokens: 512
+    model: deepseek-chat
+    provider: deepseek
+    stream: true
+    system_prompt: You are a helpful and friendly chatbot
+    temperature: 1.0
+    top_p: 0.9
+  local:
+    max_tokens: 256
+    model_name: Qwen1.5-0.5b
+    model_path: llm_service/models/qwen
+    temperature: 0.8
+  mode: api
+logging:
+  backup_count: 5
+  file: ai_assistant.log
+  level: INFO
+  max_bytes: 10485760
+services:
+  asr: 5001
+  llm: 5002
+  orchestrator: 5000
+  tts: 5003
+  web_ui: 8080
+streaming:
+  max_wait_time: 3.0
+  min_chunk_length: 10
+  sentence_delimiters:
+  - 。
+  - '!'
+  - '?'
+  - '!'
+  - '?'
+  - '
+
+    '
+  - .
+  - ;
+tts:
+  api:
+    api_key: sk-3daa6c3cbffa4aeebce31a49f75a2c7b
+    format: PCM_22050HZ_MONO_16BIT
+    model: cosyvoice-v2
+    provider: cosyvoice
+    sample_rate: 22050
+    voice: longxiaochun_v2
+  local:
+    model_path: tts_service/models/cosyvoice
+  mode: api
+web:
+  enable: true
+  share: false
+  title: AI语音助手配置中心

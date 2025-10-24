@@ -1,0 +1,36 @@
+/home/HwHiAiUser/ai_助手/tts_service/app_fastapi.py:239: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+2025-10-24 17:26:24,383 - TTS_Service - INFO - TTS服务启动在端口: 5003
+INFO:     Started server process [2495434]
+INFO:     Waiting for application startup.
+2025-10-24 17:26:24,423 - TTS_Service - INFO - 🚀 TTS服务正在启动...
+2025-10-24 17:26:24,423 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+2025-10-24 17:26:24,423 - TTS_Service - INFO - ✅ TTS服务启动完成!
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:5003 (Press CTRL+C to quit)
+INFO:     127.0.0.1:44758 - "GET /health HTTP/1.1" 200 OK
+2025-10-24 17:27:16,197 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+INFO:     127.0.0.1:58962 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-24 17:27:17,960 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+INFO:     127.0.0.1:58978 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-24 17:27:18,617 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+INFO:     127.0.0.1:58980 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-24 17:27:19,426 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+INFO:     127.0.0.1:58994 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-24 17:27:20,232 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+INFO:     127.0.0.1:59008 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-24 17:28:15,636 - TTS_Service - INFO - 收到合成请求: 告诉我你的名字...
+2025-10-24 17:28:15,756 - websocket - INFO - Websocket connected
+2025-10-24 17:28:16,584 - TTS_Service - INFO - 非流式合成完成,请求ID: 1dca175659de45b38908f077d7d92139
+INFO:     127.0.0.1:59566 - "POST /synthesize HTTP/1.1" 200 OK
+2025-10-24 17:29:00,565 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+INFO:     127.0.0.1:52494 - "POST /reload_config HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2495434]

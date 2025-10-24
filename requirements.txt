@@ -1,0 +1,49 @@
+# AI语音助手 - 核心依赖
+
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+websockets==12.0
+
+# 配置管理
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# HTTP客户端
+requests==2.31.0
+
+# Web界面
+gradio==4.8.0
+
+# 音频处理
+pyaudio==0.2.14
+soundfile==0.12.1
+numpy==1.24.3
+
+# 数据验证
+pydantic==2.5.0
+
+# 日志
+python-json-logger==2.0.7
+
+# TTS依赖 (阿里云CosyVoice)
+dashscope==1.14.0
+
+# 工具
+psutil==5.9.6
+
+# ==========================================
+# 注意: 以下依赖需要在特定conda环境中安装
+# ==========================================
+
+# ASR环境 (asr):
+# - WeNet相关依赖
+# - sounddevice
+
+# LLM环境 (llm) - 本地模型模式:
+# - mindspore
+# - mindnlp
+# - transformers
+
+# TTS环境 (tts) - 本地模型模式:
+# - 具体依赖根据使用的TTS模型而定

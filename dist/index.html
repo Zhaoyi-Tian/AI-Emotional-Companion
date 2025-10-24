@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>语音问答-千问在线推理</title>
+    <script type="module" crossorigin src="/assets/index-0f38e264.js"></script>
+    <link rel="stylesheet" href="/assets/index-0c2196b0.css">
+</head>
+
+<body>
+    <div id="app"></div>
+    <div id="status">等待用户激活音频权限...</div>
+    <div id="fileInfo"></div>
+    <button id="activateBtn">点击激活声音播放</button>
+
+    <script>
+        const AUDIO_URL = '/assets/output_clone_eq_test.wav';
+        let audio = null;
+        let isActivated = false;
+        let isPlaying = false;
+        let lastModifiedTime = new Date();
+
+        // 创建新的Audio对象并加载最新音频
+        function createNewAudio() {
+            if (audio) {
+                audio.pause();
+                audio.src = '';
+                audio = null;
+            }
+            audio = new Audio();
+            audio.src = AUDIO_URL + '?t=' + Date.now(); // 添加时间戳避免缓存
+            return audio;
+        }
+
+        // 获取文件最后修改时间
+        async function getFileTime() {
+            try {
+                const res = await fetch(AUDIO_URL, {
+                    method: 'HEAD',
+                    cache: 'no-store' // 禁用缓存
+                });
+                if (!res.ok) throw new Error(`文件不可用: ${res.status}`);
+
+                const lastModified = res.headers.get('last-modified');
+                lastModifiedTime = lastModified ? new Date(lastModified) : new Date();
+                document.getElementById('fileInfo').textContent =
+                    `音频生成时间: ${lastModifiedTime.toLocaleString()}`;
+                return lastModifiedTime;
+            } catch (error) {
+                console.error('获取文件时间失败:', error);
+                return null;
+            }
+        }
+
+        // 用户激活播放权限
+        document.getElementById('activateBtn').addEventListener('click', () => {
+            isActivated = true;
+            document.getElementById('status').textContent = "权限已激活，检测音频中...";
+            checkAudioFile();
+        });
+
+        // 音频检测与播放
+        async function checkAudioFile() {
+            if (isPlaying) return;
+
+            try {
+                let last = lastModifiedTime.toLocaleString();
+                await getFileTime();
+                if (last === lastModifiedTime.toLocaleString()) {
+                    throw new Error('已播放过该版本音频');
+                }
+                const res = await fetch(AUDIO_URL, {
+                    method: 'HEAD',
+                    cache: 'no-store'
+                });
+                if (!res.ok) throw new Error(`文件不可用: ${res.status}`);
+
+                createNewAudio(); // 每次播放创建新的Audio对象
+                audio.muted = !isActivated;
+
+                audio.addEventListener('ended', () => {
+                    isPlaying = false;
+                    document.getElementById('status').textContent = "播放结束，等待下次检测";
+                });
+
+                await audio.play();
+                document.getElementById('status').textContent = "音频播放中...";
+                isPlaying = true;
+                console.log(`播放时间: ${new Date().toISOString()}, 文件生成时间: ${lastModifiedTime.toISOString()}`);
+
+            } catch (error) {
+                document.getElementById('status').textContent = error.message;
+            }
+        }
+
+        // 周期检测（每5秒）
+        setInterval(() => isActivated && !isPlaying && checkAudioFile(), 5000);
+    </script>
+</body>
+
+</html>

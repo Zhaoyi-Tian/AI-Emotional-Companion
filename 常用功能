@@ -1,0 +1,44 @@
+风扇
+设置为手动模式
+sudo npu-smi set -t pwm-mode -d 0
+调整风扇速度
+sudo npu-smi set -t pwm-duty-ratio -d 100
+
+蓝牙
+bluetoothctl
+power on
+scan on
+scan off
+pair 9F:52:6C:81:24:E2
+trust 9F:52:6C:81:24:E2
+connect 9F:52:6C:81:24:E2
+quit
+
+播放
+mpg123 ai对话/test/青花瓷.mp3
+mpg123 -g 70 ai对话/test/青花瓷.mp3
+
+激活conda环境
+conda remove --name myenv --all
+conda activate tts
+conda activate llm   
+
+watch -n 0.5 "npu-smi info"
+
+**Note:** If you are runing Tinyllama on OrangePi, please use the follow instruction to free memory first:
+
+```bash
+sudo sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
+```
+
+```bash
+export TE_PARALLEL_COMPILER=1
+export MAX_COMPILE_CORE_NUMBER=1
+export MS_BUILD_PROCESS_NUM=1
+export MAX_RUNTIME_CORE_NUMBER=1
+# if use O2
+export MS_ENABLE_IO_REUSE=1
+
+音频设备
+arecord -l
+ffplay -nodisp /path/to/file.flac  # -nodisp 强制不显示图形窗口（纯命令行必备）

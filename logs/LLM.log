@@ -1,28 +1,29 @@
-/home/HwHiAiUser/ai_助手/llm_service/app_fastapi.py:185: DeprecationWarning: 
+/home/HwHiAiUser/ai_助手/llm_service/app_fastapi.py:334: DeprecationWarning: 
         on_event is deprecated, use lifespan event handlers instead.
 
         Read more about it in the
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-10-24 17:26:19,366 - LLM_Service - INFO - LLM服务启动在端口: 5002
-INFO:     Started server process [2495398]
+2025-10-25 17:02:43,059 - LLM_Service - INFO - LLM服务启动在端口: 5002
+INFO:     Started server process [81894]
 INFO:     Waiting for application startup.
-2025-10-24 17:26:19,437 - LLM_Service - INFO - 🚀 LLM服务正在启动...
-2025-10-24 17:26:19,437 - LLM_Service - INFO - 使用API模式
-2025-10-24 17:26:19,437 - LLM_Service - INFO - ✅ LLM服务启动完成!
+2025-10-25 17:02:43,131 - LLM_Service - INFO - 🚀 LLM服务正在启动...
+2025-10-25 17:02:43,131 - LLM_Service - INFO - 使用API模式
+2025-10-25 17:02:43,131 - LLM_Service - INFO - ✅ LLM服务启动完成!
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5002 (Press CTRL+C to quit)
-INFO:     127.0.0.1:54880 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40666 - "POST /reload_config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40668 - "POST /reload_config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40670 - "POST /reload_config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40678 - "POST /reload_config HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40692 - "POST /reload_config HTTP/1.1" 200 OK
-2025-10-24 17:27:58,802 - LLM_Service - INFO - 收到对话请求: 你在吗...
-INFO:     127.0.0.1:48176 - "POST /chat HTTP/1.1" 200 OK
-INFO:     127.0.0.1:54536 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-25 17:03:29,042 - LLM_Service - INFO - 收到流式对话请求: 阳江什么是北京大学...
+INFO:     127.0.0.1:41810 - "POST /chat/stream HTTP/1.1" 200 OK
+2025-10-25 17:04:36,438 - LLM_Service - INFO - 收到流式对话请求: 你说话的方式是不是有点不对...
+INFO:     127.0.0.1:38996 - "POST /chat/stream HTTP/1.1" 200 OK
+2025-10-25 17:06:48,105 - LLM_Service - INFO - 配置已重新加载,当前模式: api
+INFO:     127.0.0.1:55384 - "POST /reload_config HTTP/1.1" 200 OK
+2025-10-25 17:07:09,154 - LLM_Service - INFO - 收到流式对话请求: 爱...
+INFO:     127.0.0.1:32830 - "POST /chat/stream HTTP/1.1" 200 OK
+2025-10-25 17:09:00,954 - LLM_Service - INFO - 收到流式对话请求: 草哎...
+INFO:     127.0.0.1:51088 - "POST /chat/stream HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [2495398]
+INFO:     Finished server process [81894]

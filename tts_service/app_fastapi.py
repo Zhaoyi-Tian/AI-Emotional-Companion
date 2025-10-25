@@ -19,7 +19,7 @@ from config_loader import get_config
 
 try:
     import dashscope
-    from dashscope.audio.tts_v2 import SpeechSynthesizer, ResultCallback, AudioFormat
+    from dashscope.audio.tts_v2 import SpeechSynthesizer, ResultCallback, AudioFormat, VoiceEnrollmentService
     DASHSCOPE_AVAILABLE = True
 except ImportError:
     logger.warning("dashscope未安装,TTS服务将以受限模式运行")
@@ -29,6 +29,8 @@ except ImportError:
         pass
     class AudioFormat:
         PCM_22050HZ_MONO_16BIT = "pcm_22050hz_mono_16bit"
+    class VoiceEnrollmentService:
+        pass
 
 # 配置日志
 logging.basicConfig(
@@ -55,6 +57,37 @@ class TTSResponse(BaseModel):
     success: bool
     message: str
     audio_format: str
+
+
+# 音色克隆相关请求体模型
+class VoiceEnrollmentRequest(BaseModel):
+    """创建音色请求"""
+    target_model: str  # 例如: cosyvoice-v2, cosyvoice-v3
+    prefix: str  # 音色前缀,仅允许数字和小写字母,小于10个字符
+    url: str  # 音频文件URL
+
+
+class VoiceUpdateRequest(BaseModel):
+    """更新音色请求"""
+    voice_id: str
+    url: str  # 新的音频文件URL
+
+
+class VoiceListRequest(BaseModel):
+    """查询音色列表请求"""
+    prefix: Optional[str] = None
+    page_index: int = 0
+    page_size: int = 10
+
+
+class VoiceQueryRequest(BaseModel):
+    """查询指定音色请求"""
+    voice_id: str
+
+
+class VoiceDeleteRequest(BaseModel):
+    """删除音色请求"""
+    voice_id: str
 
 
 # ==================== CosyVoice API 模式 ====================
@@ -330,6 +363,174 @@ async def reload_config():
         return {"success": True, "message": "配置重新加载成功"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"配置重新加载失败: {str(e)}")
+
+
+# ==================== 音色克隆 API ====================
+def get_voice_service():
+    """获取音色克隆服务实例"""
+    if not DASHSCOPE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="dashscope未安装,请运行: pip install dashscope")
+
+    return VoiceEnrollmentService()
+
+
+@app.post("/voice/create")
+async def create_voice(request: VoiceEnrollmentRequest):
+    """
+    创建音色克隆
+
+    参数:
+    - target_model: 声音复刻所使用的模型 (例如: cosyvoice-v2, cosyvoice-v3, cosyvoice-v3-plus)
+    - prefix: 音色自定义前缀,仅允许数字和小写字母,长度小于10个字符
+    - url: 用于复刻音色的音频文件URL,要求公网可访问
+
+    返回:
+    - voice_id: 新创建的音色ID
+    """
+    try:
+        service = get_voice_service()
+        voice_id = service.create_voice(
+            target_model=request.target_model,
+            prefix=request.prefix,
+            url=request.url
+        )
+
+        request_id = service.get_last_request_id()
+        logger.info(f"音色创建成功 - Voice ID: {voice_id}, Request ID: {request_id}")
+
+        return {
+            "success": True,
+            "voice_id": voice_id,
+            "request_id": request_id,
+            "message": "音色创建成功,请使用 /voice/query 查询状态"
+        }
+    except Exception as e:
+        logger.error(f"创建音色失败: {e}")
+        raise HTTPException(status_code=500, detail=f"创建音色失败: {str(e)}")
+
+
+@app.post("/voice/list")
+async def list_voices(request: VoiceListRequest):
+    """
+    查询所有音色
+
+    参数:
+    - prefix: 可选,按前缀筛选
+    - page_index: 页索引,默认0
+    - page_size: 页大小,默认10
+
+    返回:
+    - voices: 音色列表
+    """
+    try:
+        service = get_voice_service()
+        voices = service.list_voices(
+            prefix=request.prefix,
+            page_index=request.page_index,
+            page_size=request.page_size
+        )
+
+        request_id = service.get_last_request_id()
+        logger.info(f"查询音色列表成功 - Request ID: {request_id}, 找到 {len(voices)} 个音色")
+
+        return {
+            "success": True,
+            "voices": voices,
+            "count": len(voices),
+            "request_id": request_id
+        }
+    except Exception as e:
+        logger.error(f"查询音色列表失败: {e}")
+        raise HTTPException(status_code=500, detail=f"查询音色列表失败: {str(e)}")
+
+
+@app.post("/voice/query")
+async def query_voice(request: VoiceQueryRequest):
+    """
+    查询指定音色的详细信息
+
+    参数:
+    - voice_id: 音色ID
+
+    返回:
+    - voice_info: 音色详细信息 (包含状态、创建时间、音频链接等)
+      - status: DEPLOYING(审核中), OK(可用), UNDEPLOYED(不可用)
+    """
+    try:
+        service = get_voice_service()
+        voice_info = service.query_voice(voice_id=request.voice_id)
+
+        request_id = service.get_last_request_id()
+        logger.info(f"查询音色详情成功 - Voice ID: {request.voice_id}, Status: {voice_info.get('status')}")
+
+        return {
+            "success": True,
+            "voice_info": voice_info,
+            "request_id": request_id
+        }
+    except Exception as e:
+        logger.error(f"查询音色详情失败: {e}")
+        raise HTTPException(status_code=500, detail=f"查询音色详情失败: {str(e)}")
+
+
+@app.post("/voice/update")
+async def update_voice(request: VoiceUpdateRequest):
+    """
+    更新音色
+
+    参数:
+    - voice_id: 音色ID
+    - url: 新的音频文件URL
+
+    返回:
+    - success: 更新是否成功
+    """
+    try:
+        service = get_voice_service()
+        service.update_voice(
+            voice_id=request.voice_id,
+            url=request.url
+        )
+
+        request_id = service.get_last_request_id()
+        logger.info(f"音色更新成功 - Voice ID: {request.voice_id}, Request ID: {request_id}")
+
+        return {
+            "success": True,
+            "request_id": request_id,
+            "message": "音色更新成功,请等待审核完成"
+        }
+    except Exception as e:
+        logger.error(f"更新音色失败: {e}")
+        raise HTTPException(status_code=500, detail=f"更新音色失败: {str(e)}")
+
+
+@app.post("/voice/delete")
+async def delete_voice(request: VoiceDeleteRequest):
+    """
+    删除音色
+
+    参数:
+    - voice_id: 音色ID
+
+    返回:
+    - success: 删除是否成功
+    """
+    try:
+        service = get_voice_service()
+        service.delete_voice(voice_id=request.voice_id)
+
+        request_id = service.get_last_request_id()
+        logger.info(f"音色删除成功 - Voice ID: {request.voice_id}, Request ID: {request_id}")
+
+        return {
+            "success": True,
+            "request_id": request_id,
+            "message": "音色删除成功"
+        }
+    except Exception as e:
+        logger.error(f"删除音色失败: {e}")
+        raise HTTPException(status_code=500, detail=f"删除音色失败: {str(e)}")
 
 
 if __name__ == "__main__":

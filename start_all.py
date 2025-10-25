@@ -12,6 +12,10 @@ import logging
 import socket
 from pathlib import Path
 
+# 添加父目录到路径
+sys.path.insert(0, str(Path(__file__).parent))
+from config_loader import get_config
+
 # 配置日志
 logging.basicConfig(
     level=logging.INFO,
@@ -151,6 +155,42 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
+def wait_for_gradio_url(timeout=30):
+    """
+    等待并从日志文件中提取Gradio公网链接
+
+    Args:
+        timeout: 最长等待时间(秒)
+
+    Returns:
+        str: Gradio公网URL,如果未找到则返回None
+    """
+    log_file = Path(__file__).parent / "logs" / "Web配置界面.log"
+
+    if not log_file.exists():
+        return None
+
+    import re
+    import time
+
+    start_time = time.time()
+    pattern = r'(https://[a-z0-9]+\.gradio\.live)'
+
+    while time.time() - start_time < timeout:
+        try:
+            with open(log_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+                match = re.search(pattern, content)
+                if match:
+                    return match.group(1)
+        except Exception as e:
+            logger.debug(f"读取日志文件失败: {e}")
+
+        time.sleep(2)  # 每2秒检查一次
+
+    return None
+
+
 def main():
     """主函数"""
     # 注册信号处理器
@@ -194,12 +234,25 @@ def main():
             'script': base_dir / 'web_ui.py',
             'conda_env': None,  # 使用base环境
             'wait': 3
+        },
+        {
+            'name': '语音对话服务',
+            'script': base_dir / 'voice_chat.py',
+            'conda_env': None,  # 使用base环境
+            'wait': 3,
+            'optional': True  # 可选服务，根据配置决定是否启动
         }
     ]
 
     # 启动所有服务
     success_count = 0
     for service in services:
+        # 语音对话服务总是启动（API服务器），enable标志只控制是否自动开始对话
+        # 其他可选服务根据配置决定是否启动
+        if service.get('optional', False) and service['name'] != '语音对话服务':
+            # 这里可以添加其他可选服务的检查逻辑
+            pass
+
         if start_service(
             service['name'],
             str(service['script']),
@@ -222,6 +275,7 @@ def main():
         logger.info("    • ASR服务: http://localhost:5001")
         logger.info("    • LLM服务: http://localhost:5002")
         logger.info("    • TTS服务: http://localhost:5003")
+        logger.info("    • 语音对话服务: http://localhost:5004")
         logger.info("    • Web配置界面: http://localhost:8080")
 
         logger.info(f"\n  内网访问 (局域网其他设备可访问):")
@@ -229,12 +283,23 @@ def main():
         logger.info(f"    • ASR服务: http://{local_ip}:5001")
         logger.info(f"    • LLM服务: http://{local_ip}:5002")
         logger.info(f"    • TTS服务: http://{local_ip}:5003")
+        logger.info(f"    • 语音对话服务: http://{local_ip}:5004")
         logger.info(f"    • Web配置界面: http://{local_ip}:8080  ⭐")
 
         logger.info("\n💡 提示:")
         logger.info(f"  - 在本机访问: http://localhost:8080")
         logger.info(f"  - 在局域网其他设备访问: http://{local_ip}:8080")
         logger.info("  - 按 Ctrl+C 停止所有服务")
+
+        # 等待并获取Gradio公网链接
+        logger.info("\n⏳ 正在获取Gradio公网链接...")
+        gradio_public_url = wait_for_gradio_url(timeout=30)
+        if gradio_public_url:
+            logger.info(f"\n🌐 Gradio公网HTTPS链接 (可从任何地方访问,麦克风可用):")
+            logger.info(f"  {gradio_public_url}")
+        else:
+            logger.info("\n⚠️ 未能获取Gradio公网链接 (可能share未启用或网络问题)")
+
         logger.info("\n服务运行中...")
 
         # 保持运行
@@ -246,8 +311,8 @@ def main():
                     if service['process'].poll() is not None:
                         logger.error(f"⚠️ {service['name']} 异常退出!")
                         logger.error(f"  查看日志: {service.get('log_file', 'N/A')}")
-                        # 只显示一次
-                        service['process'] = type('obj', (object,), {'poll': lambda: None})()
+                        # 只显示一次，将process替换为一个总是返回None的对象
+                        service['process'] = type('obj', (object,), {'poll': lambda self: None})()
 
         except KeyboardInterrupt:
             pass

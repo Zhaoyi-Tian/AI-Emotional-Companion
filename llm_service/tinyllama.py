@@ -7,8 +7,8 @@ import time  # 导入时间模块用于计时
 from mindspore._c_expression import disable_multi_thread
 disable_multi_thread()
 # Loading the tokenizer and model from Hugging Face's model hub.
-tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0", ms_dtype=mindspore.float16)
+tokenizer = AutoTokenizer.from_pretrained("/home/HwHiAiUser/.mindnlp/model/TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+model = AutoModelForCausalLM.from_pretrained("/home/HwHiAiUser/.mindnlp/model/TinyLlama/TinyLlama-1.1B-Chat-v1.0", ms_dtype=mindspore.float16)
 print(model.dtype)
 
 

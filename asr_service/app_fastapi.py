@@ -150,6 +150,27 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"识别失败: {str(e)}")
 
 
+@app.post("/reload_config")
+async def reload_config():
+    """重新加载配置并重新初始化模型"""
+    try:
+        # 重新加载配置文件
+        from config_loader import reload_config as reload_config_file
+        reload_config_file()
+
+        # 重新初始化模型
+        init_asr_model()
+
+        return {
+            "success": True,
+            "message": "配置和模型重新加载成功",
+            "model_type": get_config('asr.model_type')
+        }
+    except Exception as e:
+        logger.error(f"配置重新加载失败: {e}")
+        raise HTTPException(status_code=500, detail=f"配置重新加载失败: {str(e)}")
+
+
 @app.post("/reload_model")
 async def reload_model():
     """重新加载模型(用于配置更新后)"""

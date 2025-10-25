@@ -1,8 +1,19 @@
-INFO:WebUI:🌐 Web配置界面启动在端口: 8080
 INFO:httpx:HTTP Request: GET https://checkip.amazonaws.com/ "HTTP/1.1 200 "
-INFO:httpx:HTTP Request: GET http://localhost:8080/startup-events "HTTP/1.1 200 OK"
-INFO:httpx:HTTP Request: HEAD http://localhost:8080/ "HTTP/1.1 200 OK"
+INFO:WebUI:🌐 Web配置界面启动在端口: 8080
 INFO:httpx:HTTP Request: GET https://api.gradio.app/pkg-version "HTTP/1.1 200 OK"
 /home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio/analytics.py:106: UserWarning: IMPORTANT: You are using gradio version 4.44.0, however version 4.44.1 is available, please upgrade. 
 --------
   warnings.warn(
+INFO:httpx:HTTP Request: GET http://localhost:8080/startup-events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: HEAD http://localhost:8080/ "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET https://api.gradio.app/v2/tunnel-request "HTTP/1.1 200 OK"
+Running on local URL:  http://0.0.0.0:8080
+
+Could not create share link. Missing file: /home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio/frpc_linux_aarch64_v0.2. 
+
+Please check your internet connection. This can happen if your antivirus software blocks the download of this file. You can install manually by following these steps: 
+
+1. Download this file: https://cdn-media.huggingface.co/frpc-gradio-0.2/frpc_linux_aarch64
+2. Rename the downloaded file to: frpc_linux_aarch64_v0.2
+3. Move the file to this location: /home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio
+Keyboard interruption in main thread... closing server.

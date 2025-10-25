@@ -168,17 +168,166 @@ async def chat_with_deepseek_api(message: str, history: List[List[str]],
         raise HTTPException(status_code=500, detail=f"API调用失败: {str(e)}")
 
 
-# ==================== 本地模型模式 (预留) ====================
-# 本地模型的实现可以根据需要添加
+# ==================== 本地模型模式 ====================
 local_model = None
 local_tokenizer = None
+local_model_type = None
+
+
+def set_mindspore_env():
+    """设置MindSpore环境变量,防止模型加载崩溃"""
+    import os
+    os.environ['TE_PARALLEL_COMPILER'] = '1'
+    os.environ['MAX_COMPILE_CORE_NUMBER'] = '1'
+    os.environ['MS_BUILD_PROCESS_NUM'] = '1'
+    os.environ['MAX_RUNTIME_CORE_NUMBER'] = '1'
+    os.environ['MS_ENABLE_IO_REUSE'] = '1'
+    logger.info("✅ MindSpore环境变量已设置")
 
 
 def init_local_model():
     """初始化本地模型"""
-    # 这里可以添加本地模型加载逻辑
-    # 例如加载 Qwen1.5-0.5b 或 TinyLlama
-    pass
+    global local_model, local_tokenizer, local_model_type
+
+    llm_config = get_config('llm')
+    local_config = llm_config.get('local', {})
+    model_name = local_config.get('model_name', 'qwen')
+
+    logger.info(f"正在加载本地模型: {model_name}")
+
+    # 设置环境变量
+    set_mindspore_env()
+
+    try:
+        import mindspore
+        from mindnlp.transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
+        from mindspore._c_expression import disable_multi_thread
+        disable_multi_thread()
+
+        if model_name.lower() in ['qwen', 'qwen1.5-0.5b']:
+            # 加载Qwen模型
+            model_path = local_config.get('qwen_model_path', '/home/HwHiAiUser/.mindnlp/model/Qwen/Qwen1.5-0.5B-Chat')
+            logger.info(f"加载Qwen模型: {model_path}")
+
+            local_tokenizer = AutoTokenizer.from_pretrained(model_path, ms_dtype=mindspore.float16)
+            local_model = AutoModelForCausalLM.from_pretrained(model_path, ms_dtype=mindspore.float16)
+            local_model_type = 'qwen'
+            logger.info("✅ Qwen1.5-0.5B模型加载成功")
+
+        elif model_name.lower() in ['tinyllama', 'tiny']:
+            # 加载TinyLlama模型
+            model_path = local_config.get('tinyllama_model_path', 'TinyLlama/TinyLlama-1.1B-Chat-v1.0')
+            logger.info(f"加载TinyLlama模型: {model_path}")
+
+            local_tokenizer = AutoTokenizer.from_pretrained(model_path)
+            local_model = AutoModelForCausalLM.from_pretrained(model_path, ms_dtype=mindspore.float16)
+            local_model_type = 'tinyllama'
+            logger.info("✅ TinyLlama模型加载成功")
+
+        else:
+            raise ValueError(f"不支持的模型: {model_name}")
+
+    except ImportError as e:
+        logger.error(f"❌ 导入失败: {e}")
+        logger.error("请确保在llm环境中安装了mindspore和mindnlp")
+        raise
+    except Exception as e:
+        logger.error(f"❌ 模型加载失败: {e}")
+        raise
+
+
+async def chat_with_local_model_stream(message: str, history: List[List[str]],
+                                       max_tokens: Optional[int] = None,
+                                       temperature: Optional[float] = None):
+    """使用本地模型进行流式对话"""
+    global local_model, local_tokenizer, local_model_type
+
+    if local_model is None or local_tokenizer is None:
+        raise HTTPException(status_code=503, detail="本地模型未加载")
+
+    from mindnlp.transformers import TextIteratorStreamer
+    from threading import Thread
+    import mindspore
+
+    llm_config = get_config('llm')
+    local_config = llm_config.get('local', {})
+    system_prompt = local_config.get('system_prompt', 'You are a helpful and friendly chatbot')
+
+    max_new_tokens = max_tokens or local_config.get('max_tokens', 128)
+    temp = temperature or local_config.get('temperature', 1.0)
+
+    try:
+        if local_model_type == 'qwen':
+            # Qwen模型的输入格式
+            messages = [{'role': 'system', 'content': system_prompt}]
+            for user_msg, ai_msg in history:
+                messages.append({'role': 'user', 'content': user_msg})
+                messages.append({'role': 'assistant', 'content': ai_msg})
+            messages.append({'role': 'user', 'content': message})
+
+            input_ids = local_tokenizer.apply_chat_template(
+                messages,
+                add_generation_prompt=True,
+                return_tensors="ms",
+                tokenize=True
+            )
+
+        else:  # tinyllama
+            # TinyLlama的输入格式
+            history_format = history + [[message, ""]]
+            messages = "</s>".join(["</s>".join(["\n<|user|>:" + item[0], "\n<|assistant|>:" + item[1]])
+                                   for item in history_format])
+            model_inputs = local_tokenizer([messages], return_tensors="ms")
+            input_ids = model_inputs['input_ids']
+
+        # 创建流式输出
+        streamer = TextIteratorStreamer(local_tokenizer, timeout=300, skip_prompt=True, skip_special_tokens=True)
+
+        generate_kwargs = dict(
+            input_ids=input_ids,
+            streamer=streamer,
+            max_new_tokens=max_new_tokens,
+            do_sample=True,
+            top_p=0.9,
+            temperature=temp,
+            num_beams=1,
+            use_cache=True
+        )
+
+        # 在单独线程中生成
+        thread = Thread(target=local_model.generate, kwargs=generate_kwargs)
+        thread.start()
+
+        # 流式输出
+        partial_message = ""
+        for new_token in streamer:
+            if '</s>' in new_token:
+                break
+            partial_message += new_token
+            yield f"data: {json.dumps({'delta': new_token})}\n\n"
+
+        yield f"data: {json.dumps({'done': True})}\n\n"
+
+    except Exception as e:
+        logger.error(f"本地模型推理失败: {e}")
+        yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+
+async def chat_with_local_model(message: str, history: List[List[str]],
+                                max_tokens: Optional[int] = None,
+                                temperature: Optional[float] = None) -> str:
+    """使用本地模型进行非流式对话"""
+    full_response = ""
+
+    async for chunk in chat_with_local_model_stream(message, history, max_tokens, temperature):
+        if chunk.startswith('data: '):
+            data = json.loads(chunk[6:])
+            if data.get('delta'):
+                full_response += data['delta']
+            elif data.get('error'):
+                raise HTTPException(status_code=500, detail=data['error'])
+
+    return full_response
 
 
 # ==================== FastAPI 路由 ====================
@@ -242,9 +391,16 @@ async def chat_stream(request: ChatRequest):
             ),
             media_type="text/event-stream"
         )
-    else:
-        # 本地模型流式输出(预留)
-        raise HTTPException(status_code=501, detail="本地模型流式输出暂未实现")
+    else:  # local
+        return StreamingResponse(
+            chat_with_local_model_stream(
+                request.message,
+                request.history,
+                request.max_tokens,
+                request.temperature
+            ),
+            media_type="text/event-stream"
+        )
 
 
 @app.post("/chat")
@@ -266,14 +422,21 @@ async def chat(request: ChatRequest):
                 request.max_tokens,
                 request.temperature
             )
-            return ChatResponse(
-                success=True,
-                message=response_text,
-                model=llm_config.get('api', {}).get('model', 'deepseek-chat')
+            model_name = llm_config.get('api', {}).get('model', 'deepseek-chat')
+        else:  # local
+            response_text = await chat_with_local_model(
+                request.message,
+                request.history,
+                request.max_tokens,
+                request.temperature
             )
-        else:
-            # 本地模型推理(预留)
-            raise HTTPException(status_code=501, detail="本地模型推理暂未实现")
+            model_name = llm_config.get('local', {}).get('model_name', 'local-model')
+
+        return ChatResponse(
+            success=True,
+            message=response_text,
+            model=model_name
+        )
 
     except Exception as e:
         logger.error(f"对话失败: {e}")
@@ -281,13 +444,55 @@ async def chat(request: ChatRequest):
 
 
 @app.post("/reload_config")
-async def reload_config():
-    """重新加载配置"""
+async def reload_config_endpoint():
+    """重新加载配置并重新初始化模型"""
+    global local_model, local_tokenizer, local_model_type
+
     try:
-        from config_loader import reload_config
-        reload_config()
-        return {"success": True, "message": "配置重新加载成功"}
+        from config_loader import reload_config as reload_config_file
+        reload_config_file()
+
+        llm_config = get_config('llm')
+        mode = llm_config.get('mode', 'api')
+
+        logger.info(f"配置已重新加载,当前模式: {mode}")
+
+        # 如果是本地模式,重新加载模型
+        if mode == 'local':
+            logger.info("检测到本地模式,正在重新加载模型...")
+
+            # 清理旧模型(释放内存)
+            if local_model is not None:
+                logger.info("清理旧模型...")
+                local_model = None
+                local_tokenizer = None
+                local_model_type = None
+
+                # 强制垃圾回收
+                import gc
+                gc.collect()
+
+            # 重新加载模型
+            init_local_model()
+
+            model_name = llm_config.get('local', {}).get('model_name')
+            return {
+                "success": True,
+                "message": f"配置重新加载成功,本地模型 {model_name} 已加载",
+                "mode": "local",
+                "model": model_name
+            }
+        else:
+            # API模式不需要加载模型
+            return {
+                "success": True,
+                "message": "配置重新加载成功,使用API模式",
+                "mode": "api",
+                "model": llm_config.get('api', {}).get('model')
+            }
+
     except Exception as e:
+        logger.error(f"配置重新加载失败: {e}")
         raise HTTPException(status_code=500, detail=f"配置重新加载失败: {str(e)}")
 
 

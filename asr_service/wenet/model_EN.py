@@ -2,6 +2,9 @@ import torchaudio
 import torchaudio.compliance.kaldi as kaldi
 from ais_bench.infer.interface import InferSession
 import numpy as np
+import logging
+
+logger = logging.getLogger("ASR_Service")
 
 
 class WeNetASREN:
@@ -11,13 +14,95 @@ class WeNetASREN:
         self.model = InferSession(0, model_path)
         # 获取模型输入特征的最大长度
         self.max_len = self.model.get_inputs()[0].shape[1]
+        # 计算安全的音频分段长度（秒）
+        # 留出余量避免边界问题，使用80%的最大长度
+        self.safe_chunk_duration = (self.max_len * 0.01) * 0.8  # ~7.7秒
 
     def transcribe(self, wav_file):
-        """执行模型推理，将录音文件转为文本。"""
-        feats_pad, feats_lengths = self.preprocess(wav_file)
-        output = self.model.infer([feats_pad, feats_lengths])
-        txt = self.post_process(output)
-        return txt
+        """执行模型推理，将录音文件转为文本。支持长音频自动分段。"""
+        # 加载音频获取时长
+        waveform, sample_rate = torchaudio.load(wav_file)
+        audio_duration = waveform.shape[1] / sample_rate
+
+        # 如果音频短于安全长度，使用原方法
+        if audio_duration <= self.safe_chunk_duration:
+            feats_pad, feats_lengths = self.preprocess(wav_file)
+            output = self.model.infer([feats_pad, feats_lengths])
+            txt = self.post_process(output)
+            return txt
+        else:
+            # 使用分段识别
+            logger.info(f"📊 音频时长 {audio_duration:.2f}秒，启用分段识别...")
+            return self.transcribe_long_audio(wav_file)
+
+    def transcribe_long_audio(self, wav_file):
+        """
+        长音频分段识别
+        将长音频切分为多个片段，分别识别后拼接
+        """
+        waveform, sample_rate = torchaudio.load(wav_file)
+        waveform, sample_rate = resample(waveform, sample_rate, resample_rate=16000)
+
+        total_samples = waveform.shape[1]
+        total_duration = total_samples / sample_rate
+
+        # 分段参数
+        chunk_duration = self.safe_chunk_duration  # 每段时长（秒）
+        overlap_duration = 0.25  # 重叠时长（秒），避免截断词语
+        chunk_samples = int(chunk_duration * sample_rate)
+        overlap_samples = int(overlap_duration * sample_rate)
+        step_samples = chunk_samples - overlap_samples
+
+        # 计算分段数量
+        num_chunks = int(np.ceil((total_samples - overlap_samples) / step_samples))
+        logger.info(f"🔪 将音频切分为 {num_chunks} 段进行识别...")
+
+        results = []
+        for i in range(num_chunks):
+            start_sample = i * step_samples
+            end_sample = min(start_sample + chunk_samples, total_samples)
+
+            # 提取音频片段
+            chunk_waveform = waveform[:, start_sample:end_sample]
+
+            # 计算该片段的特征
+            feature = compute_fbank(chunk_waveform, sample_rate)
+
+            # 预处理和推理
+            feats_pad = pad_sequence(feature,
+                                    batch_first=True,
+                                    padding_value=0,
+                                    max_len=self.max_len)
+            feats_pad = feats_pad.numpy().astype(np.float32)
+            feats_lengths = np.array([feature.shape[0]]).astype(np.int32)
+
+            output = self.model.infer([feats_pad, feats_lengths])
+            text = self.post_process(output)
+
+            chunk_start_time = start_sample / sample_rate
+            chunk_end_time = end_sample / sample_rate
+            logger.info(f"  ✓ 片段 {i+1}/{num_chunks} ({chunk_start_time:.1f}s-{chunk_end_time:.1f}s): {text[:30]}...")
+
+            results.append(text)
+
+        # 拼接结果
+        final_text = self.merge_segments(results)
+        logger.info(f"✅ 分段识别完成，总文本长度: {len(final_text)} 字符")
+
+        return final_text
+
+    def merge_segments(self, segments):
+        """
+        智能拼接分段识别结果
+        英文句子之间用空格连接
+        """
+        # 清理每段文本并用空格连接
+        cleaned_segments = []
+        for seg in segments:
+            seg = seg.strip()
+            if seg:
+                cleaned_segments.append(seg)
+        return ' '.join(cleaned_segments)
 
     def preprocess(self, wav_file):
         """数据预处理"""
@@ -27,6 +112,17 @@ class WeNetASREN:
         # 计算fbank特征
         feature = compute_fbank(waveform, sample_rate)
         feats_lengths = np.array([feature.shape[0]]).astype(np.int32)
+
+        # 检查音频长度并打印警告
+        feat_len = feature.shape[0]
+        max_duration_sec = self.max_len * 0.01  # 每帧10ms
+        actual_duration_sec = feat_len * 0.01
+        if feat_len > self.max_len:
+            import logging
+            logger = logging.getLogger("ASR_Service")
+            logger.warning(f"⚠️ 音频时长({actual_duration_sec:.2f}秒)超过模型最大限制({max_duration_sec:.2f}秒)，将被截断!")
+            logger.warning(f"   建议使用时长 ≤ {max_duration_sec:.1f}秒 的音频，或等待分段识别功能")
+
         # 对输入特征进行padding，使符合模型输入尺寸
         feats_pad = pad_sequence(feature,
                                  batch_first=True,

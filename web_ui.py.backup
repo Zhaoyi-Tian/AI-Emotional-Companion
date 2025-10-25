@@ -1,0 +1,1110 @@
+"""
+Web配置管理界面
+使用Gradio提供友好的配置管理、测试界面和AI对话功能
+"""
+
+import gradio as gr
+import requests
+import soundfile as sf
+import numpy as np
+from pathlib import Path
+import sys
+import logging
+import tempfile
+import subprocess
+import os
+
+# 添加父目录到路径
+sys.path.insert(0, str(Path(__file__).parent))
+from config_loader import config, get_config, set_config, reload_config
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("WebUI")
+
+
+# ==================== AI对话助手类 ====================
+class AIAssistant:
+    """AI助手核心类，整合ASR、LLM、TTS服务"""
+
+    def __init__(self):
+        self.conversation_history = []
+
+    def speech_to_text(self, audio_file):
+        """语音转文字（ASR服务）"""
+        try:
+            port = get_config('services.asr', 5001)
+            url = f"http://localhost:{port}/transcribe"
+
+            with open(audio_file, 'rb') as f:
+                files = {'audio': f}
+                response = requests.post(url, files=files, timeout=30)
+
+            if response.status_code == 200:
+                result = response.json()
+                return result.get('text', '')
+            else:
+                logger.error(f"ASR识别失败: {response.text}")
+                return None
+
+        except Exception as e:
+            logger.error(f"ASR服务调用失败: {e}")
+            return None
+
+    def text_to_speech(self, text):
+        """文字转语音（TTS服务）"""
+        try:
+            port = get_config('services.tts', 5003)
+            url = f"http://localhost:{port}/synthesize"
+
+            payload = {"text": text}
+            # 根据文本长度动态设置超时时间（每100字符约需1秒）
+            timeout = max(30, len(text) // 50)
+            logger.info(f"TTS请求超时设置: {timeout}秒")
+
+            response = requests.post(url, json=payload, timeout=timeout)
+
+            if response.status_code == 200:
+                # 保存PCM音频
+                with tempfile.NamedTemporaryFile(suffix='.pcm', delete=False) as f:
+                    f.write(response.content)
+                    pcm_path = f.name
+
+                # 转换PCM为WAV
+                wav_path = pcm_path.replace('.pcm', '.wav')
+                subprocess.run([
+                    'ffmpeg', '-y', '-f', 's16le', '-ar', '22050', '-ac', '1',
+                    '-i', pcm_path, wav_path
+                ], check=True, capture_output=True)
+
+                os.unlink(pcm_path)
+                return wav_path
+            else:
+                logger.error(f"TTS合成失败: {response.text}")
+                return None
+
+        except Exception as e:
+            logger.error(f"TTS服务调用失败: {e}")
+            return None
+
+    def chat_stream(self, message):
+        """与LLM流式对话"""
+        try:
+            port = get_config('services.llm', 5002)
+            url = f"http://localhost:{port}/chat/stream"
+
+            payload = {
+                "message": message,
+                "history": self.conversation_history
+            }
+
+            response = requests.post(url, json=payload, stream=True, timeout=60)
+
+            if response.status_code == 200:
+                full_reply = ""
+                # 流式读取响应
+                for line in response.iter_lines():
+                    if line:
+                        line_str = line.decode('utf-8')
+                        # 解析JSON格式的流式数据
+                        try:
+                            import json
+                            data = json.loads(line_str)
+
+                            # 检查是否完成
+                            if data.get('done'):
+                                break
+
+                            # 提取delta内容
+                            chunk = data.get('delta', '')
+                            if chunk:
+                                full_reply += chunk
+                                yield chunk
+
+                        except json.JSONDecodeError:
+                            # 如果不是JSON，尝试旧的data:格式
+                            if line_str.startswith('data: '):
+                                chunk = line_str[6:]  # 移除 "data: " 前缀
+                                if chunk == '[DONE]':
+                                    break
+                                full_reply += chunk
+                                yield chunk
+
+                # 更新对话历史
+                self.conversation_history.append({
+                    "role": "user",
+                    "content": message
+                })
+                self.conversation_history.append({
+                    "role": "assistant",
+                    "content": full_reply
+                })
+
+                return full_reply
+            else:
+                error_msg = "抱歉，我遇到了一些问题，请稍后再试。"
+                logger.error(f"LLM流式对话失败: {response.text}")
+                yield error_msg
+                return error_msg
+
+        except Exception as e:
+            error_msg = "抱歉，我遇到了一些问题，请稍后再试。"
+            logger.error(f"LLM服务调用失败: {e}")
+            yield error_msg
+            return error_msg
+
+    def clear_history(self):
+        """清空对话历史"""
+        self.conversation_history = []
+        logger.info("对话历史已清空")
+
+    def process_text_input(self, user_text, history):
+        """处理文字输入（流式输出）"""
+        if not user_text or not user_text.strip():
+            return history, "", None
+
+        # 添加用户消息到显示历史
+        history = history or []
+        history.append([user_text, ""])
+
+        # 流式调用LLM获取回复
+        full_reply = ""
+        for chunk in self.chat_stream(user_text):
+            full_reply += chunk
+            # 更新显示历史（流式显示）
+            history[-1][1] = full_reply
+            yield history, "", None
+
+        # 生成语音（等待完整文本）
+        logger.info(f"开始生成语音，文本长度: {len(full_reply)} 字符")
+        audio_path = self.text_to_speech(full_reply)
+
+        # 返回最终结果（包含音频）
+        yield history, "", audio_path
+
+    def process_voice_input(self, audio, history):
+        """处理语音输入（流式输出）"""
+        if audio is None:
+            yield history, "⚠️ 请先录制语音", None
+            return
+
+        try:
+            # 保存音频为临时文件
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+                sample_rate, audio_data = audio
+                sf.write(f.name, audio_data, sample_rate)
+                temp_path = f.name
+
+            # 语音识别
+            user_text = self.speech_to_text(temp_path)
+            os.unlink(temp_path)
+
+            if not user_text:
+                yield history, "❌ 语音识别失败，请重试", None
+                return
+
+            logger.info(f"语音识别结果: {user_text}")
+
+            # 添加用户消息到显示历史
+            history = history or []
+            history.append([user_text, ""])
+
+            # 流式调用LLM获取回复
+            full_reply = ""
+            for chunk in self.chat_stream(user_text):
+                full_reply += chunk
+                # 更新显示历史（流式显示）
+                history[-1][1] = full_reply
+                yield history, "✅ 识别成功，AI回复中...", None
+
+            # 生成语音（等待完整文本）
+            logger.info(f"开始生成语音，文本长度: {len(full_reply)} 字符")
+            audio_path = self.text_to_speech(full_reply)
+
+            # 返回最终结果（包含音频）
+            yield history, "✅ 识别并回复成功", audio_path
+
+        except Exception as e:
+            logger.error(f"处理语音输入失败: {e}")
+            yield history, f"❌ 处理失败: {str(e)}", None
+
+
+# 创建全局助手实例
+assistant = AIAssistant()
+
+
+# ==================== 配置管理功能 ====================
+def get_current_config():
+    """获取当前配置"""
+    return {
+        # ASR配置
+        "asr_model_type": get_config('asr.model_type', 'EN'),
+
+        # LLM配置
+        "llm_mode": get_config('llm.mode', 'api'),
+        "llm_api_provider": get_config('llm.api.provider', 'deepseek'),
+        "llm_api_key": get_config('llm.api.api_key', ''),
+        "llm_api_url": get_config('llm.api.api_url', ''),
+        "llm_model": get_config('llm.api.model', 'deepseek-chat'),
+        "llm_max_tokens": get_config('llm.api.max_tokens', 512),
+        "llm_temperature": get_config('llm.api.temperature', 1.0),
+        "llm_system_prompt": get_config('llm.api.system_prompt', ''),
+
+        # LLM本地模型配置
+        "llm_local_model_name": get_config('llm.local.model_name', 'qwen'),
+        "llm_local_qwen_path": get_config('llm.local.qwen_model_path', '/home/HwHiAiUser/.mindnlp/model/Qwen/Qwen1.5-0.5B-Chat'),
+        "llm_local_tinyllama_path": get_config('llm.local.tinyllama_model_path', 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'),
+        "llm_local_max_tokens": get_config('llm.local.max_tokens', 128),
+        "llm_local_temperature": get_config('llm.local.temperature', 1.0),
+        "llm_local_system_prompt": get_config('llm.local.system_prompt', 'You are a helpful and friendly chatbot'),
+
+        # TTS配置
+        "tts_mode": get_config('tts.mode', 'api'),
+        "tts_api_provider": get_config('tts.api.provider', 'cosyvoice'),
+        "tts_api_key": get_config('tts.api.api_key', ''),
+        "tts_model": get_config('tts.api.model', 'cosyvoice-v2'),
+        "tts_voice": get_config('tts.api.voice', 'longxiaochun_v2'),
+
+        # 服务端口
+        "port_orchestrator": get_config('services.orchestrator', 5000),
+        "port_asr": get_config('services.asr', 5001),
+        "port_llm": get_config('services.llm', 5002),
+        "port_tts": get_config('services.tts', 5003),
+    }
+
+
+def save_asr_config(model_type):
+    """保存ASR配置"""
+    try:
+        set_config('asr.model_type', model_type, save=True)
+        return "✅ ASR配置已保存"
+    except Exception as e:
+        return f"❌ 保存失败: {str(e)}"
+
+
+def save_llm_config(mode, provider, api_key, api_url, model, max_tokens, temperature, system_prompt,
+                   local_model_name, local_qwen_path, local_tinyllama_path,
+                   local_max_tokens, local_temperature, local_system_prompt):
+    """保存LLM配置"""
+    try:
+        set_config('llm.mode', mode, save=False)
+
+        # API配置
+        set_config('llm.api.provider', provider, save=False)
+        set_config('llm.api.api_key', api_key, save=False)
+        set_config('llm.api.api_url', api_url, save=False)
+        set_config('llm.api.model', model, save=False)
+        set_config('llm.api.max_tokens', int(max_tokens), save=False)
+        set_config('llm.api.temperature', float(temperature), save=False)
+        set_config('llm.api.system_prompt', system_prompt, save=False)
+
+        # 本地模型配置
+        set_config('llm.local.model_name', local_model_name, save=False)
+        set_config('llm.local.qwen_model_path', local_qwen_path, save=False)
+        set_config('llm.local.tinyllama_model_path', local_tinyllama_path, save=False)
+        set_config('llm.local.max_tokens', int(local_max_tokens), save=False)
+        set_config('llm.local.temperature', float(local_temperature), save=False)
+        set_config('llm.local.system_prompt', local_system_prompt, save=True)
+
+        return "✅ LLM配置已保存\n\n⚠️ 如果切换了模式或本地模型,请点击下方'重新加载LLM服务'按钮使配置生效"
+    except Exception as e:
+        return f"❌ 保存失败: {str(e)}"
+
+
+def save_tts_config(mode, provider, api_key, model, voice):
+    """保存TTS配置"""
+    try:
+        set_config('tts.mode', mode, save=False)
+        set_config('tts.api.provider', provider, save=False)
+        set_config('tts.api.api_key', api_key, save=False)
+        set_config('tts.api.model', model, save=False)
+        set_config('tts.api.voice', voice, save=True)
+        return "✅ TTS配置已保存"
+    except Exception as e:
+        return f"❌ 保存失败: {str(e)}"
+
+
+def reload_all_services():
+    """重新加载所有服务配置"""
+    try:
+        reload_config()
+        ports = get_config('services')
+
+        # 尝试重新加载各服务配置
+        results = []
+        services = {
+            'ASR': f"http://localhost:{ports['asr']}/reload_config",
+            'LLM': f"http://localhost:{ports['llm']}/reload_config",
+            'TTS': f"http://localhost:{ports['tts']}/reload_config"
+        }
+
+        for name, url in services.items():
+            try:
+                response = requests.post(url, timeout=5)
+                if response.status_code == 200:
+                    results.append(f"✅ {name}服务配置已重新加载")
+                else:
+                    results.append(f"⚠️ {name}服务重新加载失败")
+            except Exception as e:
+                results.append(f"❌ {name}服务不可达: {str(e)}")
+
+        return "\n".join(results)
+    except Exception as e:
+        return f"❌ 重新加载失败: {str(e)}"
+
+
+def reload_llm_service():
+    """单独重新加载LLM服务(用于模型切换)"""
+    try:
+        reload_config()
+        port = get_config('services.llm', 5002)
+        url = f"http://localhost:{port}/reload_config"
+
+        response = requests.post(url, timeout=30)  # 本地模型加载需要更长时间
+
+        if response.status_code == 200:
+            result = response.json()
+            mode = get_config('llm.mode')
+            if mode == 'local':
+                model_name = get_config('llm.local.model_name')
+                return f"✅ LLM服务已重新加载\n\n模式: 本地模型\n模型: {model_name}\n\n⚠️ 本地模型加载需要30-60秒,请耐心等待..."
+            else:
+                return f"✅ LLM服务已重新加载\n\n模式: API\n模型: {get_config('llm.api.model')}"
+        else:
+            return f"❌ LLM服务重新加载失败: HTTP {response.status_code}"
+
+    except requests.exceptions.Timeout:
+        return "⚠️ 请求超时\n\n本地模型加载时间较长,请稍后在'服务状态'页面检查LLM服务状态"
+    except Exception as e:
+        return f"❌ 重新加载失败: {str(e)}"
+
+
+# ==================== 服务测试功能 ====================
+def test_asr_service(audio):
+    """测试ASR服务"""
+    if audio is None:
+        return "⚠️ 请先录制或上传音频"
+
+    try:
+        port = get_config('services.asr', 5001)
+        url = f"http://localhost:{port}/transcribe"
+
+        # 保存音频为临时文件
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
+            # audio是(sample_rate, audio_data)元组
+            sample_rate, audio_data = audio
+            sf.write(f.name, audio_data, sample_rate)
+            temp_path = f.name
+
+        # 发送请求
+        with open(temp_path, 'rb') as f:
+            files = {'audio': f}
+            response = requests.post(url, files=files, timeout=30)
+
+        import os
+        os.unlink(temp_path)
+
+        if response.status_code == 200:
+            result = response.json()
+            return f"✅ 识别成功!\n\n识别结果: {result.get('text', '')}"
+        else:
+            return f"❌ 识别失败: {response.text}"
+
+    except Exception as e:
+        return f"❌ 测试失败: {str(e)}"
+
+
+def test_llm_service(text):
+    """测试LLM服务"""
+    if not text:
+        return "⚠️ 请输入测试文本"
+
+    try:
+        port = get_config('services.llm', 5002)
+        url = f"http://localhost:{port}/chat"
+
+        payload = {
+            "message": text,
+            "history": []
+        }
+
+        response = requests.post(url, json=payload, timeout=60)
+
+        if response.status_code == 200:
+            result = response.json()
+            return f"✅ 对话成功!\n\n回复: {result.get('message', '')}"
+        else:
+            return f"❌ 对话失败: {response.text}"
+
+    except Exception as e:
+        return f"❌ 测试失败: {str(e)}"
+
+
+def test_tts_service(text):
+    """测试TTS服务"""
+    if not text:
+        return "⚠️ 请输入测试文本", None
+
+    try:
+        port = get_config('services.tts', 5003)
+        url = f"http://localhost:{port}/synthesize"
+
+        payload = {"text": text}
+        response = requests.post(url, json=payload, timeout=30)
+
+        if response.status_code == 200:
+            # 保存音频
+            import tempfile
+            with tempfile.NamedTemporaryFile(suffix='.pcm', delete=False) as f:
+                f.write(response.content)
+                audio_path = f.name
+
+            # 转换PCM为WAV
+            import subprocess
+            wav_path = audio_path.replace('.pcm', '.wav')
+            subprocess.run([
+                'ffmpeg', '-y', '-f', 's16le', '-ar', '22050', '-ac', '1',
+                '-i', audio_path, wav_path
+            ], check=True, capture_output=True)
+
+            import os
+            os.unlink(audio_path)
+
+            return f"✅ 合成成功!", wav_path
+        else:
+            return f"❌ 合成失败: {response.text}", None
+
+    except Exception as e:
+        return f"❌ 测试失败: {str(e)}", None
+
+
+# ==================== 音色克隆功能 ====================
+def create_voice_enrollment(target_model, prefix, audio_url):
+    """创建音色克隆"""
+    if not target_model or not prefix or not audio_url:
+        return "⚠️ 请填写所有必填项", ""
+
+    try:
+        port = get_config('services.tts', 5003)
+        url = f"http://localhost:{port}/voice/create"
+
+        payload = {
+            "target_model": target_model,
+            "prefix": prefix,
+            "url": audio_url
+        }
+
+        response = requests.post(url, json=payload, timeout=180)  # 音色创建需要较长时间,设置3分钟超时
+
+        if response.status_code == 200:
+            result = response.json()
+            voice_id = result.get('voice_id', '')
+            return f"✅ 音色创建成功!\n\nVoice ID: {voice_id}\n\n请使用下方的'查询音色状态'功能查看审核进度", voice_id
+        else:
+            return f"❌ 创建失败: {response.text}", ""
+
+    except Exception as e:
+        return f"❌ 创建失败: {str(e)}", ""
+
+
+def query_voice_status(voice_id):
+    """查询音色状态"""
+    if not voice_id:
+        return "⚠️ 请输入Voice ID"
+
+    try:
+        port = get_config('services.tts', 5003)
+        url = f"http://localhost:{port}/voice/query"
+
+        payload = {"voice_id": voice_id}
+        response = requests.post(url, json=payload, timeout=10)
+
+        if response.status_code == 200:
+            result = response.json()
+            voice_info = result.get('voice_info', {})
+
+            status = voice_info.get('status', 'UNKNOWN')
+            status_emoji = {
+                'OK': '✅',
+                'DEPLOYING': '⏳',
+                'UNDEPLOYED': '❌'
+            }.get(status, '❓')
+
+            status_text = {
+                'OK': '审核通过,可以使用',
+                'DEPLOYING': '审核中,请稍候',
+                'UNDEPLOYED': '审核未通过,无法使用'
+            }.get(status, '未知状态')
+
+            info = f"{status_emoji} 音色状态: {status_text}\n\n"
+            info += f"Voice ID: {voice_id}\n"
+            info += f"创建时间: {voice_info.get('gmt_create', 'N/A')}\n"
+            info += f"修改时间: {voice_info.get('gmt_modified', 'N/A')}\n"
+            info += f"目标模型: {voice_info.get('target_model', 'N/A')}\n"
+            info += f"音频链接: {voice_info.get('resource_link', 'N/A')}\n"
+
+            if status == 'OK':
+                info += "\n✅ 该音色已可用,可以在TTS配置中使用该Voice ID作为发音人"
+
+            return info
+        else:
+            return f"❌ 查询失败: {response.text}"
+
+    except Exception as e:
+        return f"❌ 查询失败: {str(e)}"
+
+
+def list_all_voices(prefix, page_index, page_size):
+    """列出所有音色"""
+    try:
+        port = get_config('services.tts', 5003)
+        url = f"http://localhost:{port}/voice/list"
+
+        payload = {
+            "prefix": prefix if prefix else None,
+            "page_index": int(page_index),
+            "page_size": int(page_size)
+        }
+
+        response = requests.post(url, json=payload, timeout=10)
+
+        if response.status_code == 200:
+            result = response.json()
+            voices = result.get('voices', [])
+            count = result.get('count', 0)
+
+            if count == 0:
+                return "📋 未找到任何音色"
+
+            info = f"📋 找到 {count} 个音色:\n\n"
+            for i, voice in enumerate(voices, 1):
+                status = voice.get('status', 'UNKNOWN')
+                status_emoji = {
+                    'OK': '✅',
+                    'DEPLOYING': '⏳',
+                    'UNDEPLOYED': '❌'
+                }.get(status, '❓')
+
+                info += f"{i}. {status_emoji} {voice.get('voice_id', 'N/A')}\n"
+                info += f"   状态: {status}\n"
+                info += f"   创建时间: {voice.get('gmt_create', 'N/A')}\n\n"
+
+            return info
+        else:
+            return f"❌ 查询失败: {response.text}"
+
+    except Exception as e:
+        return f"❌ 查询失败: {str(e)}"
+
+
+def update_voice_enrollment(voice_id, new_audio_url):
+    """更新音色"""
+    if not voice_id or not new_audio_url:
+        return "⚠️ 请填写Voice ID和新音频URL"
+
+    try:
+        port = get_config('services.tts', 5003)
+        url = f"http://localhost:{port}/voice/update"
+
+        payload = {
+            "voice_id": voice_id,
+            "url": new_audio_url
+        }
+
+        response = requests.post(url, json=payload, timeout=30)
+
+        if response.status_code == 200:
+            return "✅ 音色更新成功!\n\n请等待审核完成,使用'查询音色状态'查看进度"
+        else:
+            return f"❌ 更新失败: {response.text}"
+
+    except Exception as e:
+        return f"❌ 更新失败: {str(e)}"
+
+
+def delete_voice_enrollment(voice_id):
+    """删除音色"""
+    if not voice_id:
+        return "⚠️ 请输入Voice ID"
+
+    try:
+        port = get_config('services.tts', 5003)
+        url = f"http://localhost:{port}/voice/delete"
+
+        payload = {"voice_id": voice_id}
+        response = requests.post(url, json=payload, timeout=10)
+
+        if response.status_code == 200:
+            return "✅ 音色删除成功!"
+        else:
+            return f"❌ 删除失败: {response.text}"
+
+    except Exception as e:
+        return f"❌ 删除失败: {str(e)}"
+
+
+def check_services_health():
+    """检查所有服务健康状态"""
+    try:
+        port = get_config('services.orchestrator', 5000)
+        url = f"http://localhost:{port}/health"
+
+        response = requests.get(url, timeout=5)
+
+        if response.status_code == 200:
+            result = response.json()
+            services = result.get('services', {})
+
+            status_text = "🔍 服务健康状态:\n\n"
+            for name, status in services.items():
+                emoji = "✅" if status == "healthy" else "❌"
+                status_text += f"{emoji} {name.upper()}: {status}\n"
+
+            return status_text
+        else:
+            return "❌ 无法获取健康状态"
+
+    except Exception as e:
+        return f"❌ 检查失败: {str(e)}\n\n请确保所有服务已启动"
+
+
+# ==================== Gradio 界面 ====================
+def create_ui():
+    """创建Gradio界面"""
+
+    current_config = get_current_config()
+
+    with gr.Blocks(title="AI语音助手中心", theme=gr.themes.Soft()) as demo:
+        gr.Markdown("# 🤖 AI语音助手中心")
+        gr.Markdown("AI对话 + 服务配置管理 一体化界面")
+
+        with gr.Tabs():
+            # ==================== AI对话标签页 ====================
+            with gr.Tab("💬 AI对话"):
+                gr.Markdown("### 与AI智能对话")
+                gr.Markdown("支持文字和语音输入，AI回复会同时显示文字和语音")
+
+                with gr.Row():
+                    with gr.Column(scale=2):
+                        # 对话历史显示
+                        chatbot = gr.Chatbot(
+                            label="对话记录",
+                            height=450,
+                            show_label=True,
+                            bubble_full_width=False
+                        )
+
+                        # 文字输入区域
+                        with gr.Row():
+                            text_input = gr.Textbox(
+                                label="",
+                                placeholder="输入消息...",
+                                lines=2,
+                                scale=4
+                            )
+                            text_submit_btn = gr.Button("📤 发送", variant="primary", scale=1)
+
+                        # 语音输入区域
+                        gr.Markdown("#### 🎤 语音输入")
+                        with gr.Row():
+                            audio_input = gr.Audio(
+                                label="录制或上传音频",
+                                type="numpy",
+                                scale=3
+                            )
+                            voice_submit_btn = gr.Button("🎙️ 语音发送", variant="secondary", scale=1)
+
+                        voice_status = gr.Textbox(label="", lines=1, show_label=False)
+
+                    with gr.Column(scale=1):
+                        # AI回复语音播放区域
+                        gr.Markdown("### 🔊 AI语音回复")
+                        audio_output = gr.Audio(
+                            label="点击播放",
+                            type="filepath",
+                            autoplay=True
+                        )
+
+                        gr.Markdown("---")
+
+                        # 控制按钮
+                        clear_chat_btn = gr.Button("🗑️ 清空对话", variant="stop")
+
+                        gr.Markdown("### 💡 使用提示")
+                        gr.Markdown("""
+                        **文字输入：**
+                        - 在输入框输入消息
+                        - 点击"发送"或按Enter
+
+                        **语音输入：**
+                        - 点击麦克风图标录音
+                        - 或上传音频文件
+                        - 点击"语音发送"
+
+                        **语音播放：**
+                        - AI回复后自动播放
+                        - 可重复点击播放
+                        """)
+
+                # 事件绑定
+                # 文字输入
+                text_submit_btn.click(
+                    assistant.process_text_input,
+                    inputs=[text_input, chatbot],
+                    outputs=[chatbot, text_input, audio_output]
+                )
+
+                text_input.submit(
+                    assistant.process_text_input,
+                    inputs=[text_input, chatbot],
+                    outputs=[chatbot, text_input, audio_output]
+                )
+
+                # 语音输入
+                voice_submit_btn.click(
+                    assistant.process_voice_input,
+                    inputs=[audio_input, chatbot],
+                    outputs=[chatbot, voice_status, audio_output]
+                )
+
+                # 清空对话
+                def clear_conversation():
+                    assistant.clear_history()
+                    return [], "", None, ""
+
+                clear_chat_btn.click(
+                    clear_conversation,
+                    outputs=[chatbot, text_input, audio_output, voice_status]
+                )
+
+            # ==================== 服务状态标签页 ====================
+            with gr.Tab("📊 服务状态"):
+                gr.Markdown("### 检查所有服务的运行状态")
+
+                health_output = gr.Textbox(label="健康状态", lines=8)
+                check_btn = gr.Button("🔄 检查服务状态", variant="primary")
+                check_btn.click(check_services_health, outputs=health_output)
+
+                gr.Markdown("### 重新加载配置")
+                reload_output = gr.Textbox(label="重新加载结果", lines=5)
+                reload_btn = gr.Button("🔄 重新加载所有服务配置")
+                reload_btn.click(reload_all_services, outputs=reload_output)
+
+            # ==================== ASR配置标签页 ====================
+            with gr.Tab("🎤 ASR配置"):
+                gr.Markdown("### 语音识别服务配置")
+
+                asr_model_type = gr.Radio(
+                    choices=["CN", "EN"],
+                    value=current_config["asr_model_type"],
+                    label="模型类型"
+                )
+
+                asr_save_btn = gr.Button("💾 保存ASR配置", variant="primary")
+                asr_status = gr.Textbox(label="状态")
+                asr_save_btn.click(save_asr_config, inputs=asr_model_type, outputs=asr_status)
+
+                gr.Markdown("### 测试ASR服务")
+                asr_audio_input = gr.Audio(label="录制或上传音频", type="numpy")
+                asr_test_btn = gr.Button("🧪 测试识别")
+                asr_test_output = gr.Textbox(label="测试结果", lines=5)
+                asr_test_btn.click(test_asr_service, inputs=asr_audio_input, outputs=asr_test_output)
+
+            # ==================== LLM配置标签页 ====================
+            with gr.Tab("🧠 LLM配置"):
+                gr.Markdown("### 大模型服务配置")
+
+                llm_mode = gr.Radio(
+                    choices=["api", "local"],
+                    value=current_config["llm_mode"],
+                    label="运行模式"
+                )
+
+                with gr.Group():
+                    gr.Markdown("#### API配置 (在线模式)")
+                    llm_provider = gr.Textbox(
+                        value=current_config["llm_api_provider"],
+                        label="API提供商"
+                    )
+                    llm_api_key = gr.Textbox(
+                        value=current_config["llm_api_key"],
+                        label="API Key",
+                        type="password"
+                    )
+                    llm_api_url = gr.Textbox(
+                        value=current_config["llm_api_url"],
+                        label="API URL"
+                    )
+                    llm_model = gr.Textbox(
+                        value=current_config["llm_model"],
+                        label="模型名称"
+                    )
+                    llm_max_tokens = gr.Slider(
+                        minimum=64,
+                        maximum=2048,
+                        value=current_config["llm_max_tokens"],
+                        label="最大Token数"
+                    )
+                    llm_temperature = gr.Slider(
+                        minimum=0.0,
+                        maximum=2.0,
+                        value=current_config["llm_temperature"],
+                        label="Temperature"
+                    )
+                    llm_system_prompt = gr.Textbox(
+                        value=current_config["llm_system_prompt"],
+                        label="系统提示词",
+                        lines=3
+                    )
+
+                with gr.Group():
+                    gr.Markdown("#### 本地模型配置 (离线模式)")
+                    gr.Markdown("⚠️ 本地模型需要较长加载时间(30-60秒)")
+
+                    llm_local_model_name = gr.Radio(
+                        choices=["qwen", "tinyllama"],
+                        value=current_config["llm_local_model_name"],
+                        label="本地模型选择"
+                    )
+
+                    llm_local_qwen_path = gr.Textbox(
+                        value=current_config["llm_local_qwen_path"],
+                        label="Qwen模型路径",
+                        placeholder="/home/HwHiAiUser/.mindnlp/model/Qwen/Qwen1.5-0.5B-Chat"
+                    )
+
+                    llm_local_tinyllama_path = gr.Textbox(
+                        value=current_config["llm_local_tinyllama_path"],
+                        label="TinyLlama模型路径",
+                        placeholder="TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+                    )
+
+                    llm_local_max_tokens = gr.Slider(
+                        minimum=32,
+                        maximum=512,
+                        value=current_config["llm_local_max_tokens"],
+                        label="最大Token数"
+                    )
+
+                    llm_local_temperature = gr.Slider(
+                        minimum=0.0,
+                        maximum=2.0,
+                        value=current_config["llm_local_temperature"],
+                        label="Temperature"
+                    )
+
+                    llm_local_system_prompt = gr.Textbox(
+                        value=current_config["llm_local_system_prompt"],
+                        label="系统提示词",
+                        lines=3
+                    )
+
+                llm_save_btn = gr.Button("💾 保存LLM配置", variant="primary")
+                llm_status = gr.Textbox(label="状态", lines=3)
+                llm_save_btn.click(
+                    save_llm_config,
+                    inputs=[llm_mode, llm_provider, llm_api_key, llm_api_url,
+                           llm_model, llm_max_tokens, llm_temperature, llm_system_prompt,
+                           llm_local_model_name, llm_local_qwen_path, llm_local_tinyllama_path,
+                           llm_local_max_tokens, llm_local_temperature, llm_local_system_prompt],
+                    outputs=llm_status
+                )
+
+                gr.Markdown("### 重新加载LLM服务")
+                gr.Markdown("⚠️ 切换模式或本地模型后,必须重新加载服务才能生效")
+                llm_reload_btn = gr.Button("🔄 重新加载LLM服务", variant="secondary")
+                llm_reload_output = gr.Textbox(label="重新加载结果", lines=4)
+                llm_reload_btn.click(reload_llm_service, outputs=llm_reload_output)
+
+                gr.Markdown("### 测试LLM服务")
+                llm_test_input = gr.Textbox(label="测试输入", placeholder="输入测试问题...")
+                llm_test_btn = gr.Button("🧪 测试对话")
+                llm_test_output = gr.Textbox(label="测试结果", lines=5)
+                llm_test_btn.click(test_llm_service, inputs=llm_test_input, outputs=llm_test_output)
+
+            # ==================== TTS配置标签页 ====================
+            with gr.Tab("🔊 TTS配置"):
+                gr.Markdown("### 语音合成服务配置")
+
+                tts_mode = gr.Radio(
+                    choices=["api", "local"],
+                    value=current_config["tts_mode"],
+                    label="运行模式"
+                )
+
+                with gr.Group():
+                    gr.Markdown("#### API配置")
+                    tts_provider = gr.Textbox(
+                        value=current_config["tts_api_provider"],
+                        label="API提供商"
+                    )
+                    tts_api_key = gr.Textbox(
+                        value=current_config["tts_api_key"],
+                        label="API Key",
+                        type="password"
+                    )
+                    tts_model = gr.Textbox(
+                        value=current_config["tts_model"],
+                        label="模型名称"
+                    )
+                    tts_voice = gr.Textbox(
+                        value=current_config["tts_voice"],
+                        label="发音人"
+                    )
+
+                tts_save_btn = gr.Button("💾 保存TTS配置", variant="primary")
+                tts_status = gr.Textbox(label="状态")
+                tts_save_btn.click(
+                    save_tts_config,
+                    inputs=[tts_mode, tts_provider, tts_api_key, tts_model, tts_voice],
+                    outputs=tts_status
+                )
+
+                gr.Markdown("### 测试TTS服务")
+                tts_test_input = gr.Textbox(label="测试文本", placeholder="输入要合成的文本...")
+                tts_test_btn = gr.Button("🧪 测试合成")
+                tts_test_status = gr.Textbox(label="测试状态", lines=2)
+                tts_test_audio = gr.Audio(label="合成音频")
+                tts_test_btn.click(
+                    test_tts_service,
+                    inputs=tts_test_input,
+                    outputs=[tts_test_status, tts_test_audio]
+                )
+
+            # ==================== 音色克隆标签页 ====================
+            with gr.Tab("🎨 音色克隆"):
+                gr.Markdown("### CosyVoice音色克隆服务")
+                gr.Markdown("""
+                使用10~20秒音频样本即可生成高度相似且自然的定制声音。
+
+                **音频要求:**
+                - 格式: WAV (16bit), MP3, M4A
+                - 时长: 10~20秒
+                - 大小: ≤ 10 MB
+                - 采样率: ≥ 16 kHz
+                - 内容: 至少包含一段5秒以上的连续、清晰、无背景音的朗读
+                - 语言: 中文、英文
+                """)
+
+                with gr.Group():
+                    gr.Markdown("#### 创建新音色")
+                    voice_create_model = gr.Dropdown(
+                        choices=["cosyvoice-v1", "cosyvoice-v2", "cosyvoice-v3", "cosyvoice-v3-plus"],
+                        value="cosyvoice-v2",
+                        label="目标模型",
+                        info="推荐使用v3-plus获得最佳效果"
+                    )
+                    voice_create_prefix = gr.Textbox(
+                        label="音色前缀",
+                        placeholder="myvoice (仅允许小写字母和数字,少于10个字符)",
+                        max_lines=1
+                    )
+                    voice_create_url = gr.Textbox(
+                        label="音频URL",
+                        placeholder="https://your-audio-file-url.wav",
+                        info="音频文件必须是公网可访问的URL"
+                    )
+                    voice_create_btn = gr.Button("🎨 创建音色", variant="primary")
+                    voice_create_output = gr.Textbox(label="创建结果", lines=5)
+                    voice_created_id = gr.Textbox(label="Voice ID", interactive=False)
+
+                    voice_create_btn.click(
+                        create_voice_enrollment,
+                        inputs=[voice_create_model, voice_create_prefix, voice_create_url],
+                        outputs=[voice_create_output, voice_created_id]
+                    )
+
+                with gr.Group():
+                    gr.Markdown("#### 查询音色状态")
+                    voice_query_id = gr.Textbox(
+                        label="Voice ID",
+                        placeholder="cosyvoice-v2-myvoice-xxxxxxxx"
+                    )
+                    voice_query_btn = gr.Button("🔍 查询状态")
+                    voice_query_output = gr.Textbox(label="音色信息", lines=10)
+
+                    voice_query_btn.click(
+                        query_voice_status,
+                        inputs=voice_query_id,
+                        outputs=voice_query_output
+                    )
+
+                with gr.Group():
+                    gr.Markdown("#### 列出所有音色")
+                    with gr.Row():
+                        voice_list_prefix = gr.Textbox(
+                            label="前缀筛选 (可选)",
+                            placeholder="myvoice"
+                        )
+                        voice_list_page_index = gr.Number(
+                            label="页码",
+                            value=0,
+                            precision=0
+                        )
+                        voice_list_page_size = gr.Number(
+                            label="每页数量",
+                            value=10,
+                            precision=0
+                        )
+                    voice_list_btn = gr.Button("📋 列出音色")
+                    voice_list_output = gr.Textbox(label="音色列表", lines=15)
+
+                    voice_list_btn.click(
+                        list_all_voices,
+                        inputs=[voice_list_prefix, voice_list_page_index, voice_list_page_size],
+                        outputs=voice_list_output
+                    )
+
+                with gr.Group():
+                    gr.Markdown("#### 更新音色")
+                    voice_update_id = gr.Textbox(
+                        label="Voice ID",
+                        placeholder="cosyvoice-v2-myvoice-xxxxxxxx"
+                    )
+                    voice_update_url = gr.Textbox(
+                        label="新音频URL",
+                        placeholder="https://your-new-audio-file-url.wav"
+                    )
+                    voice_update_btn = gr.Button("🔄 更新音色")
+                    voice_update_output = gr.Textbox(label="更新结果", lines=3)
+
+                    voice_update_btn.click(
+                        update_voice_enrollment,
+                        inputs=[voice_update_id, voice_update_url],
+                        outputs=voice_update_output
+                    )
+
+                with gr.Group():
+                    gr.Markdown("#### 删除音色")
+                    gr.Markdown("⚠️ 删除操作不可逆,请谨慎操作")
+                    voice_delete_id = gr.Textbox(
+                        label="Voice ID",
+                        placeholder="cosyvoice-v2-myvoice-xxxxxxxx"
+                    )
+                    voice_delete_btn = gr.Button("🗑️ 删除音色", variant="stop")
+                    voice_delete_output = gr.Textbox(label="删除结果", lines=2)
+
+                    voice_delete_btn.click(
+                        delete_voice_enrollment,
+                        inputs=voice_delete_id,
+                        outputs=voice_delete_output
+                    )
+
+    return demo
+
+
+if __name__ == "__main__":
+    # 创建并启动界面
+    demo = create_ui()
+
+    port = get_config('services.web_ui', 8080)
+    share = get_config('web.share', False)
+
+    logger.info(f"🌐 Web配置界面启动在端口: {port}")
+
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=port,
+        share=share
+    )

@@ -5,12 +5,15 @@ from mindnlp.transformers import TextIteratorStreamer
 from threading import Thread
 import time  # 导入时间模块用于计时
 from mindspore._c_expression import disable_multi_thread
+from mindnlp.quant.smooth_quant import quantize, w8x8
 disable_multi_thread()
 
 # 加载tokenizer和模型
 tokenizer = AutoTokenizer.from_pretrained("/home/HwHiAiUser/.mindnlp/model/Qwen/Qwen1.5-0.5B-Chat", ms_dtype=mindspore.float16)
 model = AutoModelForCausalLM.from_pretrained("/home/HwHiAiUser/.mindnlp/model/Qwen/Qwen1.5-0.5B-Chat", ms_dtype=mindspore.float16)
 system_prompt = "You are a helpful and friendly chatbot"
+
+
 
 def build_input_from_chat_history(chat_history, msg: str):
     messages = [{'role': 'system', 'content': system_prompt}]

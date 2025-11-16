@@ -67,6 +67,13 @@ class SentenceSplitter:
         self.min_chunk_length = streaming_config.get('min_chunk_length', 10)
         self.buffer = ""
 
+    def reload_config(self):
+        """重新加载配置"""
+        streaming_config = get_config('streaming', {})
+        self.delimiters = streaming_config.get('sentence_delimiters', ['。', '!', '?', '\n'])
+        self.min_chunk_length = streaming_config.get('min_chunk_length', 10)
+        logger.info(f"✅ SentenceSplitter 配置已重新加载: delimiters={self.delimiters}, min_chunk_length={self.min_chunk_length}")
+
     def add_chunk(self, chunk: str):
         """添加新的文本块"""
         self.buffer += chunk
@@ -321,6 +328,38 @@ async def health_check():
         "status": "healthy" if all_healthy else "degraded",
         **health_status
     }
+
+
+@app.post("/reload_config")
+async def reload_config():
+    """
+    重新加载配置
+    更新服务URL配置和流式处理配置
+    """
+    try:
+        from config_loader import reload_config as reload_config_file
+        reload_config_file()
+
+        logger.info("✅ Orchestrator 配置已重新加载")
+
+        # 获取更新后的配置
+        service_urls = get_service_urls()
+        streaming_config = get_config('streaming', {})
+
+        return {
+            "success": True,
+            "message": "配置已重新加载",
+            "service_urls": service_urls,
+            "streaming_config": {
+                "sentence_delimiters": streaming_config.get('sentence_delimiters'),
+                "min_chunk_length": streaming_config.get('min_chunk_length')
+            }
+        }
+    except Exception as e:
+        logger.error(f"❌ 配置重新加载失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"配置重新加载失败: {str(e)}")
 
 
 @app.post("/conversation/voice")

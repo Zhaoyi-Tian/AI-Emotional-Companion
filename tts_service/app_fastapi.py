@@ -11,6 +11,7 @@ import uvicorn
 import sys
 import logging
 import io
+import threading
 from pathlib import Path
 
 # 添加父目录到路径以导入配置
@@ -173,6 +174,59 @@ def init_cosyvoice_config():
     logger.info("✅ CosyVoice API配置完成")
 
 
+# ==================== SpeechSynthesizer 连接池 ====================
+class SynthesizerPool:
+    """
+    SpeechSynthesizer 连接池
+    复用 synthesizer 对象，避免重复创建，减少连接开销
+    """
+    def __init__(self, max_size=5):
+        self.max_size = max_size
+        self.pool = []
+        self.lock = threading.Lock()
+        logger.info(f"🔧 初始化 Synthesizer 连接池，最大容量: {max_size}")
+
+    def _create_synthesizer(self, model: str, voice: str, audio_format, callback):
+        """创建新的 synthesizer"""
+        return SpeechSynthesizer(
+            model=model,
+            voice=voice,
+            format=audio_format,
+            callback=callback
+        )
+
+    def get(self, model: str, voice: str, audio_format, callback):
+        """
+        从池中获取或创建 synthesizer
+        注意：由于每次请求的 callback 不同，目前策略是每次创建新对象
+        但保留池的架构，便于未来优化
+        """
+        # 目前每次都创建新对象（因为callback不同）
+        # 未来可以优化为复用对象，只更换callback
+        synthesizer = self._create_synthesizer(model, voice, audio_format, callback)
+        logger.debug(f"📦 创建新的 Synthesizer: model={model}, voice={voice}")
+        return synthesizer
+
+    def release(self, synthesizer):
+        """
+        释放 synthesizer 回池中
+        目前不做实际回收，未来可以优化
+        """
+        # 当前实现不回收，因为 CosyVoice API 的 synthesizer 是一次性的
+        # 每次调用都需要新的 callback
+        pass
+
+    def clear(self):
+        """清空连接池"""
+        with self.lock:
+            self.pool.clear()
+            logger.info("🧹 连接池已清空")
+
+
+# 全局连接池实例
+synthesizer_pool = SynthesizerPool(max_size=5)
+
+
 async def synthesize_speech_stream(text: str, voice: Optional[str] = None):
     """流式语音合成"""
     if not DASHSCOPE_AVAILABLE:
@@ -187,12 +241,8 @@ async def synthesize_speech_stream(text: str, voice: Optional[str] = None):
 
     try:
         callback = StreamingAudioCallback()
-        synthesizer = SpeechSynthesizer(
-            model=model,
-            voice=voice,
-            format=audio_format,
-            callback=callback
-        )
+        # 从连接池获取 synthesizer
+        synthesizer = synthesizer_pool.get(model, voice, audio_format, callback)
 
         # 启动流式合成
         synthesizer.streaming_call(text)
@@ -245,12 +295,8 @@ async def synthesize_speech(text: str, voice: Optional[str] = None) -> bytes:
 
     try:
         callback = AudioBufferCallback()
-        synthesizer = SpeechSynthesizer(
-            model=model,
-            voice=voice,
-            format=audio_format,
-            callback=callback
-        )
+        # 从连接池获取 synthesizer
+        synthesizer = synthesizer_pool.get(model, voice, audio_format, callback)
 
         # 执行合成
         synthesizer.streaming_call(text)
@@ -531,6 +577,21 @@ async def delete_voice(request: VoiceDeleteRequest):
     except Exception as e:
         logger.error(f"删除音色失败: {e}")
         raise HTTPException(status_code=500, detail=f"删除音色失败: {str(e)}")
+
+
+@app.on_event("startup")
+async def warmup():
+    """服务启动时预热TTS"""
+    logger.info("🔥 开始TTS预热...")
+    try:
+        # 使用短文本预热，激活模型和连接
+        warmup_text = "你好"
+        chunk_count = 0
+        async for chunk in synthesize_speech_stream(warmup_text):
+            chunk_count += 1
+        logger.info(f"✅ TTS预热完成，接收到 {chunk_count} 个音频块")
+    except Exception as e:
+        logger.warning(f"⚠️ TTS预热失败: {e}，服务仍可正常使用")
 
 
 if __name__ == "__main__":

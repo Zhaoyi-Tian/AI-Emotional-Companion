@@ -211,8 +211,27 @@ class VoiceAssistant:
         # 打断词参数
         self.INTERRUPT_MODE = voice_config.get('interrupt_mode', True)
         self.INTERRUPT_WORDS = voice_config.get('interrupt_words', ["停止", "暂停", "别说了"])
+        self.INTERRUPT_REPLY = voice_config.get('interrupt_reply', "好的，已停止")  # 打断确认语音
         self.interrupt_flag = False  # 打断标志
         self.interrupt_monitor_thread = None  # 打断监听线程
+
+        # 思考回复参数
+        self.THINKING_REPLY = voice_config.get('thinking_reply', "好，我知道了，等我想一下")  # 开始思考确认语音
+
+        # 连续对话参数
+        self.CONTINUE_DIALOGUE_TIMEOUT = voice_config.get('continue_dialogue_timeout', 5.0)  # 连续对话超时时间（秒）
+
+        # 音频缓存目录
+        self.cache_dir = Path(__file__).parent / "audio_cache"
+        self.cache_dir.mkdir(exist_ok=True)
+
+        # 音频缓存（避免重复生成相同的回复音频）
+        self.wake_reply_audio_cache = None  # 唤醒回复音频缓存
+        self.interrupt_reply_audio_cache = None  # 打断回复音频缓存
+        self.thinking_reply_audio_cache = None  # 思考回复音频缓存
+
+        # 加载缓存的音频
+        self._load_cached_audio()
 
         # 初始化PyAudio（抑制ALSA错误）
         with suppress_stderr():
@@ -255,6 +274,90 @@ class VoiceAssistant:
         if self.WAKE_MODE:
             logger.info(f"唤醒词模式已启用，支持的唤醒词: {', '.join(self.WAKE_WORDS)}")
 
+    def _get_cache_filename(self, text, cache_type):
+        """
+        生成缓存文件名（基于文本内容的哈希）
+
+        Args:
+            text: 文本内容
+            cache_type: 缓存类型 ('wake' 或 'interrupt')
+
+        Returns:
+            str: 缓存文件路径
+        """
+        import hashlib
+        text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()[:16]
+        return self.cache_dir / f"{cache_type}_reply_{text_hash}.pcm"
+
+    def _load_cached_audio(self):
+        """加载缓存的音频文件"""
+        # 加载唤醒回复音频（使用带"一"前缀的文本）
+        wake_text_with_prefix = "一" + self.WAKE_REPLY
+        wake_cache_file = self._get_cache_filename(wake_text_with_prefix, 'wake')
+        if wake_cache_file.exists():
+            self.wake_reply_audio_cache = str(wake_cache_file)
+            logger.info(f"✅ 加载唤醒回复音频缓存: {self.WAKE_REPLY}")
+        else:
+            logger.info(f"💾 唤醒回复音频缓存不存在，将在首次使用时生成")
+
+        # 加载打断回复音频（使用带"一"前缀的文本）
+        interrupt_text_with_prefix = "一" + self.INTERRUPT_REPLY
+        interrupt_cache_file = self._get_cache_filename(interrupt_text_with_prefix, 'interrupt')
+        if interrupt_cache_file.exists():
+            self.interrupt_reply_audio_cache = str(interrupt_cache_file)
+            logger.info(f"✅ 加载打断回复音频缓存: {self.INTERRUPT_REPLY}")
+        else:
+            logger.info(f"💾 打断回复音频缓存不存在，将在首次使用时生成")
+
+        # 加载思考回复音频（使用带"一"前缀的文本）
+        thinking_text_with_prefix = "一" + self.THINKING_REPLY
+        thinking_cache_file = self._get_cache_filename(thinking_text_with_prefix, 'thinking')
+        if thinking_cache_file.exists():
+            self.thinking_reply_audio_cache = str(thinking_cache_file)
+            logger.info(f"✅ 加载思考回复音频缓存: {self.THINKING_REPLY}")
+        else:
+            logger.info(f"💾 思考回复音频缓存不存在，将在首次使用时生成")
+
+    def _save_audio_cache(self, text, cache_type, audio_file):
+        """
+        保存音频到缓存
+
+        Args:
+            text: 文本内容
+            cache_type: 缓存类型 ('wake' 或 'interrupt')
+            audio_file: 临时音频文件路径
+
+        Returns:
+            str: 缓存文件路径
+        """
+        try:
+            cache_file = self._get_cache_filename(text, cache_type)
+
+            # 复制音频文件到缓存目录
+            import shutil
+            shutil.copy2(audio_file, cache_file)
+
+            logger.info(f"💾 已保存{cache_type}回复音频缓存: {text} -> {cache_file.name}")
+            return str(cache_file)
+        except Exception as e:
+            logger.error(f"保存音频缓存失败: {e}")
+            return None
+
+    def _clear_audio_cache(self):
+        """清除所有音频缓存"""
+        try:
+            import shutil
+            if self.cache_dir.exists():
+                shutil.rmtree(self.cache_dir)
+                self.cache_dir.mkdir(exist_ok=True)
+                logger.info("🗑️ 已清除所有音频缓存")
+
+            # 重置缓存变量
+            self.wake_reply_audio_cache = None
+            self.interrupt_reply_audio_cache = None
+        except Exception as e:
+            logger.error(f"清除音频缓存失败: {e}")
+
     def list_audio_devices(self):
         """列出所有音频设备"""
         logger.info("=" * 60)
@@ -268,6 +371,115 @@ class VoiceAssistant:
             logger.info(f"  输出通道: {info['maxOutputChannels']}")
             logger.info(f"  采样率: {info['defaultSampleRate']}")
             logger.info("-" * 60)
+
+    def reload_config(self):
+        """
+        重新加载配置参数（热重载）
+        注意：某些配置（如音频设备）的更改可能需要重启语音对话才能生效
+        """
+        try:
+            from config_loader import reload_config as reload_config_file
+            reload_config_file()  # 先更新 ConfigLoader 的 config
+
+            voice_config = get_config('voice_chat')
+            self.ports = get_config('services')
+
+            # 更新 VAD 参数
+            old_threshold = self.SILENCE_THRESHOLD
+            self.SILENCE_THRESHOLD = voice_config.get('silence_threshold', 500)
+            self.SILENCE_DURATION = voice_config.get('silence_duration', 1.5)
+            self.MIN_AUDIO_LENGTH = voice_config.get('min_audio_length', 0.5)
+
+            if old_threshold != self.SILENCE_THRESHOLD:
+                logger.info(f"🔄 静音阈值已更新: {old_threshold} → {self.SILENCE_THRESHOLD}")
+
+            # 更新音量参数
+            old_volume = self.OUTPUT_VOLUME
+            self.OUTPUT_VOLUME = voice_config.get('output_volume', 100)
+            if old_volume != self.OUTPUT_VOLUME:
+                logger.info(f"🔄 输出音量已更新: {old_volume}% → {self.OUTPUT_VOLUME}%")
+
+            # 更新唤醒词参数
+            old_wake_mode = self.WAKE_MODE
+            old_wake_words = self.WAKE_WORDS
+            old_wake_reply = self.WAKE_REPLY
+            self.WAKE_WORDS = voice_config.get('wake_words', ["小助手", "你好助手", "嘿助手", "小爱"])
+            self.WAKE_MODE = voice_config.get('wake_mode', True)
+            self.WAKE_REPLY = voice_config.get('wake_reply', "你好，我在")
+
+            if old_wake_mode != self.WAKE_MODE:
+                logger.info(f"🔄 唤醒词模式已{'启用' if self.WAKE_MODE else '禁用'}")
+            if old_wake_words != self.WAKE_WORDS:
+                logger.info(f"🔄 唤醒词已更新: {old_wake_words} → {self.WAKE_WORDS}")
+            if old_wake_reply != self.WAKE_REPLY:
+                logger.info(f"🔄 唤醒回复已更新: {old_wake_reply} → {self.WAKE_REPLY}")
+                # 清除旧的缓存
+                self.wake_reply_audio_cache = None
+                logger.info("🗑️ 已清除唤醒回复音频缓存，将在下次使用时重新生成")
+
+            # 更新打断词参数
+            old_interrupt_mode = self.INTERRUPT_MODE
+            old_interrupt_words = self.INTERRUPT_WORDS
+            old_interrupt_reply = self.INTERRUPT_REPLY
+            self.INTERRUPT_MODE = voice_config.get('interrupt_mode', True)
+            self.INTERRUPT_WORDS = voice_config.get('interrupt_words', ["停止", "暂停", "别说了"])
+            self.INTERRUPT_REPLY = voice_config.get('interrupt_reply', "好的，已停止")
+
+            if old_interrupt_mode != self.INTERRUPT_MODE:
+                logger.info(f"🔄 打断模式已{'启用' if self.INTERRUPT_MODE else '禁用'}")
+            if old_interrupt_words != self.INTERRUPT_WORDS:
+                logger.info(f"🔄 打断词已更新: {old_interrupt_words} → {self.INTERRUPT_WORDS}")
+            if old_interrupt_reply != self.INTERRUPT_REPLY:
+                logger.info(f"🔄 打断回复已更新: {old_interrupt_reply} → {self.INTERRUPT_REPLY}")
+                # 清除旧的缓存
+                self.interrupt_reply_audio_cache = None
+                logger.info("🗑️ 已清除打断回复音频缓存，将在下次使用时重新生成")
+
+            # 更新思考回复参数
+            old_thinking_reply = self.THINKING_REPLY
+            self.THINKING_REPLY = voice_config.get('thinking_reply', "好，我知道了，等我想一下")
+
+            if old_thinking_reply != self.THINKING_REPLY:
+                logger.info(f"🔄 思考回复已更新: {old_thinking_reply} → {self.THINKING_REPLY}")
+                # 清除旧的缓存
+                self.thinking_reply_audio_cache = None
+                logger.info("🗑️ 已清除思考回复音频缓存，将在下次使用时重新生成")
+
+            # 更新设备配置（注意：设备切换需要重启语音对话才能生效）
+            old_input = self.input_device
+            old_output = self.output_device
+            self.input_device = voice_config.get('input_device')
+            self.output_device = voice_config.get('output_device')
+
+            if old_input != self.input_device or old_output != self.output_device:
+                logger.warning("⚠️ 音频设备配置已更新，但需要重启语音对话才能生效")
+
+            logger.info("✅ VoiceAssistant 配置已重新加载")
+
+            return {
+                "success": True,
+                "message": "配置已重新加载",
+                "changes": {
+                    "silence_threshold": self.SILENCE_THRESHOLD,
+                    "output_volume": self.OUTPUT_VOLUME,
+                    "wake_mode": self.WAKE_MODE,
+                    "wake_words": self.WAKE_WORDS,
+                    "wake_reply": self.WAKE_REPLY,
+                    "interrupt_mode": self.INTERRUPT_MODE,
+                    "interrupt_words": self.INTERRUPT_WORDS,
+                    "interrupt_reply": self.INTERRUPT_REPLY,
+                    "thinking_reply": self.THINKING_REPLY
+                }
+            }
+
+        except Exception as e:
+            logger.error(f"❌ 配置重新加载失败: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return {
+                "success": False,
+                "error": str(e)
+            }
 
     def get_default_input_device(self):
         """获取默认输入设备"""
@@ -381,7 +593,7 @@ class VoiceAssistant:
 
         return False, text
 
-    def record_audio_with_vad(self, input_device=None, for_wake_word=False):
+    def record_audio_with_vad(self, input_device=None, for_wake_word=False, custom_timeout=None):
         """
         使用VAD录音
         自动检测说话开始和结束
@@ -389,12 +601,16 @@ class VoiceAssistant:
         Args:
             input_device: 输入设备索引
             for_wake_word: 是否用于唤醒词检测（唤醒词录音时间更短）
+            custom_timeout: 自定义超时时间（秒），如果不指定则使用默认值
         """
         global assistant_running
 
         if for_wake_word:
             logger.info("🔍 监听唤醒词...")
             max_duration = 3  # 唤醒词最长3秒
+        elif custom_timeout is not None:
+            logger.info(f"🎤 准备录音，请开始说话...（最长{custom_timeout}秒）")
+            max_duration = custom_timeout
         else:
             logger.info("🎤 准备录音，请开始说话...")
             max_duration = 30  # 正常对话最长30秒
@@ -412,6 +628,10 @@ class VoiceAssistant:
         silent_chunks = 0
         started = False
         max_silent_chunks = int(self.SILENCE_DURATION * self.RATE / self.CHUNK)
+
+        # 记录一些关键信息用于调试
+        if not for_wake_word:
+            logger.info(f"📊 VAD参数: 静音阈值={self.SILENCE_THRESHOLD}, 静音时长={self.SILENCE_DURATION}秒, 需要静音帧数={max_silent_chunks}")
 
         # 用于调试的计数器
         debug_counter = 0
@@ -440,14 +660,14 @@ class VoiceAssistant:
                 else:
                     if started:
                         silent_chunks += 1
-                        # 每隔一定帧数输出静音计数
-                        if not for_wake_word and silent_chunks % 10 == 0:
-                            logger.debug(f"静音计数: {silent_chunks}/{max_silent_chunks} (RMS: {int(rms)})")
+                        # 每隔一定帧数输出静音计数（改为INFO级别，更频繁）
+                        if not for_wake_word and silent_chunks % 5 == 0:
+                            logger.info(f"🔇 静音计数: {silent_chunks}/{max_silent_chunks} 帧 (RMS: {int(rms)}, 已录制: {len(frames)}帧, 时长: {len(frames)*self.CHUNK/self.RATE:.1f}秒)")
 
                 # 检测到足够长的静音，停止录音
                 if started and silent_chunks > max_silent_chunks:
                     if not for_wake_word:
-                        logger.info(f"✅ 检测到静音，录音结束 (静音持续: {silent_chunks}帧)")
+                        logger.info(f"✅ 检测到静音，录音结束 (静音持续: {silent_chunks}帧 = {silent_chunks*self.CHUNK/self.RATE:.2f}秒)")
                     break
 
                 # 防止无限录音
@@ -572,6 +792,29 @@ class VoiceAssistant:
             logger.error(f"TTS服务调用失败: {e}")
             return None
 
+    def warmup_tts(self):
+        """
+        预热TTS服务
+        在ASR识别期间后台预热，减少首句TTS延迟
+        """
+        try:
+            url = f"http://localhost:{self.ports['tts']}/synthesize/stream"
+            payload = {"text": "嗯", "stream": True}
+
+            # 使用短超时，快速预热
+            response = requests.post(url, json=payload, stream=True, timeout=5)
+
+            if response.status_code == 200:
+                # 只读取少量数据就结束，不需要完整接收
+                for _ in response.iter_content(chunk_size=4096):
+                    break
+                logger.debug("🔥 TTS预热完成")
+            else:
+                logger.debug(f"TTS预热失败: {response.status_code}")
+        except Exception as e:
+            logger.debug(f"TTS预热异常(忽略): {e}")
+
+
     def chat_stream(self, message, output_device=None):
         """
         流式对话：LLM流式输出 + TTS异步生成和播放
@@ -686,6 +929,12 @@ class VoiceAssistant:
                     logger.info("✅ 所有音频播放完成")
                 else:
                     logger.info("⏹️ 对话已被打断")
+                    # 播放打断确认音频（使用缓存）
+                    if self.INTERRUPT_MODE and self.INTERRUPT_REPLY:
+                        try:
+                            self.quick_reply(self.INTERRUPT_REPLY, output_device)
+                        except Exception as e:
+                            logger.error(f"播放打断确认音频失败: {e}")
 
             finally:
                 # 停止打断监听
@@ -833,6 +1082,154 @@ class VoiceAssistant:
             import traceback
             logger.error(traceback.format_exc())
 
+    def monitor_wake_word(self, input_device=None):
+        """
+        实时连续监听唤醒词
+        类似于打断词监听，持续录音并识别是否包含唤醒词
+
+        Args:
+            input_device: 输入设备索引
+
+        Returns:
+            tuple: (has_wake_word, remaining_text) 是否检测到唤醒词和剩余文本
+        """
+        try:
+            logger.info("👂 开始连续监听唤醒词...")
+
+            # 创建独立的PyAudio实例用于监听
+            with suppress_stderr():
+                monitor_audio = pyaudio.PyAudio()
+
+            stream = monitor_audio.open(
+                format=self.FORMAT,
+                channels=self.CHANNELS,
+                rate=self.RATE,
+                input=True,
+                input_device_index=input_device,
+                frames_per_buffer=self.CHUNK
+            )
+
+            logger.info("👂 唤醒词监听音频流已打开")
+
+            frames = []
+            is_speaking = False
+            silent_chunks = 0
+            # 使用配置的静音持续时间,用于唤醒词检测
+            max_silent_chunks = int(self.RATE / self.CHUNK * self.SILENCE_DURATION)
+            chunk_counter = 0  # 用于定期输出状态
+
+            silent_threshold = self.SILENCE_THRESHOLD * 0.8  # 唤醒词检测使用较低阈值,更灵敏
+
+            while assistant_running and not self.interrupt_flag:
+                try:
+                    # 读取音频数据
+                    data = stream.read(self.CHUNK, exception_on_overflow=False)
+                    frames.append(data)
+                    chunk_counter += 1
+
+                    # 计算音量(RMS) - 使用相同的方法
+                    rms = self.calculate_rms(data)
+
+                    # 每50帧(约1秒)输出一次状态
+                    if chunk_counter % 50 == 0:
+                        logger.info(f"🎤 监听中... RMS={int(rms)}, 阈值={int(silent_threshold)}, 说话={is_speaking}, 静音帧={silent_chunks}")
+
+                    # 检测是否在说话
+                    if rms > silent_threshold:
+                        if not is_speaking:
+                            logger.info(f"🗣️ 检测到说话开始 (RMS={int(rms)} > {int(silent_threshold)})")
+                        is_speaking = True
+                        silent_chunks = 0
+                    elif is_speaking:
+                        silent_chunks += 1
+                        if silent_chunks % 10 == 0:  # 每10帧输出一次
+                            logger.info(f"🔇 静音计数: {silent_chunks}/{max_silent_chunks}")
+
+                    # 如果说话后静音超过阈值，进行识别
+                    if is_speaking and silent_chunks >= max_silent_chunks:
+                        logger.info(f"🎤 检测到语音结束，开始识别... (累计 {len(frames)} 帧, 约{len(frames)*self.CHUNK/self.RATE:.1f}秒)")
+
+                        # 暂停流
+                        stream.stop_stream()
+                        stream.close()
+
+                        # 保存音频并识别
+                        if len(frames) > 0:
+                            temp_file = f"/tmp/wake_monitor_{int(time.time() * 1000)}.wav"
+                            wf = wave.open(temp_file, 'wb')
+                            wf.setnchannels(self.CHANNELS)
+                            wf.setsampwidth(monitor_audio.get_sample_size(self.FORMAT))
+                            wf.setframerate(self.RATE)
+                            wf.writeframes(b''.join(frames))
+                            wf.close()
+
+                            # ASR识别
+                            text = self.speech_to_text(temp_file)
+
+                            # 清理临时文件
+                            try:
+                                os.unlink(temp_file)
+                            except:
+                                pass
+
+                            if text:
+                                logger.info(f"👂 监听到: {text}")
+
+                                # 检查是否包含唤醒词
+                                has_wake_word, remaining_text = self.check_wake_word(text)
+
+                                if has_wake_word:
+                                    logger.info(f"🎯 检测到唤醒词! 剩余文本: {remaining_text}")
+                                    # 清理资源
+                                    monitor_audio.terminate()
+                                    return True, remaining_text
+                                else:
+                                    logger.info(f"❌ 未检测到唤醒词，继续监听...")
+                            else:
+                                logger.info(f"⚠️ 识别结果为空，继续监听...")
+
+                        # 重置状态，继续监听
+                        frames = []
+                        is_speaking = False
+                        silent_chunks = 0
+
+                        # 重新打开流继续监听
+                        if assistant_running and not self.interrupt_flag:
+                            stream = monitor_audio.open(
+                                format=self.FORMAT,
+                                channels=self.CHANNELS,
+                                rate=self.RATE,
+                                input=True,
+                                input_device_index=input_device,
+                                frames_per_buffer=self.CHUNK
+                            )
+
+                    # 限制缓冲区大小，避免无限累积（最多保留5秒）
+                    max_frames = int(self.RATE / self.CHUNK * 5)
+                    if len(frames) > max_frames:
+                        frames = frames[-max_frames:]
+
+                except Exception as e:
+                    logger.error(f"监听循环出错: {e}")
+                    break
+
+            # 清理资源
+            try:
+                stream.stop_stream()
+                stream.close()
+            except:
+                pass
+
+            monitor_audio.terminate()
+            logger.info("👂 唤醒词监听已停止")
+            return False, ""
+
+        except Exception as e:
+            logger.error(f"唤醒词监听失败: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return False, ""
+
     def record_audio_short(self, input_device=None, duration=2.0):
         """
         录制短音频（用于打断词检测）
@@ -880,21 +1277,100 @@ class VoiceAssistant:
             logger.error(f"短音频录制失败: {e}")
             return None
 
-    def quick_reply(self, text, output_device=None):
+    def quick_reply(self, text, output_device=None, use_cache=True):
         """
-        快速响应：直接合成并播放指定文本
+        快速响应：直接合成并播放指定文本（支持缓存）
 
         Args:
             text: 要播放的文本
             output_device: 输出设备索引
+            use_cache: 是否使用缓存（默认True）
         """
         try:
             logger.info(f"💬 快速回复: {text}")
-            pcm_file = self.text_to_speech(text)
+
+            pcm_file = None
+            cache_type = None
+            should_cleanup = True  # 是否需要清理临时文件
+
+            # 判断是唤醒回复、打断回复还是思考回复，以使用对应的缓存
+            if use_cache:
+                if text == self.WAKE_REPLY and self.wake_reply_audio_cache:
+                    # 检查缓存文件是否真的存在
+                    if os.path.exists(self.wake_reply_audio_cache):
+                        pcm_file = self.wake_reply_audio_cache
+                        should_cleanup = False
+                        logger.info(f"🎵 使用唤醒回复音频缓存")
+                    else:
+                        logger.warning(f"⚠️ 唤醒回复缓存文件不存在，重新生成")
+                        self.wake_reply_audio_cache = None
+                elif text == self.INTERRUPT_REPLY and self.interrupt_reply_audio_cache:
+                    # 检查缓存文件是否真的存在
+                    if os.path.exists(self.interrupt_reply_audio_cache):
+                        pcm_file = self.interrupt_reply_audio_cache
+                        should_cleanup = False
+                        logger.info(f"🎵 使用打断回复音频缓存")
+                    else:
+                        logger.warning(f"⚠️ 打断回复缓存文件不存在，重新生成")
+                        self.interrupt_reply_audio_cache = None
+                elif text == self.THINKING_REPLY and self.thinking_reply_audio_cache:
+                    # 检查缓存文件是否真的存在
+                    if os.path.exists(self.thinking_reply_audio_cache):
+                        pcm_file = self.thinking_reply_audio_cache
+                        should_cleanup = False
+                        logger.info(f"🎵 使用思考回复音频缓存")
+                    else:
+                        logger.warning(f"⚠️ 思考回复缓存文件不存在，重新生成")
+                        self.thinking_reply_audio_cache = None
+
+            # 如果没有缓存，则生成新的音频
+            if not pcm_file:
+                # 对唤醒、思考、打断回复添加"一"前缀
+                tts_text = text
+                cache_key = text  # 用于缓存文件名的key
+                if text in [self.WAKE_REPLY, self.THINKING_REPLY, self.INTERRUPT_REPLY]:
+                    tts_text = "一" + text
+                    cache_key = tts_text  # 使用带前缀的文本作为缓存key
+                    logger.debug(f"🔤 添加前缀: {tts_text}")
+
+                pcm_file = self.text_to_speech(tts_text)
+                if not pcm_file:
+                    logger.error("TTS生成失败")
+                    return
+
+                # 保存到缓存（使用带前缀的文本作为key）
+                if use_cache:
+                    if text == self.WAKE_REPLY:
+                        cache_type = 'wake'
+                        cached_file = self._save_audio_cache(cache_key, cache_type, pcm_file)
+                        if cached_file:
+                            self.wake_reply_audio_cache = cached_file
+                    elif text == self.INTERRUPT_REPLY:
+                        cache_type = 'interrupt'
+                        cached_file = self._save_audio_cache(cache_key, cache_type, pcm_file)
+                        if cached_file:
+                            self.interrupt_reply_audio_cache = cached_file
+                    elif text == self.THINKING_REPLY:
+                        cache_type = 'thinking'
+                        cached_file = self._save_audio_cache(cache_key, cache_type, pcm_file)
+                        if cached_file:
+                            self.thinking_reply_audio_cache = cached_file
+
+            # 播放音频
             if pcm_file:
                 self.play_audio(pcm_file, output_device)
+
+                # 清理临时文件（缓存文件不清理）
+                if should_cleanup:
+                    try:
+                        os.unlink(pcm_file)
+                    except:
+                        pass
+
         except Exception as e:
             logger.error(f"快速回复失败: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
 
     def play_audio(self, pcm_file, output_device=None):
         """
@@ -1046,57 +1522,108 @@ class VoiceAssistant:
             while assistant_running:  # 改为检查assistant_running标志
                 # 唤醒词模式
                 if self.WAKE_MODE:
-                    # 1. 监听唤醒词
-                    wake_audio = self.record_audio_with_vad(input_device, for_wake_word=True)
+                    # 重置打断标志(唤醒词监听阶段不应该被打断)
+                    self.interrupt_flag = False
 
-                    if wake_audio is None:
-                        continue
-
-                    # 2. 识别唤醒词
-                    wake_text = self.speech_to_text(wake_audio)
-                    os.unlink(wake_audio)
-
-                    if not wake_text:
-                        continue
-
-                    # 3. 检查是否包含唤醒词
-                    has_wake_word, remaining_text = self.check_wake_word(wake_text)
+                    # 1. 实时连续监听唤醒词（类似打断词的实现）
+                    has_wake_word, remaining_text = self.monitor_wake_word(input_device)
 
                     if not has_wake_word:
-                        # 没有唤醒词，继续监听
+                        # 没有检测到唤醒词或者被中断，继续下一轮
                         continue
 
                     logger.info("🎯 已唤醒！")
 
-                    # 4. 立即播放确认语音
+                    # 2. 立即播放确认语音
                     self.quick_reply(self.WAKE_REPLY, output_device)
 
-                    # 5. 检查唤醒词后面是否有内容
+                    # 3. 检查唤醒词后面是否有内容
+                    prefix_text = ""
                     if remaining_text and remaining_text.strip():
-                        # 唤醒词后面已经有问题，直接使用
-                        user_text = remaining_text
-                        logger.info(f"🗣️ 用户说: {user_text}")
-                    else:
-                        # 6. 唤醒词后没有内容，等待用户继续说话
-                        logger.info("💬 请说出您的问题...")
-                        dialogue_audio = self.record_audio_with_vad(input_device, for_wake_word=False)
+                        # 唤醒词后面已经有部分内容，保存起来
+                        prefix_text = remaining_text.strip()
+                        logger.info(f"📌 检测到前缀内容: {prefix_text}")
 
-                        if dialogue_audio is None:
+                    # 4. 重新录音等待完整问题（使用完整的静音检测时长）
+                    logger.info("💬 请说出您的问题...")
+                    dialogue_audio = self.record_audio_with_vad(input_device, for_wake_word=False)
+
+                    if dialogue_audio is None:
+                        # 如果没有录到新内容，但有前缀内容，可以直接使用
+                        if prefix_text:
+                            user_text = prefix_text
+                            logger.info(f"📝 使用前缀内容作为问题: {user_text}")
+                        else:
                             logger.warning("⚠️ 未检测到语音，重新监听唤醒词")
                             continue
-
-                        # 7. 识别完整的用户问题
-                        user_text = self.speech_to_text(dialogue_audio)
+                    else:
+                        # 5. 识别新录音的内容
+                        new_text = self.speech_to_text(dialogue_audio)
                         os.unlink(dialogue_audio)
 
-                        if not user_text or not user_text.strip():
-                            logger.warning("⚠️ 识别结果为空，重新监听唤醒词")
-                            continue
+                        if not new_text or not new_text.strip():
+                            # 新录音为空，使用前缀内容（如果有）
+                            if prefix_text:
+                                user_text = prefix_text
+                                logger.info(f"📝 新录音为空，使用前缀内容: {user_text}")
+                            else:
+                                logger.warning("⚠️ 识别结果为空，重新监听唤醒词")
+                                continue
+                        else:
+                            # 6. 合并前缀内容和新内容
+                            if prefix_text:
+                                # 有前缀内容，拼接起来
+                                user_text = f"{prefix_text}，{new_text.strip()}"
+                                logger.info(f"🔗 合并内容: 前缀'{prefix_text}' + 新内容'{new_text.strip()}' = '{user_text}'")
+                            else:
+                                # 没有前缀内容，直接使用新内容
+                                user_text = new_text.strip()
 
                     logger.info(f"📝 完整问题: {user_text}")
 
+                    # 7. 播放思考确认语音的同时，后台预热TTS
+                    warmup_thread = threading.Thread(target=self.warmup_tts, daemon=True)
+                    warmup_thread.start()
+
+                    self.quick_reply(self.THINKING_REPLY, output_device)
+
                     # 8. 使用流式对话：LLM流式输出 + TTS流式播放
                     self.chat_stream(user_text, output_device)
+
+                    # 9. 对话完成后，进入连续对话模式（等待用户继续提问，无需再次唤醒）
+                    while True:
+                        logger.info(f"💬 等待继续对话（{self.CONTINUE_DIALOGUE_TIMEOUT}秒内无语音将返回待机）...")
+
+                        # 尝试录音，使用配置的超时时间
+                        continue_audio = self.record_audio_with_vad(
+                            input_device,
+                            for_wake_word=False,
+                            custom_timeout=self.CONTINUE_DIALOGUE_TIMEOUT
+                        )
+
+                        if continue_audio is None:
+                            # 没有录到音频，返回待机模式
+                            logger.info("⏸️ 未检测到继续对话，返回待机模式")
+                            break
+
+                        # 识别新的问题
+                        continue_text = self.speech_to_text(continue_audio)
+                        os.unlink(continue_audio)
+
+                        if not continue_text or not continue_text.strip():
+                            logger.info("⏸️ 识别结果为空，返回待机模式")
+                            break
+
+                        logger.info(f"📝 继续对话: {continue_text}")
+
+                        # 播放思考确认语音的同时，后台预热TTS
+                        warmup_thread = threading.Thread(target=self.warmup_tts, daemon=True)
+                        warmup_thread.start()
+
+                        self.quick_reply(self.THINKING_REPLY, output_device)
+
+                        # 继续对话
+                        self.chat_stream(continue_text, output_device)
 
                 else:
                     # 非唤醒词模式，直接录音
@@ -1114,6 +1641,12 @@ class VoiceAssistant:
                         continue
 
                     logger.info(f"📝 用户问题: {user_text}")
+
+                    # 播放思考确认语音的同时，后台预热TTS
+                    warmup_thread = threading.Thread(target=self.warmup_tts, daemon=True)
+                    warmup_thread.start()
+
+                    self.quick_reply(self.THINKING_REPLY, output_device)
 
                     # 使用流式对话：LLM流式输出 + TTS流式播放
                     self.chat_stream(user_text, output_device)
@@ -1256,6 +1789,49 @@ async def stop_voice_chat():
 async def get_status():
     """获取语音对话状态"""
     return {
+        "running": assistant_running,
+        "enabled": get_config('voice_chat').get('enable', False)
+    }
+
+
+@app.post("/reload_config")
+async def reload_config_endpoint():
+    """
+    重新加载配置
+    如果语音对话正在运行，会热更新配置参数
+    如果未运行，只重新加载配置文件
+    """
+    global assistant
+
+    try:
+        if assistant and assistant_running:
+            # 语音对话正在运行，调用实例的 reload_config 方法
+            result = assistant.reload_config()
+            return result
+        else:
+            # 语音对话未运行，只重新加载配置文件
+            from config_loader import reload_config
+            reload_config()
+            return {
+                "success": True,
+                "message": "配置文件已重新加载（语音对话未运行）"
+            }
+    except Exception as e:
+        logger.error(f"配置重新加载失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@app.get("/health")
+async def health_check():
+    """健康检查接口"""
+    return {
+        "status": "healthy",
+        "service": "voice_chat",
         "running": assistant_running,
         "enabled": get_config('voice_chat').get('enable', False)
     }

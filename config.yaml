@@ -3,7 +3,7 @@ asr:
   model_path_cn: asr_service/CN_model/offline_encoder.om
   model_path_en: asr_service/EN_model/offline_encoder.om
   model_type: CN
-  sample_rate: 16000
+  sample_rate: 44100
   vocab_path_cn: asr_service/CN_model/vocab.txt
   vocab_path_en: asr_service/EN_model/vocab.txt
 llm:
@@ -14,12 +14,12 @@ llm:
     model: deepseek-chat
     provider: deepseek
     stream: true
-    system_prompt: 你是一个智能语音助手，扮演的是爱莉希雅，你的输入是由语音识别转换而来，会有很多错误以及无关的内容，需要你自动修正
+    system_prompt: 你是一个智能语音助手，扮演的是爱莉希雅，你的输入是由语音识别转换而来，会有很多错误以及无关的内容，需要你自动修正，另外，你的输出会语音合成，所以不要加括号
     temperature: 1.0
     top_p: 0.9
   local:
     max_tokens: 128
-    model_name: tinyllama
+    model_name: qwen
     qwen_model_path: /home/HwHiAiUser/.mindnlp/model/Qwen/Qwen1.5-0.5B-Chat
     system_prompt: You are a helpful and friendly chatbot
     temperature: 1.0
@@ -68,27 +68,31 @@ tts:
     max_poll_attempts: 30
     poll_interval: 10
 voice_chat:
+  continue_dialogue_timeout: 10.0
   enable: true
   input_device: 1
   interrupt_mode: true
+  interrupt_reply: 好吧好吧，我不说了还不行吗~
   interrupt_words:
   - 停止
   - 暂停
   - 别说了
   - 闭嘴
   - 停下
-  min_audio_length: 1.5
+  min_audio_length: 0.7
   output_device: null
   output_volume: 50
-  silence_duration: 2.0
+  silence_duration: 0.5
   silence_threshold: 200
+  thinking_reply: 好，我知道了，等我想一下
   wake_mode: true
-  wake_reply: 你好，我在
+  wake_reply: 哎呦，谁在叫我呀？
   wake_words:
-  - 小助手
-  - 你好助手
-  - 嘿助手
-  - 小爱，小，爱
+  - 助手
+  - 你好
+  - 嘿
+  - 小
+  - 小爱
 web:
   enable: true
   share: true

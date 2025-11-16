@@ -1,18 +1,14 @@
-/home/HwHiAiUser/ai_助手/orchestrator.py:280: DeprecationWarning: 
+/home/HwHiAiUser/ai_助手/orchestrator.py:287: DeprecationWarning: 
         on_event is deprecated, use lifespan event handlers instead.
 
         Read more about it in the
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-10-25 17:02:52,959 - Orchestrator - INFO - 主控制服务启动在端口: 5000
-INFO:     Started server process [82003]
+2025-10-28 23:22:44,944 - Orchestrator - INFO - 主控制服务启动在端口: 5000
+INFO:     Started server process [10430]
 INFO:     Waiting for application startup.
-2025-10-25 17:02:53,026 - Orchestrator - INFO - 🚀 主控制服务正在启动...
-2025-10-25 17:02:53,027 - Orchestrator - INFO - ✅ 主控制服务启动完成!
+2025-10-28 23:22:45,012 - Orchestrator - INFO - 🚀 主控制服务正在启动...
+2025-10-28 23:22:45,013 - Orchestrator - INFO - ✅ 主控制服务启动完成!
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5000 (Press CTRL+C to quit)
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [82003]

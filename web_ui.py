@@ -131,15 +131,8 @@ class AIAssistant:
                                 logger.debug(f"JSON解析失败: {json_str[:50]}")
                                 continue
 
-                # 更新对话历史
-                self.conversation_history.append({
-                    "role": "user",
-                    "content": message
-                })
-                self.conversation_history.append({
-                    "role": "assistant",
-                    "content": full_reply
-                })
+                # 更新对话历史 - 使用LLM服务期望的二维列表格式
+                self.conversation_history.append([message, full_reply])
 
                 logger.info(f"流式对话完成，总长度: {len(full_reply)} 字符")
                 return full_reply
@@ -295,7 +288,19 @@ def save_asr_config(model_type):
     """保存ASR配置"""
     try:
         set_config('asr.model_type', model_type, save=True)
-        return "✅ ASR配置已保存"
+
+        # 尝试热重载ASR服务的配置
+        try:
+            port = get_config('services.asr', 5001)
+            url = f"http://localhost:{port}/reload_config"
+            response = requests.post(url, timeout=10)  # ASR重新加载模型可能需要更长时间
+
+            if response.status_code == 200:
+                return "✅ ASR配置已保存并立即生效！模型已重新加载"
+            else:
+                return "✅ ASR配置已保存\n⚠️ 需要重启ASR服务才能生效"
+        except Exception:
+            return "✅ ASR配置已保存\n⚠️ ASR服务未运行，配置将在下次启动时生效"
     except Exception as e:
         return f"❌ 保存失败: {str(e)}"
 
@@ -324,20 +329,48 @@ def save_llm_config(mode, provider, api_key, api_url, model, max_tokens, tempera
         set_config('llm.local.temperature', float(local_temperature), save=False)
         set_config('llm.local.system_prompt', local_system_prompt, save=True)
 
-        return "✅ LLM配置已保存\n\n⚠️ 如果切换了模式或本地模型,请点击下方'重新加载LLM服务'按钮使配置生效"
+        # 尝试热重载LLM服务的配置
+        try:
+            port = get_config('services.llm', 5002)
+            url = f"http://localhost:{port}/reload_config"
+            response = requests.post(url, timeout=30)  # LLM重新加载模型可能需要更长时间
+
+            if response.status_code == 200:
+                result_data = response.json()
+                if result_data.get('success'):
+                    msg = result_data.get('message', 'LLM配置已重新加载')
+                    return f"✅ LLM配置已保存并立即生效！\n{msg}"
+                else:
+                    return "✅ LLM配置已保存\n⚠️ 配置热重载失败，可能需要重启LLM服务"
+            else:
+                return "✅ LLM配置已保存\n⚠️ 如果切换了模式或本地模型，请重启LLM服务使配置生效"
+        except Exception:
+            return "✅ LLM配置已保存\n⚠️ LLM服务未运行，配置将在下次启动时生效"
     except Exception as e:
         return f"❌ 保存失败: {str(e)}"
 
 
-def save_tts_config(mode, provider, api_key, model, voice):
-    """保存TTS配置"""
+def save_tts_config(provider, api_key, model, voice):
+    """保存TTS配置（仅支持API模式）"""
     try:
-        set_config('tts.mode', mode, save=False)
+        set_config('tts.mode', 'api', save=False)  # 固定为API模式
         set_config('tts.api.provider', provider, save=False)
         set_config('tts.api.api_key', api_key, save=False)
         set_config('tts.api.model', model, save=False)
         set_config('tts.api.voice', voice, save=True)
-        return "✅ TTS配置已保存"
+
+        # 尝试热重载TTS服务的配置
+        try:
+            port = get_config('services.tts', 5003)
+            url = f"http://localhost:{port}/reload_config"
+            response = requests.post(url, timeout=10)
+
+            if response.status_code == 200:
+                return "✅ TTS配置已保存并立即生效！"
+            else:
+                return "✅ TTS配置已保存\n⚠️ 需要重启TTS服务才能生效"
+        except Exception:
+            return "✅ TTS配置已保存\n⚠️ TTS服务未运行，配置将在下次启动时生效"
     except Exception as e:
         return f"❌ 保存失败: {str(e)}"
 
@@ -353,16 +386,22 @@ def reload_all_services():
         services = {
             'ASR': f"http://localhost:{ports['asr']}/reload_config",
             'LLM': f"http://localhost:{ports['llm']}/reload_config",
-            'TTS': f"http://localhost:{ports['tts']}/reload_config"
+            'TTS': f"http://localhost:{ports['tts']}/reload_config",
+            'Orchestrator': f"http://localhost:{ports['orchestrator']}/reload_config",
+            'VoiceChat': f"http://localhost:{ports['voice_chat']}/reload_config"
         }
 
         for name, url in services.items():
             try:
                 response = requests.post(url, timeout=5)
                 if response.status_code == 200:
-                    results.append(f"✅ {name}服务配置已重新加载")
+                    result_data = response.json()
+                    if result_data.get('success', True):
+                        results.append(f"✅ {name}服务配置已重新加载")
+                    else:
+                        results.append(f"⚠️ {name}服务重新加载失败: {result_data.get('message', result_data.get('error', '未知错误'))}")
                 else:
-                    results.append(f"⚠️ {name}服务重新加载失败")
+                    results.append(f"⚠️ {name}服务重新加载失败 (HTTP {response.status_code})")
             except Exception as e:
                 results.append(f"❌ {name}服务不可达: {str(e)}")
 
@@ -665,23 +704,78 @@ def delete_voice_enrollment(voice_id):
 def check_services_health():
     """检查所有服务健康状态"""
     try:
-        port = get_config('services.orchestrator', 5000)
-        url = f"http://localhost:{port}/health"
+        ports = get_config('services')
 
-        response = requests.get(url, timeout=5)
+        # 1. 检查 Orchestrator 及其管理的服务 (ASR, LLM, TTS)
+        orchestrator_port = ports.get('orchestrator', 5000)
+        orchestrator_url = f"http://localhost:{orchestrator_port}/health"
 
-        if response.status_code == 200:
-            result = response.json()
-            services = result.get('services', {})
+        status_text = "🔍 服务健康状态:\n\n"
+        status_text += "=" * 40 + "\n"
 
-            status_text = "🔍 服务健康状态:\n\n"
-            for name, status in services.items():
-                emoji = "✅" if status == "healthy" else "❌"
-                status_text += f"{emoji} {name.upper()}: {status}\n"
+        try:
+            response = requests.get(orchestrator_url, timeout=5)
+            if response.status_code == 200:
+                result = response.json()
+                services = result.get('services', {})
 
-            return status_text
-        else:
-            return "❌ 无法获取健康状态"
+                status_text += "📡 核心服务:\n"
+                for name, status in services.items():
+                    emoji = "✅" if status == "healthy" else "❌"
+                    status_text += f"  {emoji} {name.upper()}: {status}\n"
+            else:
+                status_text += "❌ Orchestrator 服务异常\n"
+        except Exception as e:
+            status_text += f"❌ Orchestrator 服务不可达: {str(e)[:50]}\n"
+
+        status_text += "\n" + "=" * 40 + "\n"
+
+        # 2. 检查 Voice Chat 服务
+        voice_chat_port = ports.get('voice_chat', 5004)
+        voice_chat_url = f"http://localhost:{voice_chat_port}/health"
+
+        status_text += "🎤 语音对话服务:\n"
+        try:
+            response = requests.get(voice_chat_url, timeout=5)
+            if response.status_code == 200:
+                result = response.json()
+                service_status = result.get('status', 'unknown')
+                running = result.get('running', False)
+                enabled = result.get('enabled', False)
+
+                if service_status == "healthy":
+                    status_text += "  ✅ 服务状态: 正常运行\n"
+
+                    # 显示详细状态
+                    if running:
+                        status_text += "  🟢 对话状态: 正在运行\n"
+                    else:
+                        status_text += "  ⚪ 对话状态: 已停止\n"
+
+                    if enabled:
+                        status_text += "  🔛 自动启动: 已启用\n"
+                    else:
+                        status_text += "  🔘 自动启动: 已禁用\n"
+                else:
+                    status_text += f"  ⚠️ 服务状态: {service_status}\n"
+            else:
+                status_text += "  ❌ 服务异常 (无法连接)\n"
+        except requests.exceptions.ConnectionError:
+            status_text += "  ❌ 服务未启动\n"
+        except Exception as e:
+            status_text += f"  ❌ 服务不可达: {str(e)[:50]}\n"
+
+        status_text += "\n" + "=" * 40 + "\n"
+
+        # 3. 检查 Web UI (自身)
+        status_text += "🌐 Web 配置界面:\n"
+        status_text += "  ✅ 服务状态: 正常运行 (当前)\n"
+
+        status_text += "\n💡 提示:\n"
+        status_text += "  • 如果服务显示异常，请运行 python start_all.py 启动服务\n"
+        status_text += "  • 语音对话服务可在 '🎤 语音对话' 标签页控制启动/停止\n"
+
+        return status_text
 
     except Exception as e:
         return f"❌ 检查失败: {str(e)}\n\n请确保所有服务已启动"
@@ -711,7 +805,7 @@ def get_voice_devices():
         return [], []
 
 
-def save_voice_chat_config(enable, wake_mode, wake_words, interrupt_mode, interrupt_words, input_device, output_device, volume, silence_threshold, silence_duration, min_audio_length):
+def save_voice_chat_config(enable, wake_mode, wake_words, wake_reply, interrupt_mode, interrupt_words, interrupt_reply, thinking_reply, input_device, output_device, volume, silence_threshold, silence_duration, min_audio_length, continue_timeout):
     """保存语音对话配置"""
     try:
         # 解析唤醒词（按逗号分隔）
@@ -720,20 +814,59 @@ def save_voice_chat_config(enable, wake_mode, wake_words, interrupt_mode, interr
         # 解析打断词（按逗号分隔）
         interrupt_words_list = [w.strip() for w in interrupt_words.split(',') if w.strip()]
 
-        # 保存配置
-        set_config('voice_chat.enable', enable)
-        set_config('voice_chat.wake_mode', wake_mode)
-        set_config('voice_chat.wake_words', wake_words_list)
-        set_config('voice_chat.interrupt_mode', interrupt_mode)
-        set_config('voice_chat.interrupt_words', interrupt_words_list)
-        set_config('voice_chat.input_device', input_device if input_device != -1 else None)
-        set_config('voice_chat.output_device', output_device if output_device != -1 else None)
-        set_config('voice_chat.output_volume', int(volume))
-        set_config('voice_chat.silence_threshold', int(silence_threshold))
-        set_config('voice_chat.silence_duration', float(silence_duration))
-        set_config('voice_chat.min_audio_length', float(min_audio_length))
+        # 保存配置（除最后一个外都不立即保存到文件）
+        set_config('voice_chat.enable', enable, save=False)
+        set_config('voice_chat.wake_mode', wake_mode, save=False)
+        set_config('voice_chat.wake_words', wake_words_list, save=False)
+        set_config('voice_chat.wake_reply', wake_reply, save=False)
+        set_config('voice_chat.interrupt_mode', interrupt_mode, save=False)
+        set_config('voice_chat.interrupt_words', interrupt_words_list, save=False)
+        set_config('voice_chat.interrupt_reply', interrupt_reply, save=False)
+        set_config('voice_chat.thinking_reply', thinking_reply, save=False)
+        set_config('voice_chat.input_device', input_device if input_device != -1 else None, save=False)
+        set_config('voice_chat.output_device', output_device if output_device != -1 else None, save=False)
+        set_config('voice_chat.output_volume', int(volume), save=False)
+        set_config('voice_chat.silence_threshold', int(silence_threshold), save=False)
+        set_config('voice_chat.silence_duration', float(silence_duration), save=False)
+        set_config('voice_chat.min_audio_length', float(min_audio_length), save=False)
+        set_config('voice_chat.continue_dialogue_timeout', float(continue_timeout), save=True)  # 最后一个才保存到文件
 
-        return "✅ 配置已保存!\n\n⚠️ 请点击'重新启动语音对话服务'使配置生效"
+        # 尝试热重载语音对话服务的配置
+        reload_result = ""
+        try:
+            port = get_config('services.voice_chat', 5004)
+            url = f"http://localhost:{port}/reload_config"
+            response = requests.post(url, timeout=5)
+
+            if response.status_code == 200:
+                result_data = response.json()
+                if result_data.get('success'):
+                    reload_result = "\n\n✅ 语音对话服务配置已热重载！配置立即生效"
+                    if 'changes' in result_data:
+                        changes = result_data['changes']
+                        reload_result += "\n\n📊 当前配置:"
+                        reload_result += f"\n   🔊 静音阈值: {changes.get('silence_threshold')}"
+                        reload_result += f"\n   🔉 输出音量: {changes.get('output_volume')}%"
+                        reload_result += f"\n   🎙️ 唤醒模式: {'启用' if changes.get('wake_mode') else '禁用'}"
+                        if changes.get('wake_words'):
+                            reload_result += f"\n   📢 唤醒词: {', '.join(changes.get('wake_words', []))}"
+                        if changes.get('wake_reply'):
+                            reload_result += f"\n   💬 唤醒回复: {changes.get('wake_reply')}"
+                        reload_result += f"\n   🛑 打断模式: {'启用' if changes.get('interrupt_mode') else '禁用'}"
+                        if changes.get('interrupt_words'):
+                            reload_result += f"\n   ⏸️ 打断词: {', '.join(changes.get('interrupt_words', []))}"
+                        if changes.get('interrupt_reply'):
+                            reload_result += f"\n   💬 打断回复: {changes.get('interrupt_reply')}"
+                    if '音频设备' in result_data.get('message', ''):
+                        reload_result += "\n\n⚠️ 音频设备配置需要重启语音对话才能生效"
+                else:
+                    reload_result = f"\n\n⚠️ 配置热重载失败，需要重启语音对话服务: {result_data.get('error', '未知错误')}"
+            else:
+                reload_result = "\n\n⚠️ 无法热重载配置，请重启语音对话服务"
+        except Exception as e:
+            reload_result = f"\n\n⚠️ 语音对话服务未运行，配置将在下次启动时生效"
+
+        return f"✅ 配置已保存!{reload_result}"
     except Exception as e:
         return f"❌ 保存失败: {str(e)}"
 
@@ -775,22 +908,67 @@ def stop_voice_chat():
 
 
 def get_voice_chat_status():
-    """获取语音对话状态"""
+    """获取语音对话状态（详细版）"""
     try:
         port = get_config('services.voice_chat', 5004)
-        url = f"http://localhost:{port}/status"
-        response = requests.get(url, timeout=5)
 
-        if response.status_code == 200:
-            result = response.json()
-            running = result.get('running', False)
-            enabled = result.get('enabled', False)
+        # 检查服务健康状态
+        health_url = f"http://localhost:{port}/health"
+        try:
+            health_response = requests.get(health_url, timeout=3)
+            if health_response.status_code == 200:
+                health_data = health_response.json()
+                service_status = health_data.get('status', 'unknown')
+                running = health_data.get('running', False)
+                enabled = health_data.get('enabled', False)
 
-            status = "🟢 运行中" if running else "🔴 已停止"
-            enabled_status = "✅ 已启用" if enabled else "❌ 未启用"
+                # 构建详细状态信息
+                status_text = "📊 语音对话服务详细状态\n\n"
+                status_text += "=" * 35 + "\n"
 
-            return f"状态: {status}\n配置: {enabled_status}"
-        return "❌ 无法连接到服务"
+                # 服务状态
+                if service_status == "healthy":
+                    status_text += "✅ 服务状态: 正常运行\n"
+                else:
+                    status_text += f"⚠️ 服务状态: {service_status}\n"
+
+                # 对话运行状态
+                if running:
+                    status_text += "🟢 对话状态: 正在运行\n"
+                else:
+                    status_text += "⚪ 对话状态: 已停止\n"
+
+                # 自动启动配置
+                if enabled:
+                    status_text += "🔛 自动启动: 已启用\n"
+                else:
+                    status_text += "🔘 自动启动: 已禁用\n"
+
+                status_text += "=" * 35 + "\n\n"
+
+                # 获取当前配置
+                voice_config = get_config('voice_chat')
+                status_text += "⚙️ 当前配置:\n"
+                status_text += f"  静音阈值: {voice_config.get('silence_threshold', 'N/A')}\n"
+                status_text += f"  输出音量: {voice_config.get('output_volume', 'N/A')}%\n"
+                status_text += f"  唤醒模式: {'启用' if voice_config.get('wake_mode') else '禁用'}\n"
+                status_text += f"  打断模式: {'启用' if voice_config.get('interrupt_mode') else '禁用'}\n"
+
+                status_text += "\n💡 提示:\n"
+                if not running:
+                    status_text += "  • 点击'启动语音对话'按钮开始使用\n"
+                else:
+                    status_text += "  • 语音对话正在运行中\n"
+                    status_text += "  • 可以点击'停止语音对话'按钮暂停\n"
+
+                return status_text
+            else:
+                return "❌ 服务异常: 无法获取健康状态"
+        except requests.exceptions.ConnectionError:
+            return "❌ 语音对话服务未启动\n\n💡 请在终端运行:\n  python start_all.py\n或单独启动:\n  python voice_chat.py"
+        except Exception as e:
+            return f"❌ 连接服务失败: {str(e)[:50]}"
+
     except Exception as e:
         return f"❌ 获取状态失败: {str(e)}"
 
@@ -1462,13 +1640,7 @@ def create_ui():
 
             # ==================== TTS配置标签页 ====================
             with gr.Tab("🔊 TTS配置"):
-                gr.Markdown("### 语音合成服务配置")
-
-                tts_mode = gr.Radio(
-                    choices=["api", "local"],
-                    value=current_config["tts_mode"],
-                    label="运行模式"
-                )
+                gr.Markdown("### 语音合成服务配置（仅支持API模式）")
 
                 with gr.Group():
                     gr.Markdown("#### API配置")
@@ -1494,7 +1666,7 @@ def create_ui():
                 tts_status = gr.Textbox(label="状态")
                 tts_save_btn.click(
                     save_tts_config,
-                    inputs=[tts_mode, tts_provider, tts_api_key, tts_model, tts_voice],
+                    inputs=[tts_provider, tts_api_key, tts_model, tts_voice],
                     outputs=tts_status
                 )
 
@@ -1572,6 +1744,12 @@ def create_ui():
                         value=', '.join(voice_config.get('wake_words', ["小助手", "你好助手", "嘿助手", "小爱"])),
                         placeholder="小助手, 你好助手, 嘿助手, 小爱"
                     )
+                    voice_wake_reply = gr.Textbox(
+                        label="唤醒确认回复",
+                        value=voice_config.get('wake_reply', "你好，我在"),
+                        placeholder="你好，我在",
+                        info="听到唤醒词后播放的确认语音（支持自定义）"
+                    )
 
                 with gr.Group():
                     gr.Markdown("#### 🛑 打断词设置")
@@ -1602,12 +1780,37 @@ def create_ui():
                         placeholder="停止, 暂停, 别说了, 闭嘴, 停下"
                     )
 
+                    voice_interrupt_reply = gr.Textbox(
+                        label="打断确认回复",
+                        value=voice_config.get('interrupt_reply', "好的，已停止"),
+                        placeholder="好的，已停止",
+                        info="检测到打断词后播放的确认语音（支持自定义）"
+                    )
+
                     gr.Markdown("""
                     **提示**：
                     - 打断词应该简短易说，例如"停止"、"暂停"
                     - 可以添加多个打断词，系统会检测任意一个
+                    - 打断后会播放确认回复（可自定义）
                     - 打断后不会保存被打断的对话到历史记录
                     - 打断后系统会立即重新监听唤醒词
+                    """)
+
+                with gr.Group():
+                    gr.Markdown("#### 思考确认回复")
+
+                    voice_thinking_reply = gr.Textbox(
+                        label="思考确认回复",
+                        value=voice_config.get('thinking_reply', "好，我知道了，等我想一下"),
+                        placeholder="好，我知道了，等我想一下",
+                        info="识别到问题后、开始AI思考前播放的确认语音（支持自定义，支持缓存）"
+                    )
+
+                    gr.Markdown("""
+                    **提示**：
+                    - 在识别完用户问题后立即播放，让用户知道系统已经收到问题
+                    - 提升用户体验，避免等待AI思考时的尴尬沉默
+                    - 音频会自动缓存，重复使用不需要重新生成
                     """)
 
                 with gr.Group():
@@ -1842,12 +2045,12 @@ def create_ui():
                     - 阈值应该设在两者之间
                     """)
                     voice_silence_duration = gr.Slider(
-                        minimum=0.5,
+                        minimum=0.1,
                         maximum=5.0,
                         value=voice_config.get('silence_duration', 1.5),
                         step=0.1,
                         label="静音持续时间（秒）",
-                        info="静音持续多久后停止录音"
+                        info="静音持续多久后停止录音（最低0.1秒，用于唤醒词快速检测）"
                     )
                     voice_min_audio_length = gr.Slider(
                         minimum=0.1,
@@ -1856,6 +2059,14 @@ def create_ui():
                         step=0.1,
                         label="最短音频长度（秒）",
                         info="录音时长少于此值将被忽略"
+                    )
+                    voice_continue_timeout = gr.Slider(
+                        minimum=1.0,
+                        maximum=30.0,
+                        value=voice_config.get('continue_dialogue_timeout', 5.0),
+                        step=0.5,
+                        label="连续对话超时（秒）",
+                        info="AI回答后等待多久无语音将返回待机模式（建议3-10秒）"
                     )
 
                 voice_save_btn = gr.Button("💾 保存配置", variant="primary")
@@ -1867,14 +2078,18 @@ def create_ui():
                         voice_enable,
                         voice_wake_mode,
                         voice_wake_words,
+                        voice_wake_reply,
                         voice_interrupt_mode,
                         voice_interrupt_words,
+                        voice_interrupt_reply,
+                        voice_thinking_reply,
                         voice_input_device,
                         voice_output_device,
                         voice_volume_slider,
                         voice_silence_threshold,
                         voice_silence_duration,
-                        voice_min_audio_length
+                        voice_min_audio_length,
+                        voice_continue_timeout
                     ],
                     outputs=voice_save_status
                 )

@@ -13,6 +13,11 @@ import logging
 import tempfile
 import subprocess
 import os
+import time
+import base64
+import cv2
+import json
+from datetime import datetime
 
 # 添加父目录到路径
 sys.path.insert(0, str(Path(__file__).parent))
@@ -388,7 +393,8 @@ def reload_all_services():
             'LLM': f"http://localhost:{ports['llm']}/reload_config",
             'TTS': f"http://localhost:{ports['tts']}/reload_config",
             'Orchestrator': f"http://localhost:{ports['orchestrator']}/reload_config",
-            'VoiceChat': f"http://localhost:{ports['voice_chat']}/reload_config"
+            'VoiceChat': f"http://localhost:{ports['voice_chat']}/reload_config",
+            'YOLO': f"http://localhost:{ports['yolo']}/reload_config"
         }
 
         for name, url in services.items():
@@ -767,18 +773,47 @@ def check_services_health():
 
         status_text += "\n" + "=" * 40 + "\n"
 
-        # 3. 检查 Web UI (自身)
+        # 3. 检查 YOLO 检测服务
+        yolo_port = ports.get('yolo', 5005)
+        yolo_url = f"http://localhost:{yolo_port}/health"
+
+        status_text += "📹 YOLO检测服务:\n"
+        try:
+            response = requests.get(yolo_url, timeout=5)
+            if response.status_code == 200:
+                result = response.json()
+                service_status = result.get('status', 'unknown')
+                model_loaded = result.get('model_loaded', False)
+
+                if service_status == "healthy":
+                    status_text += "  ✅ 服务状态: 正常运行\n"
+                    status_text += f"  {'✅' if model_loaded else '❌'} 模型加载: {'已加载' if model_loaded else '未加载'}\n"
+                else:
+                    status_text += f"  ❌ 服务状态: {service_status}\n"
+            else:
+                status_text += "  ❌ 服务异常 (无法连接)\n"
+        except requests.exceptions.ConnectionError:
+            status_text += "  ❌ 服务未启动\n"
+        except Exception as e:
+            status_text += f"  ❌ 服务不可达: {str(e)[:50]}\n"
+
+        status_text += "\n" + "=" * 40 + "\n"
+
+        # 4. 检查 Web UI (自身)
         status_text += "🌐 Web 配置界面:\n"
         status_text += "  ✅ 服务状态: 正常运行 (当前)\n"
 
         status_text += "\n💡 提示:\n"
         status_text += "  • 如果服务显示异常，请运行 python start_all.py 启动服务\n"
         status_text += "  • 语音对话服务可在 '🎤 语音对话' 标签页控制启动/停止\n"
+        status_text += "  • YOLO检测服务可在 '📹 YOLO检测' 标签页控制启动/停止\n"
 
         return status_text
 
     except Exception as e:
         return f"❌ 检查失败: {str(e)}\n\n请确保所有服务已启动"
+
+
 
 
 
@@ -2175,6 +2210,7 @@ def create_ui():
                 - **服务异常**：查看"📊 服务状态"页面，确保所有服务正常运行
                 """)
 
+
             # ==================== 音色克隆标签页 ====================
             with gr.Tab("🎨 音色克隆"):
                 gr.Markdown("### CosyVoice音色克隆服务")
@@ -2294,7 +2330,432 @@ def create_ui():
                         outputs=voice_delete_output
                     )
 
+            # ==================== YOLO检测标签页 ====================
+            with gr.Tab("📹 YOLO检测"):
+                gr.Markdown("### 实时目标检测")
+                gr.Markdown("使用YOLOv5进行实时摄像头目标检测，支持80种COCO数据集类别")
+
+                # YOLO检测显示区域
+                with gr.Row():
+                    with gr.Column(scale=2):
+                        # 视频流显示
+                        yolo_video = gr.Image(
+                            label="📹 实时检测画面",
+                            sources="webcam",
+                            streaming=True,
+                            interactive=False
+                        )
+
+                        # 控制按钮
+                        with gr.Row():
+                            yolo_start_btn = gr.Button("🎥 开始检测", variant="primary", scale=1)
+                            yolo_stop_btn = gr.Button("⏹️ 停止检测", variant="stop", scale=1)
+                            yolo_refresh_btn = gr.Button("🔄 刷新状态", variant="secondary", scale=1)
+
+                    with gr.Column(scale=1):
+                        # 检测参数控制
+                        gr.Markdown("#### 检测参数")
+                        yolo_confidence = gr.Slider(
+                            minimum=0.1,
+                            maximum=1.0,
+                            value=get_config('yolo.confidence_threshold', 0.5),
+                            step=0.05,
+                            label="置信度阈值",
+                            info="过滤低置信度的检测结果"
+                        )
+
+                        yolo_nms = gr.Slider(
+                            minimum=0.1,
+                            maximum=1.0,
+                            value=get_config('yolo.nms_threshold', 0.4),
+                            step=0.05,
+                            label="NMS阈值",
+                            info="非极大值抑制阈值"
+                        )
+
+                        # FPS显示
+                        yolo_fps_display = gr.Textbox(
+                            label="实时FPS",
+                            value="0.0",
+                            interactive=False
+                        )
+
+                        # 检测统计
+                        yolo_stats = gr.JSON(
+                            label="检测统计",
+                            value={}
+                        )
+
+                # 检测结果显示
+                with gr.Row():
+                    with gr.Column():
+                        gr.Markdown("#### 检测结果列表")
+                        yolo_detections_list = gr.DataFrame(
+                            headers=["类别", "置信度", "位置"],
+                            datatype=["str", "number", "str"],
+                            interactive=False
+                        )
+
+                        # 历史记录
+                        with gr.Row():
+                            yolo_clear_history_btn = gr.Button("🗑️ 清空历史", size="sm")
+                            yolo_export_btn = gr.Button("💾 导出截图", size="sm")
+
+                    with gr.Column():
+                        # YOLO控制（C++版本）
+                        gr.Markdown("#### C++版本控制")
+                        with gr.Row():
+                            cpp_start_btn = gr.Button("🚀 启动C++检测", variant="secondary")
+                            cpp_stop_btn = gr.Button("🛑 停止C++检测", variant="secondary")
+
+                        cpp_status = gr.Textbox(
+                            label="C++状态",
+                            lines=5,
+                            value="未启动",
+                            interactive=False
+                        )
+
+                # 摄像头配置
+                with gr.Accordion("📷 高级配置", open=False):
+                    yolo_camera_index = gr.Number(
+                        label="摄像头索引",
+                        value=get_config('yolo.camera_index', 0),
+                        precision=0,
+                        info="指定摄像头设备索引，-1为自动检测"
+                    )
+
+                    yolo_max_fps = gr.Slider(
+                        minimum=5,
+                        maximum=30,
+                        value=get_config('yolo.max_fps', 15),
+                        step=1,
+                        label="最大FPS",
+                        info="限制检测帧率以降低CPU负载"
+                    )
+
+                    gr.Markdown("""
+                    **使用说明**:
+                    - 点击"开始检测"启动实时检测
+                    - 调整置信度阈值过滤不重要的检测
+                    - 检测结果会实时显示在画面和列表中
+                    - 可以导出当前检测截图保存
+                    """)
+
+                # 绑定事件处理函数
+                yolo_start_btn.click(
+                    fn=start_yolo_detection,
+                    inputs=[yolo_camera_index, yolo_confidence],
+                    outputs=[yolo_video, yolo_fps_display, yolo_detections_list]
+                )
+
+                yolo_stop_btn.click(
+                    fn=stop_yolo_detection,
+                    outputs=[yolo_video, yolo_fps_display]
+                )
+
+                yolo_refresh_btn.click(
+                    fn=get_yolo_status,
+                    outputs=[yolo_fps_display, yolo_stats]
+                )
+
+                yolo_confidence.change(
+                    fn=update_yolo_settings,
+                    inputs=[yolo_confidence, yolo_nms],
+                    outputs=[]
+                )
+
+                cpp_start_btn.click(
+                    fn=run_yolo_cpp_detection,
+                    outputs=[cpp_status]
+                )
+
+                cpp_stop_btn.click(
+                    fn=stop_yolo_cpp_detection,
+                    outputs=[cpp_status]
+                )
+
+                # 使用定时器更新检测状态
+                yolo_timer = gr.Timer(value=0.2)  # 200ms刷新一次
+                yolo_timer.tick(
+                    fn=update_yolo_cpp_stream,
+                    inputs=[yolo_confidence],
+                    outputs=[yolo_video, yolo_fps_display, yolo_detections_list]
+                )
+
     return demo
+
+
+# ==================== YOLO Detection Functions ====================
+
+def start_yolo_detection(camera_index, confidence_threshold):
+    """启动YOLO检测"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+
+        # 转换摄像头索引
+        cam_idx = None if camera_index == -1 else int(camera_index)
+
+        # 启动检测
+        response = requests.post(
+            f"http://localhost:{port}/detect/start",
+            json={
+                "camera_index": cam_idx,
+                "confidence_threshold": confidence_threshold
+            },
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('success'):
+                logger.info(f"YOLO检测已启动: {result.get('message')}")
+                # 等待一下让摄像头开始捕获
+                time.sleep(1)
+                # 返回初始状态，定时器会更新实际的图像
+                return "检测已启动，正在加载...", "0.0", []
+            else:
+                logger.error(f"YOLO启动失败: {result.get('message')}")
+                return None, "错误", []
+        else:
+            logger.error(f"YOLO启动请求失败: {response.status_code}")
+            return None, f"HTTP {response.status_code}", []
+
+    except Exception as e:
+        logger.error(f"启动YOLO检测出错: {e}")
+        return None, f"错误: {str(e)}", []
+
+def stop_yolo_detection():
+    """停止YOLO检测"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+
+        response = requests.post(
+            f"http://localhost:{port}/detect/stop",
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            logger.info(f"YOLO检测已停止: {result.get('message')}")
+
+        return None, "0.0"
+
+    except Exception as e:
+        logger.error(f"停止YOLO检测出错: {e}")
+        return None, "错误"
+
+def get_yolo_status():
+    """获取YOLO状态"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+
+        # 获取检测状态
+        response = requests.get(
+            f"http://localhost:{port}/detect/status",
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            status = result.get('status', {})
+            fps = status.get('fps', 0.0)
+            stats = {
+                "is_running": status.get('is_running', False),
+                "camera_index": status.get('camera_index'),
+                "fps": round(fps, 1),
+                "detections": status.get('last_detection_count', 0)
+            }
+            return str(round(fps, 1)), stats
+        else:
+            return "0.0", {"error": "无法获取状态"}
+
+    except Exception as e:
+        logger.error(f"获取YOLO状态出错: {e}")
+        return "0.0", {"error": str(e)}
+
+def update_yolo_settings(confidence_threshold, nms_threshold):
+    """更新YOLO设置"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+
+        response = requests.post(
+            f"http://localhost:{port}/detect/update_settings",
+            json={
+                "confidence_threshold": confidence_threshold,
+                "nms_threshold": nms_threshold
+            },
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+            logger.info(f"YOLO设置已更新: {result}")
+
+    except Exception as e:
+        logger.error(f"更新YOLO设置出错: {e}")
+
+def update_yolo_stream(confidence_threshold):
+    """更新YOLO视频流"""
+    try:
+        import requests
+        import base64
+        from PIL import Image
+        import io
+
+        port = get_config('services.yolo', 5005)
+
+        # 获取最新检测结果
+        response = requests.get(
+            f"http://localhost:{port}/detect/latest",
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+
+            # 解码图像
+            frame_base64 = result.get('frame_base64', '')
+            if frame_base64:
+                image_data = base64.b64decode(frame_base64)
+                image = Image.open(io.BytesIO(image_data))
+
+                # 处理检测结果
+                detections_data = result.get('detections', {})
+                detections = detections_data.get('detections', [])
+                fps = detections_data.get('fps', 0.0)
+
+                # 转换检测结果为DataFrame格式
+                detection_list = []
+                for det in detections:
+                    bbox = det.get('bbox', [])
+                    pos_str = f"[{bbox[0]}, {bbox[1]}]"
+                    detection_list.append([
+                        det.get('label', ''),
+                        round(det.get('confidence', 0), 3),
+                        pos_str
+                    ])
+
+                return image, str(round(fps, 1)), detection_list
+
+        return None, "0.0", []
+
+    except Exception as e:
+        logger.error(f"更新YOLO流出错: {e}")
+        return None, "0.0", []
+
+def update_yolo_cpp_stream(confidence_threshold):
+    """更新C++ YOLO视频流"""
+    try:
+        import requests
+        import base64
+        from PIL import Image
+        import io
+
+        # C++服务运行在5007端口
+        port = 5007
+
+        # 获取最新帧
+        response = requests.get(
+            f"http://localhost:{port}/frame",
+            timeout=5
+        )
+
+        if response.status_code == 200:
+            result = response.json()
+
+            # 解码图像
+            image_data = result.get('image', '')
+            if image_data and image_data.startswith('data:image/jpeg;base64,'):
+                # 移除data URL前缀
+                base64_data = image_data.split(',')[1]
+                image_bytes = base64.b64decode(base64_data)
+                image = Image.open(io.BytesIO(image_bytes))
+
+                # 处理检测结果
+                detections = result.get('detections', [])
+                fps = result.get('fps', 0.0)
+
+                # 转换检测结果为DataFrame格式
+                detection_list = []
+                for det in detections:
+                    detection_list.append([
+                        det.get('label', ''),
+                        round(det.get('confidence', 0), 3),
+                        f"[{det.get('x', 0):.0f}, {det.get('y', 0):.0f}]"
+                    ])
+
+                return image, str(round(fps, 1)), detection_list
+
+        return None, "0.0", []
+
+    except Exception as e:
+        logger.error(f"更新C++ YOLO流出错: {e}")
+        return None, "0.0", []
+
+def update_yolo_detection_info(confidence_threshold):
+    """更新YOLO检测信息（保留兼容性）"""
+    return get_yolo_status()[0]
+
+def run_yolo_cpp_detection():
+    """运行C++ YOLO检测"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+        response = requests.post(f"http://localhost:{port}/yolo/start", timeout=10)
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('success'):
+                return "✅ C++ YOLO检测已启动！\n" + result.get('message', '')
+            else:
+                return "❌ 启动失败: " + result.get('message', '未知错误')
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
+
+def stop_yolo_cpp_detection():
+    """停止C++ YOLO检测"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+        response = requests.post(f"http://localhost:{port}/yolo/stop", timeout=10)
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('success'):
+                return "✅ C++ YOLO检测已停止\n" + result.get('message', '')
+            else:
+                return "❌ 停止失败: " + result.get('message', '未知错误')
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
+
+def check_yolo_cpp_status():
+    """检查C++ YOLO状态"""
+    try:
+        import requests
+        port = get_config('services.yolo', 5005)
+        response = requests.get(f"http://localhost:{port}/yolo/status", timeout=10)
+
+        if response.status_code == 200:
+            result = response.json()
+            status_msg = f"状态: {result.get('status', 'unknown')}\n"
+            if result.get('pid'):
+                status_msg += f"进程ID: {result['pid']}\n"
+            if result.get('executable'):
+                status_msg += f"可执行文件: {result['executable']}"
+            return status_msg
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
+
 
 
 if __name__ == "__main__":

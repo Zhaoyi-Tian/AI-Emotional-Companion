@@ -1,0 +1,21 @@
+model_name: mllama
+model_path: /data/Llama-3.2-11B-Vision-Instruct
+model_type: pa
+data_type: bf16
+use_chat_template: false
+max_position_embedding: -1
+block_size: 128
+requested_gpu_framework: "Huggingface"
+trust_remote_code: true
+mm_model:
+  path: mllama
+  classname: MultiModalPARunner
+  warm_up_input_texts: "Explain the contents of the picture as long as possible."
+  warm_up_image_path: 'path_to_image.jpg'
+  prompt_prefix: 'Look at the image carefully and answer this visual question. For yes/no questions, just respond Yes or No. If the answer is numeric, just respond with the number and nothing else. If the answer has multiple words, just respond with the words and absolutely nothing else. Never respond in a sentence or a phrase.\n Respond with as few words as possible.\n Question: '
+  prompt_suffix: ' \n Answer: '
+  infer_params:
+    batch_size: 1
+    max_output_length: 10
+    ignore_eos: false
+    is_chat_model: true

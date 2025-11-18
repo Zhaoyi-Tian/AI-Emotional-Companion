@@ -1,0 +1,13 @@
+transformers==4.46.0
+sentencepiece==0.2.0
+numpy==1.23.5
+tqdm==4.66.4
+psutil==6.0.0
+packaging==24.0
+torchvision==0.16.0
+pillow==10.3.0
+open_clip_torch==2.26.1
+peft
+einops
+wheel
+cos-python-sdk-v5

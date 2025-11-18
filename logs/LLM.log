@@ -5,15 +5,14 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-10-28 23:22:34,962 - LLM_Service - INFO - LLM服务启动在端口: 5002
-INFO:     Started server process [10347]
+2025-11-18 20:17:51,789 - LLM_Service - INFO - LLM服务启动在端口: 5002
+INFO:     Started server process [3320]
 INFO:     Waiting for application startup.
-2025-10-28 23:22:35,032 - LLM_Service - INFO - 🚀 LLM服务正在启动...
-2025-10-28 23:22:35,033 - LLM_Service - INFO - 使用API模式
-2025-10-28 23:22:35,033 - LLM_Service - INFO - ✅ LLM服务启动完成!
+2025-11-18 20:17:51,942 - LLM_Service - INFO - 🚀 LLM服务正在启动...
+2025-11-18 20:17:51,943 - LLM_Service - INFO - 使用API模式
+2025-11-18 20:17:51,943 - LLM_Service - INFO - ✅ LLM服务启动完成!
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5002 (Press CTRL+C to quit)
-2025-10-28 23:32:54,829 - LLM_Service - INFO - 收到流式对话请求: 你在吗...
-INFO:     127.0.0.1:41900 - "POST /chat/stream HTTP/1.1" 200 OK
-2025-10-28 23:33:12,630 - LLM_Service - INFO - 收到流式对话请求: 告诉我你的名字...
-INFO:     127.0.0.1:52330 - "POST /chat/stream HTTP/1.1" 200 OK
+2025-11-18 20:41:48,555 - LLM_Service - INFO - 收到流式对话请求: 你在吗？...
+INFO:     127.0.0.1:46574 - "POST /chat/stream HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48832 - "GET /health HTTP/1.1" 200 OK

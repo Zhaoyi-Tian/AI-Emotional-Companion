@@ -71,7 +71,7 @@ def start_service(name, script_path, conda_env=None, wait_time=3):
     log_dir = Path(__file__).parent / "logs"
     log_dir.mkdir(exist_ok=True)
 
-    service_name_clean = name.replace('服务', '').replace(' ', '_')
+    service_name_clean = name.replace('服务', '').replace(' ', '_').replace('YOLO检测', 'YOLO')
     log_file = log_dir / f"{service_name_clean}.log"
 
     try:
@@ -241,6 +241,12 @@ def main():
             'conda_env': None,  # 使用base环境
             'wait': 3,
             'optional': True  # 可选服务，根据配置决定是否启动
+        },
+        {
+            'name': 'YOLO检测服务',
+            'script': base_dir / 'yolo_service' / 'app_fastapi.py',
+            'conda_env': None,  # 使用base环境
+            'wait': 3
         }
     ]
 
@@ -276,6 +282,7 @@ def main():
         logger.info("    • LLM服务: http://localhost:5002")
         logger.info("    • TTS服务: http://localhost:5003")
         logger.info("    • 语音对话服务: http://localhost:5004")
+        logger.info("    • YOLO检测服务: http://localhost:5005")
         logger.info("    • Web配置界面: http://localhost:8080")
 
         logger.info(f"\n  内网访问 (局域网其他设备可访问):")
@@ -284,6 +291,7 @@ def main():
         logger.info(f"    • LLM服务: http://{local_ip}:5002")
         logger.info(f"    • TTS服务: http://{local_ip}:5003")
         logger.info(f"    • 语音对话服务: http://{local_ip}:5004")
+        logger.info(f"    • YOLO检测服务: http://{local_ip}:5005")
         logger.info(f"    • Web配置界面: http://{local_ip}:8080  ⭐")
 
         logger.info("\n💡 提示:")

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO实时检测</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #333;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            display: flex;
+            gap: 20px;
+        }
+
+        .video-container {
+            flex: 2;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #videoCanvas {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .detection-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .detection-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings {
+            margin-top: 20px;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 YOLO实时目标检测</h1>
+            <p>基于YOLOv5的实时目标检测系统</p>
+        </div>
+
+        <div class="content">
+            <!-- 视频显示区域 -->
+            <div class="video-container">
+                <h2>实时画面</h2>
+                <canvas id="videoCanvas" width="640" height="480"></canvas>
+
+                <div class="controls">
+                    <button id="startBtn" class="btn-primary">开始检测</button>
+                    <button id="stopBtn" class="btn-danger">停止检测</button>
+                    <button id="screenshotBtn" class="btn-secondary">截图保存</button>
+                    <button id="fullscreenBtn" class="btn-secondary">全屏显示</button>
+                </div>
+
+                <div class="status">
+                    <strong>连接状态:</strong> <span id="connectionStatus">未连接</span>
+                </div>
+            </div>
+
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <h3>检测参数</h3>
+
+                <div class="settings">
+                    <div class="slider-container">
+                        <label>置信度阈值: <span id="confidenceValue">0.5</span></label>
+                        <input type="range" id="confidenceSlider" class="slider"
+                               min="0.1" max="1.0" step="0.05" value="0.5">
+                    </div>
+
+                    <div class="slider-container">
+                        <label>NMS阈值: <span id="nmsValue">0.4</span></label>
+                        <input type="range" id="nmsSlider" class="slider"
+                               min="0.1" max="1.0" step="0.05" value="0.4">
+                    </div>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="fpsValue">0</div>
+                        <div class="stat-label">FPS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="detectionCount">0</div>
+                        <div class="stat-label">检测对象数</div>
+                    </div>
+                </div>
+
+                <!-- 检测结果列表 -->
+                <h3>检测结果</h3>
+                <div id="detectionList" class="detection-list">
+                    <p>等待检测开始...</p>
+                </div>
+
+                <!-- 日志 -->
+                <h3>系统日志</h3>
+                <div id="logArea" style="height: 150px; overflow-y: auto;
+                                        background: #f8f9fa; padding: 10px;
+                                        border-radius: 4px; font-size: 12px;">
+                    <p>系统就绪</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket连接管理
+        let ws = null;
+        let canvas = document.getElementById('videoCanvas');
+        let ctx = canvas.getContext('2d');
+        let isConnected = false;
+        let detectionHistory = [];
+
+        // DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const screenshotBtn = document.getElementById('screenshotBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const confidenceSlider = document.getElementById('confidenceSlider');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const nmsSlider = document.getElementById('nmsSlider');
+        const nmsValue = document.getElementById('nmsValue');
+        const fpsValue = document.getElementById('fpsValue');
+        const detectionCount = document.getElementById('detectionCount');
+        const detectionList = document.getElementById('detectionList');
+        const logArea = document.getElementById('logArea');
+
+        // 日志函数
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logArea.innerHTML += `<p>[${timestamp}] ${message}</p>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 更新检测列表
+        function updateDetectionList(detections) {
+            if (detections.length === 0) {
+                detectionList.innerHTML = '<p>未检测到对象</p>';
+                return;
+            }
+
+            let html = '';
+            detections.forEach((det, index) => {
+                const confidence = (det.confidence * 100).toFixed(1);
+                const bbox = det.bbox || [];
+                const position = `(${bbox[0]}, ${bbox[1]})`;
+
+                html += `
+                    <div class="detection-item">
+                        <span>${index + 1}. ${det.label}</span>
+                        <span>${confidence}% ${position}</span>
+                    </div>
+                `;
+            });
+
+            detectionList.innerHTML = html;
+            detectionCount.textContent = detections.length;
+        }
+
+        // 更新统计信息
+        function updateStats(data) {
+            if (data.fps) {
+                fpsValue.textContent = data.fps.toFixed(1);
+            }
+            if (data.detections) {
+                updateDetectionList(data.detections);
+            }
+        }
+
+        // 连接WebSocket
+        function connect() {
+            // 获取当前host和端口
+            const host = window.location.hostname || 'localhost';
+            const port = window.location.port || 8080;
+            const wsUrl = `ws://${host}:5005/ws/detect/stream`;
+
+            log(`正在连接到 ${wsUrl}...`);
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                isConnected = true;
+                connectionStatus.textContent = '已连接';
+                connectionStatus.style.color = 'green';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                log('WebSocket连接成功');
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    // 尝试解析文本消息
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'detections') {
+                        updateStats(data.data);
+                    } else if (data.type === 'status') {
+                        log(`状态更新: ${JSON.stringify(data.data)}`);
+                    }
+                } catch (e) {
+                    // 处理二进制图像数据
+                    if (event.data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = function() {
+                            const img = new Image();
+                            img.onload = function() {
+                                // 调整canvas大小
+                                if (img.width !== canvas.width || img.height !== canvas.height) {
+                                    canvas.width = img.width;
+                                    canvas.height = img.height;
+                                }
+                                // 绘制图像
+                                ctx.drawImage(img, 0, 0);
+                            };
+                            img.src = reader.result;
+                        };
+                        reader.readAsDataURL(event.data);
+                    }
+                }
+            };
+
+            ws.onclose = function() {
+                isConnected = false;
+                connectionStatus.textContent = '已断开';
+                connectionStatus.style.color = 'red';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                log('WebSocket连接已断开');
+            };
+
+            ws.onerror = function(error) {
+                log(`WebSocket错误: ${error}`);
+            };
+        }
+
+        // 断开连接
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        // 开始检测
+        startBtn.onclick = async function() {
+            // 先启动检测服务
+            try {
+                const response = await fetch('/api/start_detection', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        confidence_threshold: parseFloat(confidenceSlider.value),
+                        nms_threshold: parseFloat(nmsSlider.value)
+                    })
+                });
+
+                if (response.ok) {
+                    log('检测服务已启动');
+                    // 连接WebSocket
+                    connect();
+                } else {
+                    log('启动检测服务失败');
+                }
+            } catch (error) {
+                log(`错误: ${error.message}`);
+            }
+        };
+
+        // 停止检测
+        stopBtn.onclick = function() {
+            disconnect();
+            log('检测已停止');
+
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#666';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('检测已停止', canvas.width/2, canvas.height/2);
+        };
+
+        // 截图保存
+        screenshotBtn.onclick = function() {
+            const link = document.createElement('a');
+            link.download = `yolo_detection_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            log('截图已保存');
+        };
+
+        // 全屏显示
+        fullscreenBtn.onclick = function() {
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            }
+        };
+
+        // 滑块事件
+        confidenceSlider.oninput = function() {
+            confidenceValue.textContent = this.value;
+            updateSettings();
+        };
+
+        nmsSlider.oninput = function() {
+            nmsValue.textContent = this.value;
+            updateSettings();
+        };
+
+        // 更新设置
+        async function updateSettings() {
+            try {
+                const response = await fetch('/api/update_settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        confidence_threshold: parseFloat(confidenceSlider.value),
+                        nms_threshold: parseFloat(nmsSlider.value)
+                    })
+                });
+                if (response.ok) {
+                    log('设置已更新');
+                }
+            } catch (error) {
+                log(`更新设置失败: ${error.message}`);
+            }
+        }
+
+        // 初始化画布
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#666';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('点击"开始检测"开始实时目标检测', canvas.width/2, canvas.height/2);
+
+        // 页面加载完成日志
+        log('页面加载完成，准备就绪');
+    </script>
+</body>
+</html>

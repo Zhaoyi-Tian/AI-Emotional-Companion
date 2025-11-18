@@ -1,0 +1,8 @@
+# Copyright Huawei Technologies Co., Ltd. 2023-2024. All rights reserved.
+from atb_llm.common_op_builders.common_op_builder_manager import CommonOpBuilderManager
+from atb_llm.common_op_builders.fusion_linear.fusion_linear_common_op_builder import FusionLinearCommonOpBuilder
+from atb_llm.common_op_builders.fusion_linear.fusion_linear_with_lora_common_op_builder \
+    import FusionLinearWithLoraCommonOpBuilder
+
+CommonOpBuilderManager.register(FusionLinearCommonOpBuilder)
+CommonOpBuilderManager.register(FusionLinearWithLoraCommonOpBuilder)

@@ -1,0 +1,5 @@
+# Copyright Huawei Technologies Co., Ltd. 2023-2024. All rights reserved.
+from atb_llm.common_op_builders.common_op_builder_manager import CommonOpBuilderManager
+from atb_llm.common_op_builders.integrated_gmm.integrated_gmm_commom_op_builder import IntegratedGmmCommonOpBuilder
+
+CommonOpBuilderManager.register(IntegratedGmmCommonOpBuilder)

@@ -5,10 +5,11 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-10-28 23:22:44,944 - Orchestrator - INFO - 主控制服务启动在端口: 5000
-INFO:     Started server process [10430]
+2025-11-18 20:18:01,911 - Orchestrator - INFO - 主控制服务启动在端口: 5000
+INFO:     Started server process [3372]
 INFO:     Waiting for application startup.
-2025-10-28 23:22:45,012 - Orchestrator - INFO - 🚀 主控制服务正在启动...
-2025-10-28 23:22:45,013 - Orchestrator - INFO - ✅ 主控制服务启动完成!
+2025-11-18 20:18:01,967 - Orchestrator - INFO - 🚀 主控制服务正在启动...
+2025-11-18 20:18:01,968 - Orchestrator - INFO - ✅ 主控制服务启动完成!
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:48270 - "GET /health HTTP/1.1" 200 OK

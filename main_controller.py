@@ -49,6 +49,15 @@ class ServiceManager:
                 'health_endpoint': '/health',
                 'process': None,
                 'pid': None
+            },
+            'yolo': {
+                'name': 'YOLO目标检测服务',
+                'path': 'yolo_service/app_fastapi.py',
+                'env': None,  # 使用系统Python
+                'port': 5005,
+                'health_endpoint': '/health',
+                'process': None,
+                'pid': None
             }
         }
         self.pid_dir = 'pids'
@@ -63,11 +72,15 @@ class ServiceManager:
         logger.info(f"正在启动 {service['name']}...")
         
         try:
-            # 获取虚拟环境的Python解释器路径
+            # 获取Python解释器路径
             if service['env'] == 'cosyvoice':
                 # 特殊处理cosyvoice环境
                 python_path = self._get_cosyvoice_python_path()
+            elif service['env'] is None:
+                # 使用系统Python
+                python_path = sys.executable
             else:
+                # 使用虚拟环境
                 python_path = os.path.join(service['env'], 'bin', 'python')
             
             # 构建启动命令

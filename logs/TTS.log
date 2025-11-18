@@ -1,4 +1,4 @@
-2025-10-28 23:22:39,941 - TTS_Service - INFO - 🔧 初始化 Synthesizer 连接池，最大容量: 5
+2025-11-18 20:17:57,262 - TTS_Service - INFO - 🔧 初始化 Synthesizer 连接池，最大容量: 5
 /home/HwHiAiUser/ai_助手/tts_service/app_fastapi.py:318: DeprecationWarning: 
         on_event is deprecated, use lifespan event handlers instead.
 
@@ -13,23 +13,20 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-10-28 23:22:39,956 - TTS_Service - INFO - TTS服务启动在端口: 5003
-INFO:     Started server process [10398]
+2025-11-18 20:17:57,278 - TTS_Service - INFO - TTS服务启动在端口: 5003
+INFO:     Started server process [3347]
 INFO:     Waiting for application startup.
-2025-10-28 23:22:39,995 - TTS_Service - INFO - 🚀 TTS服务正在启动...
-2025-10-28 23:22:39,995 - TTS_Service - INFO - ✅ CosyVoice API配置完成
-2025-10-28 23:22:39,996 - TTS_Service - INFO - ✅ TTS服务启动完成!
-2025-10-28 23:22:39,996 - TTS_Service - INFO - 🔥 开始TTS预热...
-2025-10-28 23:22:40,120 - websocket - INFO - Websocket connected
-2025-10-28 23:22:50,912 - TTS_Service - INFO - 流式合成完成,请求ID: b64ff9e4c95c4882bca112dca987d148
-2025-10-28 23:22:50,912 - TTS_Service - INFO - ✅ TTS预热完成，接收到 0 个音频块
+2025-11-18 20:17:57,410 - TTS_Service - INFO - 🚀 TTS服务正在启动...
+2025-11-18 20:17:57,411 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+2025-11-18 20:17:57,411 - TTS_Service - INFO - ✅ TTS服务启动完成!
+2025-11-18 20:17:57,411 - TTS_Service - INFO - 🔥 开始TTS预热...
+2025-11-18 20:17:57,528 - websocket - INFO - Websocket connected
+2025-11-18 20:18:07,988 - TTS_Service - INFO - 流式合成完成,请求ID: be4f40fd03a34b00820d8d7e2c4ef27e
+2025-11-18 20:18:07,988 - TTS_Service - INFO - ✅ TTS预热完成，接收到 0 个音频块
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5003 (Press CTRL+C to quit)
-2025-10-28 23:32:59,316 - TTS_Service - INFO - 收到合成请求: （温柔轻快）当然在啦~ 我一直都在这里等着你哦！有什么想和我分享的吗？...
-2025-10-28 23:32:59,431 - websocket - INFO - Websocket connected
-2025-10-28 23:33:04,944 - TTS_Service - INFO - 非流式合成完成,请求ID: 9f1af85ce854437e998a4f06b851e472
-INFO:     127.0.0.1:59216 - "POST /synthesize HTTP/1.1" 200 OK
-2025-10-28 23:33:17,576 - TTS_Service - INFO - 收到合成请求: （俏皮地转了个圈）我是爱莉希雅呀~ 如飞花般绚丽的少女，永远为你绽放！...
-2025-10-28 23:33:17,700 - websocket - INFO - Websocket connected
-2025-10-28 23:33:29,517 - TTS_Service - INFO - 非流式合成完成,请求ID: 5273113c69774e9da2f42de887e861f4
-INFO:     127.0.0.1:36212 - "POST /synthesize HTTP/1.1" 200 OK
+2025-11-18 20:41:52,162 - TTS_Service - INFO - 收到合成请求: (活泼轻快地) 当然在啦~ 可爱的爱莉希雅随时都在这里哦！有什么想和我聊的吗？...
+2025-11-18 20:41:52,281 - websocket - INFO - Websocket connected
+2025-11-18 20:41:57,158 - TTS_Service - INFO - 非流式合成完成,请求ID: 84afdebfbd6b49fcb0c9e69e3e3fd03c
+INFO:     127.0.0.1:57982 - "POST /synthesize HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44268 - "GET /health HTTP/1.1" 200 OK

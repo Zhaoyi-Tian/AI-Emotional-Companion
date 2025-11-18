@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: atb_speed
+Version: 1.1.0
+Summary: atb speed sdk
+License: MIT
+Keywords: atb_speed
+Requires-Dist: pandas
+Dynamic: keywords
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary

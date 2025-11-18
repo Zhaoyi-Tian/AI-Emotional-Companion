@@ -2,7 +2,7 @@ asr:
   channels: 1
   model_path_cn: asr_service/CN_model/offline_encoder.om
   model_path_en: asr_service/EN_model/offline_encoder.om
-  model_type: CN
+  model_type: EN
   sample_rate: 44100
   vocab_path_cn: asr_service/CN_model/vocab.txt
   vocab_path_en: asr_service/EN_model/vocab.txt
@@ -37,6 +37,7 @@ services:
   tts: 5003
   voice_chat: 5004
   web_ui: 8080
+  yolo: 5005
 streaming:
   max_wait_time: 3.0
   min_chunk_length: 10
@@ -97,3 +98,13 @@ web:
   enable: true
   share: true
   title: AI语音助手配置中心
+yolo:
+  camera_index: null
+  confidence_threshold: 0.5
+  enable_streaming: true
+  labels_file: yolo_service/YOLOV5USBCamera/python/src/label.py
+  max_fps: 15
+  model_height: 640
+  model_path: yolo_service/models/yolov5s.om
+  model_width: 640
+  nms_threshold: 0.4

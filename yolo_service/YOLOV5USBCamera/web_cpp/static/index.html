@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO 物体识别 & 人脸情感识别系统</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 id="system-title">🎯 YOLO USB 摄像头实时检测系统</h1>
+            <div class="model-switch">
+                <button id="detection-btn" class="btn btn-primary model-btn active" onclick="switchModel('detection')">
+                    🎯 物体识别
+                </button>
+                <button id="emotion-btn" class="btn btn-secondary model-btn" onclick="switchModel('emotion')">
+                    😊 人脸情感识别
+                </button>
+            </div>
+            <div class="status-bar">
+                <span id="fps-display">FPS: 0</span>
+                <span id="detection-count">检测数: 0</span>
+                <span id="status-display">状态: 未连接</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="video-container">
+                <div class="canvas-wrapper">
+                    <canvas id="video-canvas"></canvas>
+                    <canvas id="detection-canvas"></canvas>
+                </div>
+                <div class="no-video" id="no-video-message">
+                    <p>📷 等待视频流...</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="start-btn" class="btn btn-primary">▶️ 开始检测</button>
+                <button id="stop-btn" class="btn btn-danger" disabled>⏹️ 停止检测</button>
+                <button id="refresh-btn" class="btn btn-secondary">🔄 刷新</button>
+            </div>
+
+            <div class="settings">
+                <h3>⚙️ 检测设置</h3>
+                <div class="setting-item">
+                    <label for="confidence-threshold">置信度阈值:</label>
+                    <input type="range" id="confidence-threshold" min="0" max="1" step="0.05" value="0.7">
+                    <span id="confidence-value">0.70</span>
+                </div>
+                <div class="setting-item">
+                    <label for="nms-threshold">NMS 阈值:</label>
+                    <input type="range" id="nms-threshold" min="0" max="1" step="0.05" value="0.45">
+                    <span id="nms-value">0.45</span>
+                </div>
+                <div class="setting-item">
+                    <label for="max-fps">最大 FPS:</label>
+                    <input type="range" id="max-fps" min="1" max="30" step="1" value="15">
+                    <span id="fps-value">15</span>
+                </div>
+                <button id="apply-settings" class="btn btn-secondary">应用设置</button>
+            </div>
+
+            <div class="detection-list">
+                <h3>📊 检测结果</h3>
+                <div id="detection-results">
+                    <p class="no-detections">暂无检测结果</p>
+                </div>
+            </div>
+
+            <div class="statistics">
+                <h3>📈 统计信息</h3>
+                <div id="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-label">运行时间:</span>
+                        <span id="runtime" class="stat-value">0 秒</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">总帧数:</span>
+                        <span id="total-frames" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">总检测数:</span>
+                        <span id="total-detections" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">平均检测/帧:</span>
+                        <span id="avg-detections" class="stat-value">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>YOLO v5 USB Camera Detection System | Powered by FastAPI & WebSocket</p>
+        </footer>
+    </div>
+
+    <script>
+        // 全局变量
+        let ws = null;
+        let isRunning = false;
+        let statsInterval = null;
+
+        // Canvas 元素
+        const videoCanvas = document.getElementById('video-canvas');
+        const detectionCanvas = document.getElementById('detection-canvas');
+        const videoCtx = videoCanvas.getContext('2d');
+        const detectionCtx = detectionCanvas.getContext('2d');
+
+        // 控制按钮
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const applySettingsBtn = document.getElementById('apply-settings');
+
+        // 配置滑块
+        const confidenceSlider = document.getElementById('confidence-threshold');
+        const nmsSlider = document.getElementById('nms-threshold');
+        const fpsSlider = document.getElementById('max-fps');
+
+        // 颜色映射
+        const classColors = {
+            // 人脸检测类别
+            'person': '#FF0000',
+            'car': '#00FF00',
+            'truck': '#0000FF',
+            'bicycle': '#FFFF00',
+            'motorbike': '#FF00FF',
+            'bus': '#00FFFF',
+            'traffic light': '#FF8000',
+            'stop sign': '#8000FF',
+            // 情感识别类别
+            'Surprise': '#FF6B6B',
+            'Fear': '#4ECDC4',
+            'Disgust': '#45B7D1',
+            'Happy': '#96CEB4',
+            'Sad': '#FFEAA7',
+            'Anger': '#DDA0DD',
+            'Neutral': '#D3D3D3',
+            'default': '#FFFFFF'
+        };
+
+        // WebSocket 连接
+        function connectWebSocket() {
+            const wsUrl = `ws://${window.location.host}/ws`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log('WebSocket 连接已建立');
+                updateStatus('已连接', 'connected');
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleDetectionData(data);
+                } catch (error) {
+                    console.error('解析数据失败:', error);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket 错误:', error);
+                updateStatus('连接错误', 'error');
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket 连接已关闭');
+                updateStatus('未连接', 'disconnected');
+                ws = null;
+            };
+        }
+
+        // 处理检测数据
+        function handleDetectionData(data) {
+            // 更新视频帧
+            if (data.frame) {
+                displayFrame(data.frame);
+            }
+
+            // 绘制检测框
+            if (data.detections) {
+                drawDetections(data.detections);
+                updateDetectionList(data.detections);
+            }
+
+            // 更新 FPS 和统计
+            if (data.fps !== undefined) {
+                document.getElementById('fps-display').textContent = `FPS: ${data.fps}`;
+            }
+            if (data.detections) {
+                document.getElementById('detection-count').textContent = `检测数: ${data.detections.length}`;
+            }
+        }
+
+        // 显示视频帧
+        function displayFrame(frameBase64) {
+            const img = new Image();
+            img.onload = function() {
+                // 设置 canvas 大小
+                if (videoCanvas.width !== img.width || videoCanvas.height !== img.height) {
+                    videoCanvas.width = img.width;
+                    videoCanvas.height = img.height;
+                    detectionCanvas.width = img.width;
+                    detectionCanvas.height = img.height;
+                }
+
+                // 绘制图像
+                videoCtx.drawImage(img, 0, 0);
+
+                // 隐藏无视频消息
+                document.getElementById('no-video-message').style.display = 'none';
+            };
+            img.src = 'data:image/jpeg;base64,' + frameBase64;
+        }
+
+        // 绘制检测框
+        function drawDetections(detections) {
+            // 清除之前的检测框
+            detectionCtx.clearRect(0, 0, detectionCanvas.width, detectionCanvas.height);
+
+            detections.forEach(detection => {
+                const bbox = detection.bbox;
+                const color = classColors[detection.class] || classColors['default'];
+
+                // 绘制边界框
+                detectionCtx.strokeStyle = color;
+                detectionCtx.lineWidth = 2;
+                detectionCtx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
+
+                // 绘制标签背景
+                const label = `${detection.class}: ${detection.confidence.toFixed(2)}`;
+                detectionCtx.font = '14px Arial';
+                const textMetrics = detectionCtx.measureText(label);
+                const textHeight = 16;
+
+                detectionCtx.fillStyle = color;
+                detectionCtx.fillRect(
+                    bbox.x,
+                    bbox.y - textHeight - 4,
+                    textMetrics.width + 8,
+                    textHeight + 4
+                );
+
+                // 绘制标签文本
+                detectionCtx.fillStyle = 'white';
+                detectionCtx.fillText(label, bbox.x + 4, bbox.y - 4);
+            });
+        }
+
+        // 更新检测列表
+        function updateDetectionList(detections) {
+            const container = document.getElementById('detection-results');
+
+            if (detections.length === 0) {
+                container.innerHTML = '<p class="no-detections">暂无检测结果</p>';
+                return;
+            }
+
+            // 统计各类别数量
+            const counts = {};
+            detections.forEach(d => {
+                counts[d.class] = (counts[d.class] || 0) + 1;
+            });
+
+            // 生成列表 HTML
+            let html = '<ul class="detection-items">';
+            for (const [className, count] of Object.entries(counts)) {
+                const color = classColors[className] || classColors['default'];
+                html += `
+                    <li class="detection-item">
+                        <span class="detection-color" style="background-color: ${color}"></span>
+                        <span class="detection-class">${className}</span>
+                        <span class="detection-count">${count}</span>
+                    </li>
+                `;
+            }
+            html += '</ul>';
+
+            container.innerHTML = html;
+        }
+
+        // 启动检测
+        async function startDetection() {
+            try {
+                const response = await fetch('/start', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success' || result.status === 'already_running') {
+                    isRunning = true;
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    updateStatus('运行中', 'running');
+
+                    // 连接 WebSocket
+                    if (!ws) {
+                        connectWebSocket();
+                    }
+
+                    // 开始更新统计
+                    startStatsUpdate();
+                } else {
+                    alert('启动失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('启动检测失败:', error);
+                alert('启动检测失败');
+            }
+        }
+
+        // 停止检测
+        async function stopDetection() {
+            try {
+                const response = await fetch('/stop', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success' || result.status === 'not_running') {
+                    isRunning = false;
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    updateStatus('已停止', 'stopped');
+
+                    // 关闭 WebSocket
+                    if (ws) {
+                        ws.close();
+                    }
+
+                    // 停止更新统计
+                    stopStatsUpdate();
+                }
+            } catch (error) {
+                console.error('停止检测失败:', error);
+            }
+        }
+
+        // 更新统计信息
+        async function updateStats() {
+            try {
+                const response = await fetch('/stats');
+                const stats = await response.json();
+
+                document.getElementById('runtime').textContent = `${stats.runtime_seconds} 秒`;
+                document.getElementById('total-frames').textContent = stats.frame_count;
+                document.getElementById('total-detections').textContent = stats.total_detections;
+                document.getElementById('avg-detections').textContent = stats.avg_detections_per_frame.toFixed(2);
+
+                // 如果状态改变，更新按钮
+                if (stats.is_running !== isRunning) {
+                    isRunning = stats.is_running;
+                    startBtn.disabled = isRunning;
+                    stopBtn.disabled = !isRunning;
+                    updateStatus(isRunning ? '运行中' : '已停止', isRunning ? 'running' : 'stopped');
+                }
+            } catch (error) {
+                console.error('获取统计失败:', error);
+            }
+        }
+
+        // 开始更新统计
+        function startStatsUpdate() {
+            if (statsInterval) {
+                clearInterval(statsInterval);
+            }
+            statsInterval = setInterval(updateStats, 1000);
+            updateStats(); // 立即更新一次
+        }
+
+        // 停止更新统计
+        function stopStatsUpdate() {
+            if (statsInterval) {
+                clearInterval(statsInterval);
+                statsInterval = null;
+            }
+        }
+
+        // 更新状态显示
+        function updateStatus(text, className) {
+            const statusDisplay = document.getElementById('status-display');
+            statusDisplay.textContent = `状态: ${text}`;
+            statusDisplay.className = className;
+        }
+
+        // 模型切换功能
+        async function switchModel(modelType) {
+            try {
+                const response = await fetch('/switch_model', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ model_type: modelType })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // 更新按钮状态
+                    const detectionBtn = document.getElementById('detection-btn');
+                    const emotionBtn = document.getElementById('emotion-btn');
+                    const titleElement = document.getElementById('system-title');
+
+                    if (modelType === 'emotion') {
+                        detectionBtn.className = 'btn btn-secondary model-btn';
+                        emotionBtn.className = 'btn btn-primary model-btn active';
+                        titleElement.textContent = '😊 人脸情感识别实时检测系统';
+                    } else {
+                        detectionBtn.className = 'btn btn-primary model-btn active';
+                        emotionBtn.className = 'btn btn-secondary model-btn';
+                        titleElement.textContent = '🎯 YOLO USB 摄像头实时检测系统';
+                    }
+
+                    // 显示切换成功消息
+                    console.log(result.message || '模型切换成功');
+
+                    // 如果显示消息提示
+                    if (result.auto_started) {
+                        console.log('检测已自动重启');
+                    }
+                } else {
+                    alert('模型切换失败: ' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('模型切换失败:', error);
+                alert('模型切换失败');
+            }
+        }
+
+        // 应用配置
+        async function applySettings() {
+            const config = {
+                display_confidence_threshold: parseFloat(confidenceSlider.value),
+                nms_threshold: parseFloat(nmsSlider.value),
+                max_fps: parseInt(fpsSlider.value)
+            };
+
+            try {
+                const response = await fetch('/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert('设置已应用');
+                }
+            } catch (error) {
+                console.error('应用设置失败:', error);
+                alert('应用设置失败');
+            }
+        }
+
+        // 事件监听器
+        startBtn.addEventListener('click', startDetection);
+        stopBtn.addEventListener('click', stopDetection);
+        refreshBtn.addEventListener('click', () => {
+            location.reload();
+        });
+        applySettingsBtn.addEventListener('click', applySettings);
+
+        // 滑块值更新
+        confidenceSlider.addEventListener('input', (e) => {
+            document.getElementById('confidence-value').textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        nmsSlider.addEventListener('input', (e) => {
+            document.getElementById('nms-value').textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        fpsSlider.addEventListener('input', (e) => {
+            document.getElementById('fps-value').textContent = e.target.value;
+        });
+
+        // 页面加载时获取配置
+        async function loadConfig() {
+            try {
+                const response = await fetch('/config');
+                if (response.ok) {
+                    const config = await response.json();
+
+                    confidenceSlider.value = config.display_confidence_threshold;
+                    nmsSlider.value = config.nms_threshold;
+                    fpsSlider.value = config.max_fps;
+
+                    document.getElementById('confidence-value').textContent = config.display_confidence_threshold.toFixed(2);
+                    document.getElementById('nms-value').textContent = config.nms_threshold.toFixed(2);
+                    document.getElementById('fps-value').textContent = config.max_fps;
+                } else {
+                    console.warn('配置端点不可用，使用默认值');
+                }
+            } catch (error) {
+                console.error('加载配置失败:', error);
+            }
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            loadConfig();
+            updateStats();
+        });
+
+        // 页面卸载时清理
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+            if (statsInterval) {
+                clearInterval(statsInterval);
+            }
+        });
+    </script>
+</body>
+</html>

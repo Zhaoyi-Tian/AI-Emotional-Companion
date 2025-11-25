@@ -1,0 +1,1 @@
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/out_emotion/../../../out_emotion/main

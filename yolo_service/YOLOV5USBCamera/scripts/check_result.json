@@ -1,0 +1,3716 @@
+{
+  "fail": 262,
+  "name": "",
+  "op": [
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/m/m.0/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.2/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.0/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/m/m.1/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.4/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.5/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.5/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.5/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.0/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.1/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/m/m.2/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.6/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.7/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.7/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.7/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/m/m.0/Add",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.8/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/m/MaxPool",
+      "result": "failed",
+      "type": "ai.onnx::19::MaxPool"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/m_1/MaxPool",
+      "result": "failed",
+      "type": "ai.onnx::19::MaxPool"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/m_2/MaxPool",
+      "result": "failed",
+      "type": "ai.onnx::19::MaxPool"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.9/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.10/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.10/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.10/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.11/Resize",
+      "result": "failed",
+      "type": "ai.onnx::19::Resize"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.12/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.13/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.14/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.14/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.14/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.15/Resize",
+      "result": "failed",
+      "type": "ai.onnx::19::Resize"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.16/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.17/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.18/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.18/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.18/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.19/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.0/cv2.0.2/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.0/cv3.0.2/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Reshape",
+      "result": "failed",
+      "type": "ai.onnx::19::Reshape"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.20/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.21/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.21/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.21/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.22/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.1/cv2.1.2/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.1/cv3.1.2/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/m/m.0/cv1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Concat_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/m/m.0/cv1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Reshape_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Reshape"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/m/m.0/cv1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/m/m.0/cv2/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/m/m.0/cv2/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/m/m.0/cv2/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/Concat",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv3/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv3/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.23/cv3/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.0/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.0/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.0/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.1/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.1/act/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.1/act/Mul",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv2.2/cv2.2.2/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/cv3.2/cv3.2.2/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Concat_2",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Reshape_2",
+      "result": "failed",
+      "type": "ai.onnx::19::Reshape"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Concat_3",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Split",
+      "result": "failed",
+      "type": "ai.onnx::19::Split"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/dfl/Reshape",
+      "result": "failed",
+      "type": "ai.onnx::19::Reshape"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Sigmoid",
+      "result": "failed",
+      "type": "ai.onnx::19::Sigmoid"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/dfl/Transpose",
+      "result": "failed",
+      "type": "ai.onnx::19::Transpose"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/dfl/Softmax",
+      "result": "failed",
+      "type": "ai.onnx::19::Softmax"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/dfl/conv/Conv",
+      "result": "failed",
+      "type": "ai.onnx::19::Conv"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/dfl/Reshape_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Reshape"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Slice",
+      "result": "failed",
+      "type": "ai.onnx::19::Slice"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Slice_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Slice"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Sub",
+      "result": "failed",
+      "type": "ai.onnx::19::Sub"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Add_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Add_2",
+      "result": "failed",
+      "type": "ai.onnx::19::Add"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Sub_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Sub"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Div_1",
+      "result": "failed",
+      "type": "ai.onnx::19::Div"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Concat_4",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Mul_2",
+      "result": "failed",
+      "type": "ai.onnx::19::Mul"
+    },
+    {
+      "cause": [
+        {
+          "code": 1,
+          "message": "The type is not supported."
+        }
+      ],
+      "name": "/model.24/Concat_5",
+      "result": "failed",
+      "type": "ai.onnx::19::Concat"
+    },
+    {
+      "name": "images",
+      "result": "success",
+      "type": "Input"
+    },
+    {
+      "name": "/model.11/Constant_output_0_Initializer_0",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_10_output_0_Initializer_1",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_11_output_0_Initializer_2",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_12_output_0_Initializer_3",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_3_output_0_Initializer_4",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_4_output_0_Initializer_5",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_9_output_0_Initializer_6",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Constant_output_0_Initializer_7",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Mul_1_output_0_Initializer_8",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/Mul_output_0_Initializer_9",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/dfl/Constant_1_output_0_Initializer_10",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "/model.24/dfl/Constant_output_0_Initializer_11",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.0.conv.bias_Initializer_12",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.0.conv.weight_Initializer_13",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.1.conv.bias_Initializer_14",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.1.conv.weight_Initializer_15",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.10.conv.bias_Initializer_16",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.10.conv.weight_Initializer_17",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.cv1.conv.bias_Initializer_18",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.cv1.conv.weight_Initializer_19",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.cv2.conv.bias_Initializer_20",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.cv2.conv.weight_Initializer_21",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.cv3.conv.bias_Initializer_22",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.cv3.conv.weight_Initializer_23",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.m.0.cv1.conv.bias_Initializer_24",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.m.0.cv1.conv.weight_Initializer_25",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.m.0.cv2.conv.bias_Initializer_26",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.13.m.0.cv2.conv.weight_Initializer_27",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.14.conv.bias_Initializer_28",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.14.conv.weight_Initializer_29",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.cv1.conv.bias_Initializer_30",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.cv1.conv.weight_Initializer_31",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.cv2.conv.bias_Initializer_32",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.cv2.conv.weight_Initializer_33",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.cv3.conv.bias_Initializer_34",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.cv3.conv.weight_Initializer_35",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.m.0.cv1.conv.bias_Initializer_36",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.m.0.cv1.conv.weight_Initializer_37",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.m.0.cv2.conv.bias_Initializer_38",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.17.m.0.cv2.conv.weight_Initializer_39",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.18.conv.bias_Initializer_40",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.18.conv.weight_Initializer_41",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.cv1.conv.bias_Initializer_42",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.cv1.conv.weight_Initializer_43",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.cv2.conv.bias_Initializer_44",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.cv2.conv.weight_Initializer_45",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.cv3.conv.bias_Initializer_46",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.cv3.conv.weight_Initializer_47",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.m.0.cv1.conv.bias_Initializer_48",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.m.0.cv1.conv.weight_Initializer_49",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.m.0.cv2.conv.bias_Initializer_50",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.2.m.0.cv2.conv.weight_Initializer_51",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.cv1.conv.bias_Initializer_52",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.cv1.conv.weight_Initializer_53",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.cv2.conv.bias_Initializer_54",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.cv2.conv.weight_Initializer_55",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.cv3.conv.bias_Initializer_56",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.cv3.conv.weight_Initializer_57",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.m.0.cv1.conv.bias_Initializer_58",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.m.0.cv1.conv.weight_Initializer_59",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.m.0.cv2.conv.bias_Initializer_60",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.20.m.0.cv2.conv.weight_Initializer_61",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.21.conv.bias_Initializer_62",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.21.conv.weight_Initializer_63",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.cv1.conv.bias_Initializer_64",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.cv1.conv.weight_Initializer_65",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.cv2.conv.bias_Initializer_66",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.cv2.conv.weight_Initializer_67",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.cv3.conv.bias_Initializer_68",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.cv3.conv.weight_Initializer_69",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.m.0.cv1.conv.bias_Initializer_70",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.m.0.cv1.conv.weight_Initializer_71",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.m.0.cv2.conv.bias_Initializer_72",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.23.m.0.cv2.conv.weight_Initializer_73",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.0.0.conv.bias_Initializer_74",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.0.0.conv.weight_Initializer_75",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.0.1.conv.bias_Initializer_76",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.0.1.conv.weight_Initializer_77",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.0.2.bias_Initializer_78",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.0.2.weight_Initializer_79",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.1.0.conv.bias_Initializer_80",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.1.0.conv.weight_Initializer_81",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.1.1.conv.bias_Initializer_82",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.1.1.conv.weight_Initializer_83",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.1.2.bias_Initializer_84",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.1.2.weight_Initializer_85",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.2.0.conv.bias_Initializer_86",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.2.0.conv.weight_Initializer_87",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.2.1.conv.bias_Initializer_88",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.2.1.conv.weight_Initializer_89",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.2.2.bias_Initializer_90",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv2.2.2.weight_Initializer_91",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.0.0.conv.bias_Initializer_92",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.0.0.conv.weight_Initializer_93",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.0.1.conv.bias_Initializer_94",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.0.1.conv.weight_Initializer_95",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.0.2.bias_Initializer_96",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.0.2.weight_Initializer_97",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.1.0.conv.bias_Initializer_98",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.1.0.conv.weight_Initializer_99",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.1.1.conv.bias_Initializer_100",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.1.1.conv.weight_Initializer_101",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.1.2.bias_Initializer_102",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.1.2.weight_Initializer_103",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.2.0.conv.bias_Initializer_104",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.2.0.conv.weight_Initializer_105",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.2.1.conv.bias_Initializer_106",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.2.1.conv.weight_Initializer_107",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.2.2.bias_Initializer_108",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.cv3.2.2.weight_Initializer_109",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.24.dfl.conv.weight_Initializer_110",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.3.conv.bias_Initializer_111",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.3.conv.weight_Initializer_112",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.cv1.conv.bias_Initializer_113",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.cv1.conv.weight_Initializer_114",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.cv2.conv.bias_Initializer_115",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.cv2.conv.weight_Initializer_116",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.cv3.conv.bias_Initializer_117",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.cv3.conv.weight_Initializer_118",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.0.cv1.conv.bias_Initializer_119",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.0.cv1.conv.weight_Initializer_120",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.0.cv2.conv.bias_Initializer_121",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.0.cv2.conv.weight_Initializer_122",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.1.cv1.conv.bias_Initializer_123",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.1.cv1.conv.weight_Initializer_124",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.1.cv2.conv.bias_Initializer_125",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.4.m.1.cv2.conv.weight_Initializer_126",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.5.conv.bias_Initializer_127",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.5.conv.weight_Initializer_128",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.cv1.conv.bias_Initializer_129",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.cv1.conv.weight_Initializer_130",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.cv2.conv.bias_Initializer_131",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.cv2.conv.weight_Initializer_132",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.cv3.conv.bias_Initializer_133",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.cv3.conv.weight_Initializer_134",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.0.cv1.conv.bias_Initializer_135",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.0.cv1.conv.weight_Initializer_136",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.0.cv2.conv.bias_Initializer_137",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.0.cv2.conv.weight_Initializer_138",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.1.cv1.conv.bias_Initializer_139",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.1.cv1.conv.weight_Initializer_140",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.1.cv2.conv.bias_Initializer_141",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.1.cv2.conv.weight_Initializer_142",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.2.cv1.conv.bias_Initializer_143",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.2.cv1.conv.weight_Initializer_144",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.2.cv2.conv.bias_Initializer_145",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.6.m.2.cv2.conv.weight_Initializer_146",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.7.conv.bias_Initializer_147",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.7.conv.weight_Initializer_148",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.cv1.conv.bias_Initializer_149",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.cv1.conv.weight_Initializer_150",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.cv2.conv.bias_Initializer_151",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.cv2.conv.weight_Initializer_152",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.cv3.conv.bias_Initializer_153",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.cv3.conv.weight_Initializer_154",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.m.0.cv1.conv.bias_Initializer_155",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.m.0.cv1.conv.weight_Initializer_156",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.m.0.cv2.conv.bias_Initializer_157",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.8.m.0.cv2.conv.weight_Initializer_158",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.9.cv1.conv.bias_Initializer_159",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.9.cv1.conv.weight_Initializer_160",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.9.cv2.conv.bias_Initializer_161",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "model.9.cv2.conv.weight_Initializer_162",
+      "result": "success",
+      "type": "Constant"
+    },
+    {
+      "name": "onnx::Split_429_Initializer_163",
+      "result": "success",
+      "type": "Constant"
+    }
+  ],
+  "pass": 165,
+  "result": "failed",
+  "total": 427
+}

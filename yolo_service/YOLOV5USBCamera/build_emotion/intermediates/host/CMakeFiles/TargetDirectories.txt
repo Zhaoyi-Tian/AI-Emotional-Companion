@@ -1,0 +1,7 @@
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/main.dir
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/edit_cache.dir
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/rebuild_cache.dir
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/list_install_components.dir
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/install.dir
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/install/local.dir
+/home/HwHiAiUser/ai_助手/yolo_service/EdgeAndRobotics/Samples/YOLOV5USBCamera/build_emotion/intermediates/host/CMakeFiles/install/strip.dir

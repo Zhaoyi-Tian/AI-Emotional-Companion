@@ -1,0 +1,18 @@
+{
+    "binFileName":"te_clipbyvaluev2_f3f0723e950851acbbb9fe71a35b64667256b375379e564ac3cf281b78bd2a21",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_clipbyvaluev2_f3f0723e950851acbbb9fe71a35b64667256b375379e564ac3cf281b78bd2a21__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null,
+        null,
+        null
+    ],
+    "sha256":"2b37b6abdccdb4a0cb8014fef96347a8967cb323cdec9e69ca6329f08bffb47e"
+}

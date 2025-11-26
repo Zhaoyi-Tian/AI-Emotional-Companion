@@ -1,0 +1,20 @@
+{
+    "binFileName":"te_layernorm_b9b39721867c2b01afc20d5fd867dd8af00549e832f8e805e36052ebadf3fa70",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_layernorm_b9b39721867c2b01afc20d5fd867dd8af00549e832f8e805e36052ebadf3fa70__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    ],
+    "sha256":"e10d8becd69a78afca9b17c1e607153a6b495a940e0bf0ccef5b77a0e300f479"
+}

@@ -1,0 +1,29 @@
+{
+    "binFileName":"te_transpose_2d4e38055948d19595bc05c7d4d486ee13cd3651eeeda888e7b0a984fbe65d03",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_transpose_2d4e38055948d19595bc05c7d4d486ee13cd3651eeeda888e7b0a984fbe65d03__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[
+        -1
+    ],
+    "opParaSize":16384,
+    "parameters":[
+        null,
+        null,
+        null,
+        null
+    ],
+    "sha256":"575b73085072543c19d2ca10fb1b3924aff6646f0d51cc8b9d58387086632f7a",
+    "workspace":{
+        "num":1,
+        "size":[
+            1024
+        ],
+        "type":[
+            0
+        ]
+    }
+}

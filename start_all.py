@@ -244,7 +244,13 @@ def main():
         },
         {
             'name': 'YOLO检测服务',
-            'script': base_dir / 'yolo_service' / 'app_fastapi.py',
+            'script': base_dir / 'yolo_service' / 'YOLOV5USBCamera' / 'web_cpp' / 'cpp_bridge_app.py',
+            'conda_env': None,  # 使用base环境
+            'wait': 3
+        },
+        {
+            'name': '长时记忆服务',
+            'script': base_dir / 'memory_service' / 'app_fastapi.py',
             'conda_env': None,  # 使用base环境
             'wait': 3
         }
@@ -283,6 +289,7 @@ def main():
         logger.info("    • TTS服务: http://localhost:5003")
         logger.info("    • 语音对话服务: http://localhost:5004")
         logger.info("    • YOLO检测服务: http://localhost:5005")
+        logger.info("    • 长时记忆服务: http://localhost:5006")
         logger.info("    • Web配置界面: http://localhost:8080")
 
         logger.info(f"\n  内网访问 (局域网其他设备可访问):")
@@ -292,6 +299,7 @@ def main():
         logger.info(f"    • TTS服务: http://{local_ip}:5003")
         logger.info(f"    • 语音对话服务: http://{local_ip}:5004")
         logger.info(f"    • YOLO检测服务: http://{local_ip}:5005")
+        logger.info(f"    • 长时记忆服务: http://{local_ip}:5006")
         logger.info(f"    • Web配置界面: http://{local_ip}:8080  ⭐")
 
         logger.info("\n💡 提示:")

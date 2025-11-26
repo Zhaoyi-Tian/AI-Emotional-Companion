@@ -1,0 +1,18 @@
+{
+    "KBHit":false,
+    "binFileName":"te_matmul_aec33eaeae47bc8dcee0186abdd2a2a8feb52dc4171b86ee2bd64570b495999a",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"AiCore",
+    "deterministic":"ignore",
+    "kernelName":"te_matmul_aec33eaeae47bc8dcee0186abdd2a2a8feb52dc4171b86ee2bd64570b495999a__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AICUBE",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null,
+        null
+    ],
+    "sha256":"d4c0710085c656dca7de336f0cef60a7c13aeadfc50b740c0179443607243256"
+}

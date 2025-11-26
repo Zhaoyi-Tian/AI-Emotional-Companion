@@ -1,0 +1,18 @@
+{
+    "KBHit":false,
+    "binFileName":"te_add_365ae5f1c2c60c42c4b445a26e770a6b16b486ba5448ccd371c13e6e5be9c926",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_add_365ae5f1c2c60c42c4b445a26e770a6b16b486ba5448ccd371c13e6e5be9c926__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null,
+        null
+    ],
+    "sha256":"c51e167d4c7db334e49e42e170223bfa4ed530751f644ed4807b65470351e1b7"
+}

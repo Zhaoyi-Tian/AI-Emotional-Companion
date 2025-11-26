@@ -3,6 +3,7 @@
 """
 FastAPI Bridge for C++ YOLO Detection
 桥接 C++ YOLO 检测程序，通过 Web 界面展示结果
+支持情绪识别和统计分析
 """
 
 import os
@@ -16,6 +17,8 @@ import queue
 import time
 from typing import Optional, List, Dict
 import signal
+from collections import deque
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
@@ -47,6 +50,10 @@ stats = {
     "frame_count": 0,
     "start_time": None
 }
+
+# 情绪历史记录（保存最近一分钟的数据）
+emotion_history = deque(maxlen=300)  # 假设5fps，保存60秒数据
+emotion_lock = threading.Lock()  # 线程锁保护情绪历史
 
 
 class CPPBridge:
@@ -112,7 +119,7 @@ class CPPBridge:
 
     def _read_output(self):
         """读取 C++ 程序输出"""
-        global latest_data, stats
+        global latest_data, stats, emotion_history
         fps_counter = 0
         fps_start_time = time.time()
 
@@ -134,6 +141,10 @@ class CPPBridge:
                             stats["frame_count"] += 1
                             stats["total_detections"] += len(data.get("detections", []))
 
+                            # 如果是情绪识别模型，收集情绪数据
+                            if current_model == "emotion":
+                                self._collect_emotion_data(data)
+
                             # 更新 FPS
                             fps_counter += 1
                             current_time = time.time()
@@ -154,6 +165,26 @@ class CPPBridge:
             except Exception as e:
                 print(f"读取输出错误: {e}")
                 break
+
+    def _collect_emotion_data(self, data):
+        """收集情绪识别数据"""
+        global emotion_history
+
+        current_time = time.time()
+        detections = data.get("detections", [])
+
+        if detections:
+            with emotion_lock:
+                for detection in detections:
+                    # 检查是否包含情绪信息
+                    if "emotion" in detection and "confidence" in detection:
+                        emotion_data = {
+                            "timestamp": current_time,
+                            "emotion": detection["emotion"],
+                            "confidence": detection["confidence"],
+                            "bbox": detection.get("bbox", [])
+                        }
+                        emotion_history.append(emotion_data)
 
     def stop(self):
         """停止所有进程"""
@@ -335,7 +366,134 @@ async def get_stats():
         "total_detections": stats.get("total_detections", 0),
         "frame_count": stats.get("frame_count", 0),
         "runtime_seconds": round(runtime, 1),
-        "is_running": is_running
+        "is_running": is_running,
+        "current_model": current_model
+    }
+
+
+@app.get("/emotion/current")
+async def get_current_emotion():
+    """获取当前检测到的情绪"""
+    global latest_data, emotion_history
+
+    if current_model != "emotion":
+        return {
+            "status": "error",
+            "message": "Emotion model not active"
+        }
+
+    # 获取最新的检测结果
+    if latest_data and latest_data.get("detections"):
+        # 返回第一个检测到的人脸情绪
+        detection = latest_data["detections"][0]
+        if "emotion" in detection:
+            return {
+                "emotion": detection["emotion"],
+                "confidence": detection["confidence"],
+                "timestamp": datetime.now().isoformat(),
+                "detections_count": len(latest_data["detections"]),
+                "status": "success"
+            }
+
+    # 如果没有最新检测，从历史中获取
+    with emotion_lock:
+        if emotion_history:
+            latest_emotion = emotion_history[-1]
+            return {
+                "emotion": latest_emotion["emotion"],
+                "confidence": latest_emotion["confidence"],
+                "timestamp": datetime.fromtimestamp(latest_emotion["timestamp"]).isoformat(),
+                "from_history": True,
+                "status": "success"
+            }
+
+    return {
+        "status": "no_data",
+        "message": "No emotion data available"
+    }
+
+
+@app.get("/emotion/stats")
+async def get_emotion_stats():
+    """获取最近一分钟的情绪统计（置信度加权）"""
+    global emotion_history
+
+    if current_model != "emotion":
+        return {
+            "status": "error",
+            "message": "Emotion model not active"
+        }
+
+    current_time = time.time()
+    one_minute_ago = current_time - 60  # 最近60秒
+
+    with emotion_lock:
+        # 过滤最近一分钟的数据
+        recent_emotions = [
+            e for e in emotion_history
+            if e["timestamp"] >= one_minute_ago
+        ]
+
+    if not recent_emotions:
+        return {
+            "status": "no_data",
+            "message": "No emotion data in the last minute",
+            "window_seconds": 60,
+            "total_detections": 0
+        }
+
+    # 按情绪类型分组并计算加权统计
+    emotion_scores = {}  # 存储每种情绪的加权总分
+    emotion_counts = {}  # 存储每种情绪的检测次数
+    total_confidence = 0  # 总置信度
+
+    for emotion_data in recent_emotions:
+        emotion = emotion_data["emotion"]
+        confidence = emotion_data["confidence"]
+
+        # 加权计算（置信度越高，权重越大）
+        weighted_score = emotion_scores.get(emotion, 0) + confidence
+        emotion_scores[emotion] = weighted_score
+        emotion_counts[emotion] = emotion_counts.get(emotion, 0) + 1
+        total_confidence += confidence
+
+    # 计算每种情绪的加权平均和占比
+    emotion_distribution = {}
+    for emotion, score in emotion_scores.items():
+        count = emotion_counts[emotion]
+        weighted_avg = score / count if count > 0 else 0
+        percentage = (score / total_confidence) * 100 if total_confidence > 0 else 0
+        emotion_distribution[emotion] = {
+            "weighted_average": round(weighted_avg, 3),
+            "percentage": round(percentage, 2),
+            "count": count
+        }
+
+    # 找出主要情绪（加权分数最高的）
+    dominant_emotion = max(emotion_scores, key=emotion_scores.get)
+    dominant_confidence = emotion_scores[dominant_emotion] / emotion_counts[dominant_emotion]
+
+    return {
+        "status": "success",
+        "dominant_emotion": dominant_emotion,
+        "confidence": round(dominant_confidence, 3),
+        "distribution": emotion_distribution,
+        "total_detections": len(recent_emotions),
+        "window_seconds": 60,
+        "average_confidence": round(total_confidence / len(recent_emotions), 3),
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+@app.get("/health")
+async def health_check():
+    """健康检查端点"""
+    return {
+        "status": "healthy",
+        "service": "YOLO Bridge",
+        "model": current_model,
+        "is_running": is_running,
+        "timestamp": datetime.now().isoformat()
     }
 
 
@@ -361,4 +519,5 @@ if os.path.exists(static_dir):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="info")
+    # 使用端口5005，与config.yaml中的yolo服务配置保持一致
+    uvicorn.run(app, host="0.0.0.0", port=5005, log_level="info")

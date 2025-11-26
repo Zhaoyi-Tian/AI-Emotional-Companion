@@ -230,6 +230,34 @@ class VoiceAssistant:
         self.interrupt_reply_audio_cache = None  # 打断回复音频缓存
         self.thinking_reply_audio_cache = None  # 思考回复音频缓存
 
+        # 情绪监控相关
+        emotion_config = get_config('emotion_context', {})
+        self.EMOTION_ENABLE = emotion_config.get('enable', False)
+        self.emotion_service_url = emotion_config.get('service_url', 'http://localhost:5005')
+        self.current_emotion = None
+        self.emotion_context = ""
+
+        # 长时记忆相关
+        memory_config = get_config('memory_service', {})
+        self.MEMORY_ENABLE = memory_config.get('enable', False)
+        self.memory_service_url = memory_config.get('service_url', 'http://localhost:5006')
+        self.auto_extract = memory_config.get('auto_extract', True)
+        self.memory_client = None
+
+        # 初始化记忆客户端（如果启用）
+        if self.MEMORY_ENABLE:
+            try:
+                from memory_service.memory_client import MemoryClient
+                self.memory_client = MemoryClient(self.memory_service_url)
+                if self.memory_client.check_service():
+                    logger.info("✅ 长时记忆服务连接成功")
+                else:
+                    logger.warning("⚠️ 长时记忆服务未运行")
+                    self.MEMORY_ENABLE = False
+            except Exception as e:
+                logger.error(f"初始化记忆客户端失败: {e}")
+                self.MEMORY_ENABLE = False
+
         # 加载缓存的音频
         self._load_cached_audio()
 
@@ -317,6 +345,66 @@ class VoiceAssistant:
             logger.info(f"✅ 加载思考回复音频缓存: {self.THINKING_REPLY}")
         else:
             logger.info(f"💾 思考回复音频缓存不存在，将在首次使用时生成")
+
+    def get_emotion_context(self):
+        """获取当前情绪上下文"""
+        if not self.EMOTION_ENABLE:
+            return ""
+
+        try:
+            # 请求情绪统计接口
+            response = requests.get(
+                f"{self.emotion_service_url}/emotion/stats",
+                timeout=2
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+
+                if data.get("status") == "success":
+                    dominant_emotion = data.get("dominant_emotion", "neutral")
+                    confidence = data.get("confidence", 0)
+
+                    # 更新当前情绪
+                    self.current_emotion = dominant_emotion
+
+                    # 生成情绪上下文描述
+                    emotion_descriptions = {
+                        "happy": "用户当前看起来很开心",
+                        "sad": "用户当前可能情绪低落",
+                        "angry": "用户当前看起来有些生气",
+                        "surprise": "用户当前看起来很惊讶",
+                        "neutral": "用户当前情绪平静",
+                        "fear": "用户当前看起来有些紧张",
+                        "disgust": "用户当前看起来有些不悦"
+                    }
+
+                    base_desc = emotion_descriptions.get(dominant_emotion, "用户当前情绪平静")
+
+                    # 根据置信度添加描述
+                    if confidence > 0.8:
+                        return f"{base_desc}（非常确定）"
+                    elif confidence > 0.6:
+                        return f"{base_desc}（比较确定）"
+                    else:
+                        return f"{base_desc}（不太确定）"
+                else:
+                    logger.debug(f"情绪服务返回错误: {data.get('message', 'Unknown error')}")
+            else:
+                logger.debug(f"情绪服务请求失败: {response.status_code}")
+
+        except requests.exceptions.RequestException as e:
+            logger.debug(f"无法连接到情绪服务: {e}")
+        except Exception as e:
+            logger.error(f"获取情绪上下文时出错: {e}")
+
+        return ""
+
+    def update_emotion_context(self):
+        """更新情绪上下文"""
+        self.emotion_context = self.get_emotion_context()
+        if self.emotion_context:
+            logger.info(f"💭 情绪上下文: {self.emotion_context}")
 
     def _save_audio_cache(self, text, cache_type, audio_file):
         """
@@ -759,6 +847,10 @@ class VoiceAssistant:
                 # 更新对话历史 - 使用二维列表格式
                 self.conversation_history.append([message, reply])
 
+                # 自动提取并存储记忆
+                if self.MEMORY_ENABLE and self.auto_extract and self.memory_client:
+                    self._extract_and_store_memory(message, reply)
+
                 logger.info(f"🤖 AI回复: {reply}")
                 return reply
             else:
@@ -825,10 +917,35 @@ class VoiceAssistant:
             output_device: 输出设备索引
         """
         try:
+            # 获取情绪上下文
+            self.update_emotion_context()
+
+            # 获取记忆上下文
+            memory_context = ""
+            if self.MEMORY_ENABLE and self.memory_client:
+                memory_context = self.memory_client.get_context(message)
+                if memory_context:
+                    logger.info(f"💭 找到相关记忆: {len(memory_context)} 字符")
+
+            # 组合所有上下文
+            context_parts = []
+            if self.emotion_context:
+                context_parts.append(self.emotion_context)
+            if memory_context:
+                context_parts.append(memory_context)
+
+            # 如果有上下文，将其添加到消息中
+            if context_parts:
+                all_context = "。".join(context_parts)
+                enhanced_message = f"{all_context}。{message}"
+                logger.info(f"🎭 消息已添加上下文")
+            else:
+                enhanced_message = message
+
             url = f"http://localhost:{self.ports['llm']}/chat/stream"
 
             payload = {
-                "message": message,
+                "message": enhanced_message,
                 "history": self.conversation_history
             }
 
@@ -1492,6 +1609,33 @@ class VoiceAssistant:
             logger.error(f"音频播放失败: {e}")
             import traceback
             logger.error(traceback.format_exc())
+
+    def _extract_and_store_memory(self, user_message: str, ai_response: str):
+        """
+        提取并存储对话记忆
+
+        Args:
+            user_message: 用户消息
+            ai_response: AI回复
+        """
+        try:
+            # 调用记忆服务自动提取记忆
+            extracted = self.memory_client.auto_extract(user_message, ai_response)
+
+            if extracted:
+                total_extracted = sum(extracted.values())
+                logger.info(f"🧠 记忆提取: 偏好={extracted.get('preferences_found', 0)}, "
+                          f"事实={extracted.get('facts_found', 0)}, "
+                          f"事件={extracted.get('events_found', 0)}")
+
+                # 如果提取到了重要信息，记录更详细的信息
+                if total_extracted > 0:
+                    logger.debug(f"📝 对话记忆已存储: 用户='{user_message[:50]}...' "
+                               f"助手='{ai_response[:50]}...'")
+
+        except Exception as e:
+            logger.error(f"记忆提取失败: {e}")
+            # 不影响对话流程，静默处理错误
 
     def run(self, input_device=None, output_device=None):
         """

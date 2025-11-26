@@ -2,10 +2,16 @@ asr:
   channels: 1
   model_path_cn: asr_service/CN_model/offline_encoder.om
   model_path_en: asr_service/EN_model/offline_encoder.om
-  model_type: EN
-  sample_rate: 44100
+  model_type: CN
+  sample_rate: 16000
   vocab_path_cn: asr_service/CN_model/vocab.txt
   vocab_path_en: asr_service/EN_model/vocab.txt
+emotion_context:
+  confidence_threshold: 0.5
+  emotion_window: 60
+  enable: true
+  service_url: http://localhost:5005
+  update_interval: 1.0
 llm:
   api:
     api_key: sk-262419ac92684077aca08779a67e68a4
@@ -30,9 +36,17 @@ logging:
   file: ai_assistant.log
   level: INFO
   max_bytes: 10485760
+memory_service:
+  auto_extract: true
+  context_limit: 3
+  enable: true
+  max_memories: 1000
+  service_url: http://localhost:5006
+  similarity_threshold: 0.3
 services:
   asr: 5001
   llm: 5002
+  memory: 5006
   orchestrator: 5000
   tts: 5003
   voice_chat: 5004

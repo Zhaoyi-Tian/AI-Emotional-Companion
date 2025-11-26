@@ -1,0 +1,17 @@
+{
+    "KBHit":false,
+    "binFileName":"te_softmaxv2_372059e26fd2b1cf060ff05a70f143e11618d1470902bfee7f00b14aa391dede",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_softmaxv2_372059e26fd2b1cf060ff05a70f143e11618d1470902bfee7f00b14aa391dede__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null
+    ],
+    "sha256":"53e2d60d57aa6be8593329585c50c3ae5a20af594d05529b0130d3f7e5674a58"
+}

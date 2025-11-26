@@ -1,0 +1,18 @@
+{
+    "binFileName":"te_gatherv2_ef7020ce7352f7150facb215c9b5c4477875734fcb46e6b00f00a1d687f5e369",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_gatherv2_ef7020ce7352f7150facb215c9b5c4477875734fcb46e6b00f00a1d687f5e369__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null,
+        null,
+        null
+    ],
+    "sha256":"d26f3b60b366792dbc7f0fdf232ba97bbad228e108db53adfce35ed5764f0d27"
+}

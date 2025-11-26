@@ -394,8 +394,7 @@ def reload_all_services():
             'TTS': f"http://localhost:{ports['tts']}/reload_config",
             'Orchestrator': f"http://localhost:{ports['orchestrator']}/reload_config",
             'VoiceChat': f"http://localhost:{ports['voice_chat']}/reload_config",
-            'YOLO': f"http://localhost:{ports['yolo']}/reload_config"
-        }
+                    }
 
         for name, url in services.items():
             try:
@@ -777,19 +776,24 @@ def check_services_health():
         yolo_port = ports.get('yolo', 5005)
         yolo_url = f"http://localhost:{yolo_port}/health"
 
-        status_text += "📹 YOLO检测服务:\n"
+        status_text += "🎯 YOLO检测服务:\n"
         try:
             response = requests.get(yolo_url, timeout=5)
             if response.status_code == 200:
                 result = response.json()
                 service_status = result.get('status', 'unknown')
-                model_loaded = result.get('model_loaded', False)
+                model = result.get('model', 'unknown')
+                is_running = result.get('is_running', False)
 
                 if service_status == "healthy":
                     status_text += "  ✅ 服务状态: 正常运行\n"
-                    status_text += f"  {'✅' if model_loaded else '❌'} 模型加载: {'已加载' if model_loaded else '未加载'}\n"
+                    status_text += f"  📹 当前模型: {model}\n"
+                    if is_running:
+                        status_text += "  🟢 检测状态: 正在运行\n"
+                    else:
+                        status_text += "  ⚪ 检测状态: 已停止\n"
                 else:
-                    status_text += f"  ❌ 服务状态: {service_status}\n"
+                    status_text += f"  ⚠️ 服务状态: {service_status}\n"
             else:
                 status_text += "  ❌ 服务异常 (无法连接)\n"
         except requests.exceptions.ConnectionError:
@@ -799,14 +803,40 @@ def check_services_health():
 
         status_text += "\n" + "=" * 40 + "\n"
 
-        # 4. 检查 Web UI (自身)
+        # 4. 检查 长时记忆服务
+        memory_port = ports.get('memory', 5006)
+        memory_url = f"http://localhost:{memory_port}/health"
+
+        status_text += "🧠 长时记忆服务:\n"
+        try:
+            response = requests.get(memory_url, timeout=5)
+            if response.status_code == 200:
+                result = response.json()
+                service_status = result.get('status', 'unknown')
+                total_memories = result.get('total_memories', 0)
+
+                if service_status == "healthy":
+                    status_text += "  ✅ 服务状态: 正常运行\n"
+                    status_text += f"  📝 记忆数量: {total_memories} 条\n"
+                else:
+                    status_text += f"  ⚠️ 服务状态: {service_status}\n"
+            else:
+                status_text += "  ❌ 服务异常 (无法连接)\n"
+        except requests.exceptions.ConnectionError:
+            status_text += "  ❌ 服务未启动\n"
+        except Exception as e:
+            status_text += f"  ❌ 服务不可达: {str(e)[:50]}\n"
+
+        status_text += "\n" + "=" * 40 + "\n"
+
+        # 5. 检查 Web UI (自身)
         status_text += "🌐 Web 配置界面:\n"
         status_text += "  ✅ 服务状态: 正常运行 (当前)\n"
 
         status_text += "\n💡 提示:\n"
         status_text += "  • 如果服务显示异常，请运行 python start_all.py 启动服务\n"
         status_text += "  • 语音对话服务可在 '🎤 语音对话' 标签页控制启动/停止\n"
-        status_text += "  • YOLO检测服务可在 '📹 YOLO检测' 标签页控制启动/停止\n"
+        status_text += "  • 长时记忆管理可在 '🧠 长时记忆' 标签页进行操作\n"
 
         return status_text
 
@@ -1417,6 +1447,155 @@ def get_current_volume():
     except Exception as e:
         logger.error(f"获取音量失败: {e}")
         return 100
+
+
+# ==================== 长时记忆服务函数 ====================
+def check_memory_service():
+    """检查长时记忆服务状态"""
+    try:
+        port = get_config('services.memory', 5006)
+        url = f"http://localhost:{port}/health"
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            result = response.json()
+            total_memories = result.get('total_memories', 0)
+            return f"✅ 长时记忆服务运行正常\n记忆数量: {total_memories}"
+        else:
+            return f"❌ 长时记忆服务状态异常: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 长时记忆服务连接失败: {str(e)}"
+
+
+def add_memory(text, tags, importance, memory_type):
+    """添加记忆"""
+    try:
+        port = get_config('services.memory', 5006)
+        url = f"http://localhost:{port}/memory/add"
+
+        # 处理标签
+        tag_list = [tag.strip() for tag in tags.split(',') if tag.strip()] if tags else []
+
+        payload = {
+            "text": text,
+            "tags": tag_list,
+            "importance": float(importance),
+            "memory_type": memory_type
+        }
+
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('status') == 'success':
+                memory = result.get('memory', {})
+                timestamp = memory.get('timestamp', '')[:19]  # 只显示到秒
+                return f"✅ 记忆添加成功\n时间: {timestamp}\n类型: {memory_type}\n重要性: {importance}"
+            else:
+                return f"❌ 添加失败: {result}"
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
+
+
+def search_memories(query, limit, min_similarity):
+    """搜索记忆"""
+    try:
+        port = get_config('services.memory', 5006)
+        url = f"http://localhost:{port}/memory/search"
+
+        params = {
+            "query": query,
+            "limit": int(limit),
+            "min_similarity": float(min_similarity)
+        }
+
+        response = requests.get(url, params=params, timeout=10)
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('status') == 'success':
+                memories = result.get('results', [])
+                if not memories:
+                    return "📝 没有找到相关记忆"
+
+                output = f"📝 找到 {len(memories)} 条相关记忆:\n\n"
+                for i, memory in enumerate(memories, 1):
+                    text = memory.get('text', '')[:100]
+                    similarity = memory.get('similarity', 0)
+                    memory_type = memory.get('type', 'general')
+                    timestamp = memory.get('timestamp', '')[:10]  # 只显示日期
+
+                    output += f"{i}. [{memory_type.upper()}] {text}...\n"
+                    output += f"   🎯 相似度: {similarity:.3f} | 📅 {timestamp}\n\n"
+
+                return output
+            else:
+                return f"❌ 搜索失败: {result}"
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
+
+
+def list_memories(limit):
+    """列出记忆"""
+    try:
+        port = get_config('services.memory', 5006)
+        url = f"http://localhost:{port}/memory/list"
+
+        params = {"limit": int(limit)}
+        response = requests.get(url, params=params, timeout=10)
+
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('status') == 'success':
+                memories = result.get('memories', [])
+                total = result.get('total', 0)
+
+                if not memories:
+                    return f"📝 暂无记忆数据"
+
+                output = f"📝 记忆列表 (显示最近 {len(memories)} 条，共 {total} 条):\n\n"
+                for i, memory in enumerate(memories, 1):
+                    text = memory.get('text', '')[:80]
+                    memory_type = memory.get('type', 'general')
+                    importance = memory.get('importance', 0.5)
+                    tags = memory.get('tags', [])
+                    timestamp = memory.get('timestamp', '')[:10]
+
+                    output += f"{i}. [{memory_type.upper()}] {text}...\n"
+                    output += f"   ⭐ 重要性: {importance:.1f} | 📅 {timestamp}\n"
+                    if tags:
+                        output += f"   🏷️ 标签: {', '.join(tags)}\n"
+                    output += "\n"
+
+                return output
+            else:
+                return f"❌ 获取失败: {result}"
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
+
+
+def delete_memory(index):
+    """删除记忆"""
+    try:
+        port = get_config('services.memory', 5006)
+        url = f"http://localhost:{port}/memory/{index}"
+
+        response = requests.delete(url, timeout=10)
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('status') == 'success':
+                return f"✅ 记忆 {index} 删除成功"
+            else:
+                return f"❌ 删除失败: {result}"
+        elif response.status_code == 404:
+            return f"❌ 记忆 {index} 不存在"
+        else:
+            return f"❌ 请求失败: HTTP {response.status_code}"
+    except Exception as e:
+        return f"❌ 错误: {str(e)}"
 
 
 # ==================== Gradio 界面 ====================
@@ -2330,431 +2509,170 @@ def create_ui():
                         outputs=voice_delete_output
                     )
 
-            # ==================== YOLO检测标签页 ====================
-            with gr.Tab("📹 YOLO检测"):
-                gr.Markdown("### 实时目标检测")
-                gr.Markdown("使用YOLOv5进行实时摄像头目标检测，支持80种COCO数据集类别")
+            # ==================== 长时记忆管理标签页 ====================
+            with gr.Tab("🧠 长时记忆"):
+                gr.Markdown("### 长时记忆管理系统")
+                gr.Markdown("基于向量的语义记忆存储和检索，支持自动提取偏好、事实和事件")
 
-                # YOLO检测显示区域
-                with gr.Row():
-                    with gr.Column(scale=2):
-                        # 视频流显示
-                        yolo_video = gr.Image(
-                            label="📹 实时检测画面",
-                            sources="webcam",
-                            streaming=True,
-                            interactive=False
-                        )
-
-                        # 控制按钮
-                        with gr.Row():
-                            yolo_start_btn = gr.Button("🎥 开始检测", variant="primary", scale=1)
-                            yolo_stop_btn = gr.Button("⏹️ 停止检测", variant="stop", scale=1)
-                            yolo_refresh_btn = gr.Button("🔄 刷新状态", variant="secondary", scale=1)
-
-                    with gr.Column(scale=1):
-                        # 检测参数控制
-                        gr.Markdown("#### 检测参数")
-                        yolo_confidence = gr.Slider(
-                            minimum=0.1,
-                            maximum=1.0,
-                            value=get_config('yolo.confidence_threshold', 0.5),
-                            step=0.05,
-                            label="置信度阈值",
-                            info="过滤低置信度的检测结果"
-                        )
-
-                        yolo_nms = gr.Slider(
-                            minimum=0.1,
-                            maximum=1.0,
-                            value=get_config('yolo.nms_threshold', 0.4),
-                            step=0.05,
-                            label="NMS阈值",
-                            info="非极大值抑制阈值"
-                        )
-
-                        # FPS显示
-                        yolo_fps_display = gr.Textbox(
-                            label="实时FPS",
-                            value="0.0",
-                            interactive=False
-                        )
-
-                        # 检测统计
-                        yolo_stats = gr.JSON(
-                            label="检测统计",
-                            value={}
-                        )
-
-                # 检测结果显示
-                with gr.Row():
-                    with gr.Column():
-                        gr.Markdown("#### 检测结果列表")
-                        yolo_detections_list = gr.DataFrame(
-                            headers=["类别", "置信度", "位置"],
-                            datatype=["str", "number", "str"],
-                            interactive=False
-                        )
-
-                        # 历史记录
-                        with gr.Row():
-                            yolo_clear_history_btn = gr.Button("🗑️ 清空历史", size="sm")
-                            yolo_export_btn = gr.Button("💾 导出截图", size="sm")
-
-                    with gr.Column():
-                        # YOLO控制（C++版本）
-                        gr.Markdown("#### C++版本控制")
-                        with gr.Row():
-                            cpp_start_btn = gr.Button("🚀 启动C++检测", variant="secondary")
-                            cpp_stop_btn = gr.Button("🛑 停止C++检测", variant="secondary")
-
-                        cpp_status = gr.Textbox(
-                            label="C++状态",
-                            lines=5,
-                            value="未启动",
-                            interactive=False
-                        )
-
-                # 摄像头配置
-                with gr.Accordion("📷 高级配置", open=False):
-                    yolo_camera_index = gr.Number(
-                        label="摄像头索引",
-                        value=get_config('yolo.camera_index', 0),
-                        precision=0,
-                        info="指定摄像头设备索引，-1为自动检测"
+                # 服务状态检查
+                with gr.Group():
+                    gr.Markdown("#### 📊 服务状态")
+                    memory_status_output = gr.Textbox(
+                        label="长时记忆服务状态",
+                        lines=2,
+                        interactive=False
+                    )
+                    check_memory_btn = gr.Button("🔄 检查服务状态", size="sm")
+                    check_memory_btn.click(
+                        check_memory_service,
+                        outputs=memory_status_output
                     )
 
-                    yolo_max_fps = gr.Slider(
-                        minimum=5,
-                        maximum=30,
-                        value=get_config('yolo.max_fps', 15),
-                        step=1,
-                        label="最大FPS",
-                        info="限制检测帧率以降低CPU负载"
+                # 添加记忆
+                with gr.Group():
+                    gr.Markdown("#### ➕ 添加记忆")
+                    with gr.Row():
+                        memory_text = gr.Textbox(
+                            label="记忆内容",
+                            placeholder="输入要记忆的内容...",
+                            lines=3,
+                            scale=4
+                        )
+                        with gr.Column(scale=1):
+                            memory_type = gr.Dropdown(
+                                choices=["general", "preference", "personal", "event"],
+                                label="记忆类型",
+                                value="general"
+                            )
+                            memory_importance = gr.Slider(
+                                minimum=0.0,
+                                maximum=1.0,
+                                value=0.5,
+                                step=0.1,
+                                label="重要性"
+                            )
+                    memory_tags = gr.Textbox(
+                        label="标签 (用逗号分隔)",
+                        placeholder="例如: 音乐, 偏好, 古典",
+                        lines=1
+                    )
+                    add_memory_btn = gr.Button("➕ 添加记忆", variant="primary")
+                    add_memory_output = gr.Textbox(
+                        label="添加结果",
+                        lines=3,
+                        interactive=False
+                    )
+                    add_memory_btn.click(
+                        add_memory,
+                        inputs=[memory_text, memory_tags, memory_importance, memory_type],
+                        outputs=add_memory_output
                     )
 
+                # 搜索记忆
+                with gr.Group():
+                    gr.Markdown("#### 🔍 搜索记忆")
+                    with gr.Row():
+                        search_query = gr.Textbox(
+                            label="搜索关键词",
+                            placeholder="输入搜索内容...",
+                            scale=3
+                        )
+                        search_limit = gr.Slider(
+                            minimum=1,
+                            maximum=20,
+                            value=5,
+                            step=1,
+                            label="结果数量",
+                            scale=1
+                        )
+                        search_similarity = gr.Slider(
+                            minimum=0.1,
+                            maximum=1.0,
+                            value=0.3,
+                            step=0.1,
+                            label="最小相似度",
+                            scale=1
+                        )
+                    search_btn = gr.Button("🔍 搜索记忆")
+                    search_output = gr.Textbox(
+                        label="搜索结果",
+                        lines=10,
+                        interactive=False
+                    )
+                    search_btn.click(
+                        search_memories,
+                        inputs=[search_query, search_limit, search_similarity],
+                        outputs=search_output
+                    )
+
+                # 管理记忆
+                with gr.Group():
+                    gr.Markdown("#### 📋 记忆管理")
+                    with gr.Row():
+                        list_limit = gr.Slider(
+                            minimum=10,
+                            maximum=100,
+                            value=20,
+                            step=10,
+                            label="显示数量"
+                        )
+                        list_btn = gr.Button("📋 列出记忆")
+                    list_output = gr.Textbox(
+                        label="记忆列表",
+                        lines=15,
+                        interactive=False
+                    )
+                    list_btn.click(
+                        list_memories,
+                        inputs=list_limit,
+                        outputs=list_output
+                    )
+
+                    with gr.Row():
+                        delete_index = gr.Number(
+                            label="记忆索引",
+                            minimum=0,
+                            precision=0,
+                            info="注意：索引从0开始"
+                        )
+                        delete_btn = gr.Button("🗑️ 删除记忆", variant="stop")
+                    delete_output = gr.Textbox(
+                        label="删除结果",
+                        lines=2,
+                        interactive=False
+                    )
+                    delete_btn.click(
+                        delete_memory,
+                        inputs=delete_index,
+                        outputs=delete_output
+                    )
+
+                # 使用说明
+                with gr.Accordion("📖 使用说明", open=False):
                     gr.Markdown("""
-                    **使用说明**:
-                    - 点击"开始检测"启动实时检测
-                    - 调整置信度阈值过滤不重要的检测
-                    - 检测结果会实时显示在画面和列表中
-                    - 可以导出当前检测截图保存
+                    #### 记忆类型说明：
+                    - **general**: 一般对话和通用信息
+                    - **preference**: 用户偏好（喜欢的音乐、食物等）
+                    - **personal**: 个人信息（姓名、年龄、职业等）
+                    - **event**: 重要事件（会议、约定、计划等）
+
+                    #### 重要性评分：
+                    - 0.1-0.3: 一般信息，可优先删除
+                    - 0.4-0.6: 重要信息，建议保留
+                    - 0.7-1.0: 核心信息，长期保留
+
+                    #### 标签使用：
+                    - 用逗号分隔多个标签
+                    - 建议使用简洁的中文或英文
+                    - 便于后续分类和搜索
+
+                    #### 注意事项：
+                    - 记忆索引从0开始计数
+                    - 删除操作不可恢复，请谨慎操作
+                    - 系统最多保存1000条记忆，会按重要性自动清理
                     """)
 
-                # 绑定事件处理函数
-                yolo_start_btn.click(
-                    fn=start_yolo_detection,
-                    inputs=[yolo_camera_index, yolo_confidence],
-                    outputs=[yolo_video, yolo_fps_display, yolo_detections_list]
-                )
-
-                yolo_stop_btn.click(
-                    fn=stop_yolo_detection,
-                    outputs=[yolo_video, yolo_fps_display]
-                )
-
-                yolo_refresh_btn.click(
-                    fn=get_yolo_status,
-                    outputs=[yolo_fps_display, yolo_stats]
-                )
-
-                yolo_confidence.change(
-                    fn=update_yolo_settings,
-                    inputs=[yolo_confidence, yolo_nms],
-                    outputs=[]
-                )
-
-                cpp_start_btn.click(
-                    fn=run_yolo_cpp_detection,
-                    outputs=[cpp_status]
-                )
-
-                cpp_stop_btn.click(
-                    fn=stop_yolo_cpp_detection,
-                    outputs=[cpp_status]
-                )
-
-                # 使用定时器更新检测状态
-                yolo_timer = gr.Timer(value=0.2)  # 200ms刷新一次
-                yolo_timer.tick(
-                    fn=update_yolo_cpp_stream,
-                    inputs=[yolo_confidence],
-                    outputs=[yolo_video, yolo_fps_display, yolo_detections_list]
-                )
-
     return demo
-
-
-# ==================== YOLO Detection Functions ====================
-
-def start_yolo_detection(camera_index, confidence_threshold):
-    """启动YOLO检测"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-
-        # 转换摄像头索引
-        cam_idx = None if camera_index == -1 else int(camera_index)
-
-        # 启动检测
-        response = requests.post(
-            f"http://localhost:{port}/detect/start",
-            json={
-                "camera_index": cam_idx,
-                "confidence_threshold": confidence_threshold
-            },
-            timeout=10
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            if result.get('success'):
-                logger.info(f"YOLO检测已启动: {result.get('message')}")
-                # 等待一下让摄像头开始捕获
-                time.sleep(1)
-                # 返回初始状态，定时器会更新实际的图像
-                return "检测已启动，正在加载...", "0.0", []
-            else:
-                logger.error(f"YOLO启动失败: {result.get('message')}")
-                return None, "错误", []
-        else:
-            logger.error(f"YOLO启动请求失败: {response.status_code}")
-            return None, f"HTTP {response.status_code}", []
-
-    except Exception as e:
-        logger.error(f"启动YOLO检测出错: {e}")
-        return None, f"错误: {str(e)}", []
-
-def stop_yolo_detection():
-    """停止YOLO检测"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-
-        response = requests.post(
-            f"http://localhost:{port}/detect/stop",
-            timeout=10
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            logger.info(f"YOLO检测已停止: {result.get('message')}")
-
-        return None, "0.0"
-
-    except Exception as e:
-        logger.error(f"停止YOLO检测出错: {e}")
-        return None, "错误"
-
-def get_yolo_status():
-    """获取YOLO状态"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-
-        # 获取检测状态
-        response = requests.get(
-            f"http://localhost:{port}/detect/status",
-            timeout=5
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            status = result.get('status', {})
-            fps = status.get('fps', 0.0)
-            stats = {
-                "is_running": status.get('is_running', False),
-                "camera_index": status.get('camera_index'),
-                "fps": round(fps, 1),
-                "detections": status.get('last_detection_count', 0)
-            }
-            return str(round(fps, 1)), stats
-        else:
-            return "0.0", {"error": "无法获取状态"}
-
-    except Exception as e:
-        logger.error(f"获取YOLO状态出错: {e}")
-        return "0.0", {"error": str(e)}
-
-def update_yolo_settings(confidence_threshold, nms_threshold):
-    """更新YOLO设置"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-
-        response = requests.post(
-            f"http://localhost:{port}/detect/update_settings",
-            json={
-                "confidence_threshold": confidence_threshold,
-                "nms_threshold": nms_threshold
-            },
-            timeout=5
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            logger.info(f"YOLO设置已更新: {result}")
-
-    except Exception as e:
-        logger.error(f"更新YOLO设置出错: {e}")
-
-def update_yolo_stream(confidence_threshold):
-    """更新YOLO视频流"""
-    try:
-        import requests
-        import base64
-        from PIL import Image
-        import io
-
-        port = get_config('services.yolo', 5005)
-
-        # 获取最新检测结果
-        response = requests.get(
-            f"http://localhost:{port}/detect/latest",
-            timeout=5
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-
-            # 解码图像
-            frame_base64 = result.get('frame_base64', '')
-            if frame_base64:
-                image_data = base64.b64decode(frame_base64)
-                image = Image.open(io.BytesIO(image_data))
-
-                # 处理检测结果
-                detections_data = result.get('detections', {})
-                detections = detections_data.get('detections', [])
-                fps = detections_data.get('fps', 0.0)
-
-                # 转换检测结果为DataFrame格式
-                detection_list = []
-                for det in detections:
-                    bbox = det.get('bbox', [])
-                    pos_str = f"[{bbox[0]}, {bbox[1]}]"
-                    detection_list.append([
-                        det.get('label', ''),
-                        round(det.get('confidence', 0), 3),
-                        pos_str
-                    ])
-
-                return image, str(round(fps, 1)), detection_list
-
-        return None, "0.0", []
-
-    except Exception as e:
-        logger.error(f"更新YOLO流出错: {e}")
-        return None, "0.0", []
-
-def update_yolo_cpp_stream(confidence_threshold):
-    """更新C++ YOLO视频流"""
-    try:
-        import requests
-        import base64
-        from PIL import Image
-        import io
-
-        # C++服务运行在5007端口
-        port = 5007
-
-        # 获取最新帧
-        response = requests.get(
-            f"http://localhost:{port}/frame",
-            timeout=5
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-
-            # 解码图像
-            image_data = result.get('image', '')
-            if image_data and image_data.startswith('data:image/jpeg;base64,'):
-                # 移除data URL前缀
-                base64_data = image_data.split(',')[1]
-                image_bytes = base64.b64decode(base64_data)
-                image = Image.open(io.BytesIO(image_bytes))
-
-                # 处理检测结果
-                detections = result.get('detections', [])
-                fps = result.get('fps', 0.0)
-
-                # 转换检测结果为DataFrame格式
-                detection_list = []
-                for det in detections:
-                    detection_list.append([
-                        det.get('label', ''),
-                        round(det.get('confidence', 0), 3),
-                        f"[{det.get('x', 0):.0f}, {det.get('y', 0):.0f}]"
-                    ])
-
-                return image, str(round(fps, 1)), detection_list
-
-        return None, "0.0", []
-
-    except Exception as e:
-        logger.error(f"更新C++ YOLO流出错: {e}")
-        return None, "0.0", []
-
-def update_yolo_detection_info(confidence_threshold):
-    """更新YOLO检测信息（保留兼容性）"""
-    return get_yolo_status()[0]
-
-def run_yolo_cpp_detection():
-    """运行C++ YOLO检测"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-        response = requests.post(f"http://localhost:{port}/yolo/start", timeout=10)
-
-        if response.status_code == 200:
-            result = response.json()
-            if result.get('success'):
-                return "✅ C++ YOLO检测已启动！\n" + result.get('message', '')
-            else:
-                return "❌ 启动失败: " + result.get('message', '未知错误')
-        else:
-            return f"❌ 请求失败: HTTP {response.status_code}"
-    except Exception as e:
-        return f"❌ 错误: {str(e)}"
-
-def stop_yolo_cpp_detection():
-    """停止C++ YOLO检测"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-        response = requests.post(f"http://localhost:{port}/yolo/stop", timeout=10)
-
-        if response.status_code == 200:
-            result = response.json()
-            if result.get('success'):
-                return "✅ C++ YOLO检测已停止\n" + result.get('message', '')
-            else:
-                return "❌ 停止失败: " + result.get('message', '未知错误')
-        else:
-            return f"❌ 请求失败: HTTP {response.status_code}"
-    except Exception as e:
-        return f"❌ 错误: {str(e)}"
-
-def check_yolo_cpp_status():
-    """检查C++ YOLO状态"""
-    try:
-        import requests
-        port = get_config('services.yolo', 5005)
-        response = requests.get(f"http://localhost:{port}/yolo/status", timeout=10)
-
-        if response.status_code == 200:
-            result = response.json()
-            status_msg = f"状态: {result.get('status', 'unknown')}\n"
-            if result.get('pid'):
-                status_msg += f"进程ID: {result['pid']}\n"
-            if result.get('executable'):
-                status_msg += f"可执行文件: {result['executable']}"
-            return status_msg
-        else:
-            return f"❌ 请求失败: HTTP {response.status_code}"
-    except Exception as e:
-        return f"❌ 错误: {str(e)}"
 
 
 

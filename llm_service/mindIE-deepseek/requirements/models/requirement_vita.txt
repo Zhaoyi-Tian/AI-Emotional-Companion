@@ -1,8 +1,0 @@
-numpy
-pillow
-av
-tqdm
-transformers==4.44.2
-gradio
-soundfile
-einops

@@ -1,0 +1,17 @@
+{
+    "KBHit":false,
+    "binFileName":"te_gelu_4d152fff2012e0c2ba866024fcf63ab828ba47f9cda576306d23ed0facb59386",
+    "binFileSuffix":".o",
+    "blockDim":1,
+    "coreType":"VectorCore",
+    "deterministic":"ignore",
+    "kernelName":"te_gelu_4d152fff2012e0c2ba866024fcf63ab828ba47f9cda576306d23ed0facb59386__kernel0",
+    "magic":"RT_DEV_BINARY_MAGIC_ELF_AIVEC",
+    "memoryStamping":[],
+    "opParaSize":0,
+    "parameters":[
+        null,
+        null
+    ],
+    "sha256":"149ede98769ef906a5a9dedf75a3a8f674d1f5610dbe1f4799b76a3447700611"
+}

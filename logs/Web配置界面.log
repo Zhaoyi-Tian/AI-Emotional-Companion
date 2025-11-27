@@ -1,19 +1,66 @@
-INFO:httpx:HTTP Request: GET https://checkip.amazonaws.com/ "HTTP/1.1 200 "
 INFO:WebUI:🌐 Web配置界面启动在端口: 8080
+INFO:httpx:HTTP Request: GET http://localhost:8080/startup-events "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: HEAD http://localhost:8080/ "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: GET https://api.gradio.app/pkg-version "HTTP/1.1 200 OK"
 /home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio/analytics.py:106: UserWarning: IMPORTANT: You are using gradio version 4.44.0, however version 4.44.1 is available, please upgrade. 
 --------
   warnings.warn(
-INFO:httpx:HTTP Request: GET http://localhost:8080/startup-events "HTTP/1.1 200 OK"
-INFO:httpx:HTTP Request: HEAD http://localhost:8080/ "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: GET https://api.gradio.app/v2/tunnel-request "HTTP/1.1 200 OK"
-Running on local URL:  http://0.0.0.0:8080
+Exception in thread Thread-3:
+Traceback (most recent call last):
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_transports/default.py", line 72, in map_httpcore_exceptions
+    yield
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_transports/default.py", line 236, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_sync/connection_pool.py", line 216, in handle_request
+    raise exc from None
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_sync/connection_pool.py", line 196, in handle_request
+    response = connection.handle_request(
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_sync/connection.py", line 99, in handle_request
+    raise exc
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_sync/connection.py", line 76, in handle_request
+    stream = self._connect(request)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_sync/connection.py", line 154, in _connect
+    stream = stream.start_tls(**kwargs)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_backends/sync.py", line 168, in start_tls
+    raise exc
+  File "/usr/local/miniconda3/lib/python3.9/contextlib.py", line 135, in __exit__
+    self.gen.throw(type, value, traceback)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectTimeout: _ssl.c:1106: The handshake operation timed out
 
-Could not create share link. Missing file: /home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio/frpc_linux_aarch64_v0.2. 
+The above exception was the direct cause of the following exception:
 
-Please check your internet connection. This can happen if your antivirus software blocks the download of this file. You can install manually by following these steps: 
-
-1. Download this file: https://cdn-media.huggingface.co/frpc-gradio-0.2/frpc_linux_aarch64
-2. Rename the downloaded file to: frpc_linux_aarch64_v0.2
-3. Move the file to this location: /home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio
-Keyboard interruption in main thread... closing server.
+Traceback (most recent call last):
+  File "/usr/local/miniconda3/lib/python3.9/threading.py", line 954, in _bootstrap_inner
+    self.run()
+  File "/usr/local/miniconda3/lib/python3.9/threading.py", line 892, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio/analytics.py", line 70, in _do_normal_analytics_request
+    data["ip_address"] = get_local_ip_address()
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/gradio/analytics.py", line 131, in get_local_ip_address
+    ip_address = httpx.get(
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_api.py", line 210, in get
+    return request(
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_api.py", line 118, in request
+    return client.request(
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_client.py", line 837, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_client.py", line 926, in send
+    response = self._send_handling_auth(
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_client.py", line 954, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_client.py", line 991, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_client.py", line 1027, in _send_single_request
+    response = transport.handle_request(request)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_transports/default.py", line 236, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/usr/local/miniconda3/lib/python3.9/contextlib.py", line 135, in __exit__
+    self.gen.throw(type, value, traceback)
+  File "/home/HwHiAiUser/.local/lib/python3.9/site-packages/httpx/_transports/default.py", line 89, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectTimeout: _ssl.c:1106: The handshake operation timed out
+INFO:httpx:HTTP Request: GET https://checkip.amazonaws.com/ "HTTP/1.1 200 "
+INFO:httpx:HTTP Request: GET https://checkip.amazonaws.com/ "HTTP/1.1 200 "

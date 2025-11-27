@@ -16,17 +16,7 @@ You may be able to resolve this warning by setting `model_config['protected_name
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("shutdown")
-INFO:     Started server process [236166]
+INFO:     Started server process [39978]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5005 (Press CTRL+C to quit)
-INFO:     127.0.0.1:52902 - "GET /emotion/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56228 - "GET /emotion/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53644 - "GET /emotion/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:53244 - "GET /emotion/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57872 - "GET /emotion/stats HTTP/1.1" 200 OK
-INFO:     127.0.0.1:32816 - "GET /emotion/stats HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [236166]

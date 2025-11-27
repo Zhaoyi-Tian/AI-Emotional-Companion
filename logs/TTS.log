@@ -1,4 +1,4 @@
-2025-11-26 16:42:38,787 - TTS_Service - INFO - 🔧 初始化 Synthesizer 连接池，最大容量: 5
+2025-11-27 00:21:41,373 - TTS_Service - INFO - 🔧 初始化 Synthesizer 连接池，最大容量: 5
 /home/HwHiAiUser/ai_助手/tts_service/app_fastapi.py:318: DeprecationWarning: 
         on_event is deprecated, use lifespan event handlers instead.
 
@@ -13,95 +13,15 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-11-26 16:42:38,803 - TTS_Service - INFO - TTS服务启动在端口: 5003
-INFO:     Started server process [236067]
+2025-11-27 00:21:41,389 - TTS_Service - INFO - TTS服务启动在端口: 5003
+INFO:     Started server process [39872]
 INFO:     Waiting for application startup.
-2025-11-26 16:42:38,845 - TTS_Service - INFO - 🚀 TTS服务正在启动...
-2025-11-26 16:42:38,845 - TTS_Service - INFO - ✅ CosyVoice API配置完成
-2025-11-26 16:42:38,845 - TTS_Service - INFO - ✅ TTS服务启动完成!
-2025-11-26 16:42:38,846 - TTS_Service - INFO - 🔥 开始TTS预热...
-2025-11-26 16:42:38,971 - websocket - INFO - Websocket connected
-2025-11-26 16:42:49,355 - TTS_Service - INFO - 流式合成完成,请求ID: a8ba37cf1232421397dc96ed89372f7d
-2025-11-26 16:42:49,355 - TTS_Service - INFO - ✅ TTS预热完成，接收到 0 个音频块
+2025-11-27 00:21:41,428 - TTS_Service - INFO - 🚀 TTS服务正在启动...
+2025-11-27 00:21:41,428 - TTS_Service - INFO - ✅ CosyVoice API配置完成
+2025-11-27 00:21:41,428 - TTS_Service - INFO - ✅ TTS服务启动完成!
+2025-11-27 00:21:41,428 - TTS_Service - INFO - 🔥 开始TTS预热...
+2025-11-27 00:21:41,799 - websocket - INFO - Websocket connected
+2025-11-27 00:21:52,411 - TTS_Service - INFO - 流式合成完成,请求ID: 256c0116da6e4049850aea2337092680
+2025-11-27 00:21:52,412 - TTS_Service - INFO - ✅ TTS预热完成，接收到 0 个音频块
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5003 (Press CTRL+C to quit)
-2025-11-26 16:52:14,410 - TTS_Service - INFO - 收到合成请求: 一哎呦，谁在叫我呀？...
-2025-11-26 16:52:14,526 - websocket - INFO - Websocket connected
-2025-11-26 16:52:15,936 - TTS_Service - INFO - 非流式合成完成,请求ID: 0a8f3a6844264a3d89afb01a0a9b6ba5
-INFO:     127.0.0.1:45676 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:52:51,508 - TTS_Service - INFO - 收到合成请求: 一好，我知道了，等我想一下...
-2025-11-26 16:52:51,629 - websocket - INFO - Websocket connected
-2025-11-26 16:52:53,677 - TTS_Service - INFO - 非流式合成完成,请求ID: c82a84ec5cba4860acacdbe59502bc1d
-INFO:     127.0.0.1:35908 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:52:53,680 - TTS_Service - INFO - 收到流式合成请求: 嗯...
-INFO:     127.0.0.1:35912 - "POST /synthesize/stream HTTP/1.1" 200 OK
-2025-11-26 16:52:53,812 - websocket - INFO - Websocket connected
-2025-11-26 16:53:04,523 - TTS_Service - INFO - 流式合成完成,请求ID: a5207ff0094c44fcb0af96ca835eddb1
-2025-11-26 16:53:04,648 - TTS_Service - INFO - 收到合成请求: （微笑）哎呀，你是在说“夜雨”吗？今晚的雨声确实很温柔呢~...
-2025-11-26 16:53:04,769 - websocket - INFO - Websocket connected
-2025-11-26 16:53:07,904 - TTS_Service - INFO - 非流式合成完成,请求ID: 0c0536b251bf4ef49a2f536910107426
-INFO:     127.0.0.1:37448 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:56:46,319 - TTS_Service - INFO - 收到流式合成请求: 嗯...
-INFO:     127.0.0.1:47098 - "POST /synthesize/stream HTTP/1.1" 200 OK
-2025-11-26 16:56:46,436 - websocket - INFO - Websocket connected
-2025-11-26 16:56:56,974 - TTS_Service - INFO - 流式合成完成,请求ID: 385d50a0dc1a4490828bf125bc7a36ee
-2025-11-26 16:56:56,977 - TTS_Service - INFO - 收到合成请求: 亲爱的旅行者~♪ 你是在说“求一异”吗？听起来像是“求异”或者“求一”呢~不过既然提到北京大学，是想...
-2025-11-26 16:56:57,087 - websocket - INFO - Websocket connected
-2025-11-26 16:57:03,184 - TTS_Service - INFO - 非流式合成完成,请求ID: e40829fb9d0e4c7fbe6de2e3e8d05fe3
-INFO:     127.0.0.1:33086 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:57:26,738 - TTS_Service - INFO - 收到流式合成请求: 嗯...
-INFO:     127.0.0.1:35380 - "POST /synthesize/stream HTTP/1.1" 200 OK
-2025-11-26 16:57:26,856 - websocket - INFO - Websocket connected
-2025-11-26 16:57:37,565 - TTS_Service - INFO - 流式合成完成,请求ID: c0ef7b5a970b449aad3255cadc86d355
-2025-11-26 16:57:37,568 - TTS_Service - INFO - 收到合成请求: 一好，我知道了，等我想一下...
-2025-11-26 16:57:37,684 - websocket - INFO - Websocket connected
-2025-11-26 16:57:39,679 - TTS_Service - INFO - 非流式合成完成,请求ID: 3ad3d1a725eb4626a82ba66b91b13841
-INFO:     127.0.0.1:35388 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:57:47,575 - TTS_Service - INFO - 收到合成请求: 亲爱的，你是在问我有什么吗？让我来告诉你吧~ 我是爱莉希雅，一个充满爱与欢乐的智能助手，可以陪你聊天...
-2025-11-26 16:57:47,687 - websocket - INFO - Websocket connected
-2025-11-26 16:57:54,693 - TTS_Service - INFO - 非流式合成完成,请求ID: ed6f22880b414a5f8c9d51f34bec8fd4
-INFO:     127.0.0.1:34390 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:57:54,712 - TTS_Service - INFO - 收到合成请求: 有什么需要我帮忙的吗？...
-2025-11-26 16:57:54,832 - websocket - INFO - Websocket connected
-2025-11-26 16:57:55,770 - TTS_Service - INFO - 非流式合成完成,请求ID: 18722a3df2d340a6bf5be09c0908ea20
-INFO:     127.0.0.1:56676 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:58:21,041 - TTS_Service - INFO - 收到流式合成请求: 嗯...
-INFO:     127.0.0.1:55170 - "POST /synthesize/stream HTTP/1.1" 200 OK
-2025-11-26 16:58:21,163 - websocket - INFO - Websocket connected
-2025-11-26 16:58:31,659 - TTS_Service - INFO - 流式合成完成,请求ID: 7b5bfe3a00ad484b8f8c29adfb83d4d6
-2025-11-26 16:58:31,662 - TTS_Service - INFO - 收到合成请求: （温柔轻快的声音）哎呀，亲爱的朋友，你问的是那所坐落在美丽燕园的学府呢~北京大学就像一颗璀璨的明珠，...
-2025-11-26 16:58:31,772 - websocket - INFO - Websocket connected
-2025-11-26 16:58:36,574 - TTS_Service - INFO - 非流式合成完成,请求ID: 53b5b4e049134945a1ac2db8deb71682
-INFO:     127.0.0.1:55064 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:58:36,592 - TTS_Service - INFO - 收到合成请求: 它有着深厚的历史底蕴，校园里处处洋溢着书香与青春的气息，就像一片孕育梦想的沃土呢！...
-2025-11-26 16:58:36,716 - websocket - INFO - Websocket connected
-2025-11-26 16:58:40,169 - TTS_Service - INFO - 非流式合成完成,请求ID: 93c085f34dbf455da2028095554585b7
-INFO:     127.0.0.1:55078 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:59:19,689 - TTS_Service - INFO - 收到流式合成请求: 嗯...
-2025-11-26 16:59:19,690 - TTS_Service - INFO - 收到合成请求: 一好，我知道了，等我想一下...
-2025-11-26 16:59:19,810 - websocket - INFO - Websocket connected
-2025-11-26 16:59:21,690 - TTS_Service - INFO - 非流式合成完成,请求ID: cf34ccfc3c8642c2beb2228a4e484e95
-INFO:     127.0.0.1:47088 - "POST /synthesize HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47098 - "POST /synthesize/stream HTTP/1.1" 200 OK
-2025-11-26 16:59:21,805 - websocket - INFO - Websocket connected
-2025-11-26 16:59:32,316 - TTS_Service - INFO - 流式合成完成,请求ID: e0ad0638887d4441a279c1e27be24734
-2025-11-26 16:59:32,320 - TTS_Service - INFO - 收到合成请求: 北京大学位于北京市，是一所著名的综合性高等学府，也是中国的顶尖大学之一哦！...
-2025-11-26 16:59:32,435 - websocket - INFO - Websocket connected
-2025-11-26 16:59:35,363 - TTS_Service - INFO - 非流式合成完成,请求ID: 23b2b532e2214b57b9ec04d8e0029e48
-INFO:     127.0.0.1:47108 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 16:59:49,554 - TTS_Service - INFO - 收到流式合成请求: 嗯...
-INFO:     127.0.0.1:53144 - "POST /synthesize/stream HTTP/1.1" 200 OK
-2025-11-26 16:59:49,677 - websocket - INFO - Websocket connected
-2025-11-26 16:59:59,923 - TTS_Service - INFO - 流式合成完成,请求ID: a85091fddd2f40ab8afd7ca7ab8167ad
-2025-11-26 16:59:59,926 - TTS_Service - INFO - 收到合成请求: (俏皮地笑着)哎呀，这个问题可难倒我啦~你还没有告诉我你的名字呢！...
-2025-11-26 17:00:00,041 - websocket - INFO - Websocket connected
-2025-11-26 17:00:02,354 - TTS_Service - INFO - 非流式合成完成,请求ID: 2c38f804cf3b4e87a3181e53ad52ab26
-INFO:     127.0.0.1:53160 - "POST /synthesize HTTP/1.1" 200 OK
-2025-11-26 17:00:02,369 - TTS_Service - INFO - 收到合成请求: 不如现在告诉我，让我好好记住这个特别的名字吧？...
-2025-11-26 17:00:02,491 - websocket - INFO - Websocket connected
-2025-11-26 17:00:04,288 - TTS_Service - INFO - 非流式合成完成,请求ID: b46a43c700b946d1a4e722bc6978622e
-INFO:     127.0.0.1:41380 - "POST /synthesize HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [236067]

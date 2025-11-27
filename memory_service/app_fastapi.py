@@ -3,6 +3,7 @@
 """
 语义记忆服务 FastAPI 实现
 支持向量化存储和检索记忆
+针对昇腾 NPU 优化：固定输入长度为 64，避免动态 Shape 导致的重复编译
 """
 
 import os
@@ -26,6 +27,7 @@ from config_loader import get_config
 # 导入向量编码器
 from sentence_transformers import SentenceTransformer
 import numpy as np
+import torch  # 显式导入 torch
 from sklearn.metrics.pairwise import cosine_similarity
 
 # 配置日志
@@ -38,8 +40,8 @@ logger = logging.getLogger("MemoryService")
 # 创建 FastAPI 应用
 app = FastAPI(
     title="语义记忆服务",
-    description="基于向量的语义记忆存储和检索",
-    version="1.0.0"
+    description="基于向量的语义记忆存储和检索 (NPU Optimized)",
+    version="1.1.0"
 )
 
 # CORS配置
@@ -81,8 +83,10 @@ class SemanticMemoryManager:
         self.memory_file = self.memory_dir / "memories.json"
         self.vectors_file = self.memory_dir / "vectors.npy"
 
+        # 【优化】定义固定的序列长度，避免 NPU 重复编译
+        self.MAX_SEQ_LENGTH = 64 
+
         try:
-            import torch
             import torch_npu
             # 使用 torch_npu 库来判断 NPU 是否可用
             if hasattr(torch, 'npu') and torch.npu.is_available():
@@ -95,17 +99,26 @@ class SemanticMemoryManager:
                 self.device = torch.device("cpu")
                 logger.info("设备检测: 使用 CPU")
         except Exception:
-            self.device = "cpu"
-            logger.warning("未检测到 PyTorch 环境，使用 CPU。")
+            self.device = torch.device("cpu")
+            logger.warning("未检测到 PyTorch 环境或 NPU 库，使用 CPU。")
         
         # 加载编码器
         try:
             model_path = '/home/HwHiAiUser/ai_助手/model/models--moka-ai--m3e-small/snapshots/44c696631b2a8c200220aaaad5f987f096e986df'
             
-            # SentenceTransformer 会自动处理 safetensors 文件，
-            # 关键是传入 device 参数
-            self.encoder = SentenceTransformer(model_path, device=self.device) 
-            logger.info(f"成功加载 sentence-transformers 模型到设备: {self.device}")
+            # 加载模型
+            self.encoder = SentenceTransformer(model_path, device=self.device)
+            
+            # 【优化】设置模型最大长度
+            self.encoder.max_seq_length = self.MAX_SEQ_LENGTH
+            
+            logger.info(f"成功加载模型到设备: {self.device}，强制固定序列长度: {self.MAX_SEQ_LENGTH}")
+            
+            # 【优化】预热 (Warm-up)
+            # 在启动时执行一次空推理，触发首次编译，避免第一次请求卡顿
+            logger.info("正在进行模型预热 (Warm-up)...")
+            self.encode_text("模型预热初始化")
+            logger.info("模型预热完成。")
             
         except Exception as e:
             logger.error(f"加载模型失败: {e}")
@@ -149,12 +162,40 @@ class SemanticMemoryManager:
             logger.error(f"保存向量失败: {e}")
 
     def encode_text(self, text: str) -> np.ndarray:
-        """将文本编码为向量"""
+        """
+        将文本编码为向量
+        【优化重点】强制使用 padding='max_length' 确保输出 Tensor 形状固定为 (1, 64)
+        """
         try:
-            return self.encoder.encode(text)
+            # 1. 手动 Tokenize，强制填充到最大长度
+            # 这样无论输入多短，生成的 input_ids 长度永远是 self.MAX_SEQ_LENGTH (64)
+            features = self.encoder.tokenizer(
+                [text],  # 放入列表作为 batch
+                padding='max_length',  # 【关键】强制填充
+                truncation=True,       # 超过截断
+                max_length=self.MAX_SEQ_LENGTH,
+                return_tensors='pt'
+            )
+            
+            # 2. 移动到设备 (NPU/GPU)
+            features = {key: val.to(self.device) for key, val in features.items()}
+
+            # 3. 执行前向传播
+            with torch.no_grad():
+                # 使用 SentenceTransformer 的 forward 方法处理 features
+                # 它会自动处理 Transformer -> Pooling 等流程
+                out_features = self.encoder.forward(features)
+                
+                # 获取句子向量 (SentenceTransformer 默认将结果存在 'sentence_embedding' 中)
+                embedding = out_features['sentence_embedding']
+                
+                # 转回 CPU numpy 数组
+                return embedding.cpu().numpy()[0]
+                
         except Exception as e:
             logger.error(f"编码文本失败: {e}")
-            return np.zeros(384)  # 模型维度是384
+            # 返回零向量作为 fallback
+            return np.zeros(384) 
 
     def add_memory(self, text: str, tags: List[str] = None,
                    importance: float = 0.5, memory_type: str = "general"):
@@ -183,23 +224,35 @@ class SemanticMemoryManager:
 
         # 限制记忆数量（保留最重要的1000条）
         if len(self.memories) > 1000:
-            # 按重要性和访问次数排序
-            self.memories.sort(
-                key=lambda x: (x["importance"], x["access_count"]),
+            logger.info("记忆数量超过1000，正在清理...")
+            
+            # 1. 创建带索引的列表
+            mem_with_idx = [(i, m) for i, m in enumerate(self.memories)]
+            
+            # 2. 排序：优先保留重要性高、访问次数多的
+            mem_with_idx.sort(
+                key=lambda x: (x[1]["importance"], x[1]["access_count"]),
                 reverse=True
             )
-            self.memories = self.memories[:1000]
+            
+            # 3. 截取前1000个
+            keep_top_k = mem_with_idx[:1000]
+            
+            # 4. 获取要保留的索引
+            indices_to_keep = [i for i, m in keep_top_k]
+            
+            # 5. 更新 memories 列表
+            self.memories = [m for i, m in keep_top_k]
 
-            # 重新编码向量
-            self.vectors = np.array([
-                self.encode_text(m["text"]) for m in self.memories
-            ])
+            # 6. 【优化重点】直接切片更新向量，避免重新编码
+            if len(self.vectors) > 0:
+                self.vectors = self.vectors[indices_to_keep]
 
-        # 保存到文件
+        # 保存到文件 (建议：实际生产中可改为异步或定时保存，避免每次写入)
         self._save_memories()
         self._save_vectors()
 
-        logger.info(f"添加记忆: {text[:50]}...")
+        logger.info(f"添加记忆: {text[:20]}... (Total: {len(self.memories)})")
         return memory
 
     def search_memories(self, query: str, limit: int = 5,
@@ -208,7 +261,7 @@ class SemanticMemoryManager:
         if len(self.vectors) == 0:
             return []
 
-        # 编码查询
+        # 编码查询 (也会被强制为 64 长度)
         query_vector = self.encode_text(query).reshape(1, -1)
 
         # 计算相似度
@@ -286,65 +339,52 @@ class SemanticMemoryManager:
     def _extract_preferences(self, text: str) -> List[str]:
         """提取偏好信息"""
         preferences = []
-
         # 偏好关键词
         patterns = [
             "我喜欢", "我不喜欢", "我爱", "我讨厌",
             "我偏爱", "我喜欢的是", "我不喜欢的是",
             "我喜欢听", "我喜欢吃", "我喜欢看"
         ]
-
         for pattern in patterns:
             if pattern in text:
                 sentences = text.split("。")
                 for sentence in sentences:
                     if pattern in sentence:
-                        # 简单清理
                         pref = sentence.strip()
-                        if len(pref) > 10:  # 过滤太短的
+                        if len(pref) > 5:  # 稍微放宽长度限制
                             preferences.append(pref)
-
         return preferences
 
     def _extract_facts(self, text: str) -> List[str]:
         """提取事实信息"""
         facts = []
-
-        # 事实关键词
         patterns = [
             "我叫", "我的名字是", "我是", "我住在",
             "我的工作", "我的专业", "我毕业于",
             "我家有", "我岁", "我今年"
         ]
-
         for pattern in patterns:
             if pattern in text:
                 sentences = text.split("。")
                 for sentence in sentences:
                     if pattern in sentence:
                         fact = sentence.strip()
-                        if len(fact) > 10:
+                        if len(fact) > 5:
                             facts.append(fact)
-
         return facts
 
     def _extract_events(self, text: str) -> List[str]:
         """提取事件信息"""
         events = []
-
-        # 时间和事件关键词
         patterns = [
             "明天", "下周", "下个月", "即将",
             "计划", "要去", "要参加", "会议",
             "约定", "安排", "预约"
         ]
-
         for pattern in patterns:
             if pattern in text:
-                # 提取包含时间词的整句话
                 events.append(text.strip())
-                break  # 避免重复
-
+                break 
         return events
 
     def get_all_memories(self) -> List[Dict]:
@@ -485,7 +525,7 @@ async def health_check():
     """健康检查"""
     return {
         "status": "healthy",
-        "service": "Memory Service",
+        "service": "Memory Service (NPU Fixed Shape)",
         "total_memories": len(memory_manager.get_all_memories()),
         "timestamp": datetime.now().isoformat()
     }

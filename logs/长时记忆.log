@@ -1,25 +1,22 @@
 /usr/local/miniconda3/lib/python3.9/site-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
   warnings.warn(
-2025-11-26 16:43:05,396 - MemoryService - INFO - 设备检测: 成功切换到昇腾 NPU
-2025-11-26 16:43:05,406 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: /home/HwHiAiUser/ai_助手/model/models--moka-ai--m3e-small/snapshots/44c696631b2a8c200220aaaad5f987f096e986df
+2025-11-27 00:22:08,218 - MemoryService - INFO - 设备检测: 成功切换到昇腾 NPU
+2025-11-27 00:22:08,227 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: /home/HwHiAiUser/ai_助手/model/models--moka-ai--m3e-small/snapshots/44c696631b2a8c200220aaaad5f987f096e986df
 /usr/local/miniconda3/lib/python3.9/site-packages/torch/_utils.py:831: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()
   return self.fget.__get__(instance, owner)()
-2025-11-26 16:43:27,476 - MemoryService - INFO - 成功加载 sentence-transformers 模型到设备: npu:0
-INFO:     Started server process [236207]
+2025-11-27 00:22:29,331 - MemoryService - INFO - 成功加载模型到设备: npu:0，强制固定序列长度: 64
+2025-11-27 00:22:29,336 - MemoryService - INFO - 正在进行模型预热 (Warm-up)...
+..............2025-11-27 00:25:17,744 - MemoryService - INFO - 模型预热完成。
+INFO:     Started server process [40043]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5006 (Press CTRL+C to quit)
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-[ERROR] TBE Subprocess[task_distribute] raise error[], main process disappeared!
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [236207]
-/usr/local/miniconda3/lib/python3.9/multiprocessing/resource_tracker.py:216: UserWarning: resource_tracker: There appear to be 30 leaked semaphore objects to clean up at shutdown
-  warnings.warn('resource_tracker: There appear to be %d '
+INFO:     127.0.0.1:51656 - "GET /health HTTP/1.1" 200 OK
+2025-11-27 00:26:58,813 - MemoryService - INFO - 添加记忆: 我的学校是北京大学... (Total: 1)
+INFO:     127.0.0.1:44728 - "POST /memory/add HTTP/1.1" 200 OK
+2025-11-27 00:27:13,640 - MemoryService - INFO - 添加记忆: 我的名字是田照亿... (Total: 2)
+INFO:     127.0.0.1:36256 - "POST /memory/add HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34074 - "GET /memory/search?query=%E6%88%91&limit=5&min_similarity=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34090 - "GET /memory/search?query=%E6%88%91%E7%9A%84%E5%90%8D%E5%AD%97&limit=5&min_similarity=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59402 - "GET /memory/search?query=%E6%88%91%E7%9A%84%E5%90%8D%E5%AD%97%E6%98%AF%E7%94%B0%E7%85%A7%E4%BA%BF&limit=5&min_similarity=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41372 - "GET /memory/list?limit=20 HTTP/1.1" 200 OK

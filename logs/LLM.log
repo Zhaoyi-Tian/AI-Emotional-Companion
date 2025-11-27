@@ -5,27 +5,11 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-11-26 16:42:33,839 - LLM_Service - INFO - LLM服务启动在端口: 5002
-INFO:     Started server process [236013]
+2025-11-27 00:21:36,497 - LLM_Service - INFO - LLM服务启动在端口: 5002
+INFO:     Started server process [39810]
 INFO:     Waiting for application startup.
-2025-11-26 16:42:33,895 - LLM_Service - INFO - 🚀 LLM服务正在启动...
-2025-11-26 16:42:33,896 - LLM_Service - INFO - 使用API模式
-2025-11-26 16:42:33,896 - LLM_Service - INFO - ✅ LLM服务启动完成!
+2025-11-27 00:21:36,551 - LLM_Service - INFO - 🚀 LLM服务正在启动...
+2025-11-27 00:21:36,551 - LLM_Service - INFO - 使用API模式
+2025-11-27 00:21:36,551 - LLM_Service - INFO - ✅ LLM服务启动完成!
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5002 (Press CTRL+C to quit)
-2025-11-26 16:53:01,933 - LLM_Service - INFO - 收到流式对话请求: 夜玉...
-INFO:     127.0.0.1:60046 - "POST /chat/stream HTTP/1.1" 200 OK
-2025-11-26 16:56:50,814 - LLM_Service - INFO - 收到流式对话请求: 求一异，我们是北京大学...
-INFO:     127.0.0.1:38348 - "POST /chat/stream HTTP/1.1" 200 OK
-2025-11-26 16:57:44,189 - LLM_Service - INFO - 收到流式对话请求: 我的您都什么...
-INFO:     127.0.0.1:37460 - "POST /chat/stream HTTP/1.1" 200 OK
-2025-11-26 16:58:25,537 - LLM_Service - INFO - 收到流式对话请求: 什么是北京大学...
-INFO:     127.0.0.1:51346 - "POST /chat/stream HTTP/1.1" 200 OK
-2025-11-26 16:59:26,208 - LLM_Service - INFO - 收到流式对话请求: 什么市北京大学...
-INFO:     127.0.0.1:36934 - "POST /chat/stream HTTP/1.1" 200 OK
-2025-11-26 16:59:54,045 - LLM_Service - INFO - 收到流式对话请求: 我的名字是什么...
-INFO:     127.0.0.1:43994 - "POST /chat/stream HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [236013]

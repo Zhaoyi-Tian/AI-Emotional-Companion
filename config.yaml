@@ -20,7 +20,7 @@ llm:
     model: deepseek-chat
     provider: deepseek
     stream: true
-    system_prompt: 你是一个智能语音助手，扮演的是爱莉希雅，你的输入是由语音识别转换而来，会有很多错误以及无关的内容，需要你自动修正，另外，你的输出会语音合成，所以不要加括号
+    system_prompt: 你是一个智能语音助手，你的输入是由语音识别转换而来，会有很多错误以及无关的内容，需要你自动修正，另外，你的输出会语音合成，所以不要加括号
     temperature: 1.0
     top_p: 0.9
   local:
@@ -108,6 +108,7 @@ voice_chat:
   - 嘿
   - 小
   - 小爱
+  - 爱
 web:
   enable: true
   share: true

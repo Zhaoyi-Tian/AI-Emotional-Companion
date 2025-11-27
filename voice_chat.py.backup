@@ -308,7 +308,7 @@ class VoiceAssistant:
 
         Args:
             text: 文本内容
-            cache_type: 缓存类型 ('wake', 'interrupt' 或 'thinking')
+            cache_type: 缓存类型 ('wake' 或 'interrupt')
 
         Returns:
             str: 缓存文件路径
@@ -319,24 +319,27 @@ class VoiceAssistant:
 
     def _load_cached_audio(self):
         """加载缓存的音频文件"""
-        # 加载唤醒回复音频
-        wake_cache_file = self._get_cache_filename(self.WAKE_REPLY, 'wake')
+        # 加载唤醒回复音频（使用带"一"前缀的文本）
+        wake_text_with_prefix = "一" + self.WAKE_REPLY
+        wake_cache_file = self._get_cache_filename(wake_text_with_prefix, 'wake')
         if wake_cache_file.exists():
             self.wake_reply_audio_cache = str(wake_cache_file)
             logger.info(f"✅ 加载唤醒回复音频缓存: {self.WAKE_REPLY}")
         else:
             logger.info(f"💾 唤醒回复音频缓存不存在，将在首次使用时生成")
 
-        # 加载打断回复音频
-        interrupt_cache_file = self._get_cache_filename(self.INTERRUPT_REPLY, 'interrupt')
+        # 加载打断回复音频（使用带"一"前缀的文本）
+        interrupt_text_with_prefix = "一" + self.INTERRUPT_REPLY
+        interrupt_cache_file = self._get_cache_filename(interrupt_text_with_prefix, 'interrupt')
         if interrupt_cache_file.exists():
             self.interrupt_reply_audio_cache = str(interrupt_cache_file)
             logger.info(f"✅ 加载打断回复音频缓存: {self.INTERRUPT_REPLY}")
         else:
             logger.info(f"💾 打断回复音频缓存不存在，将在首次使用时生成")
 
-        # 加载思考回复音频
-        thinking_cache_file = self._get_cache_filename(self.THINKING_REPLY, 'thinking')
+        # 加载思考回复音频（使用带"一"前缀的文本）
+        thinking_text_with_prefix = "一" + self.THINKING_REPLY
+        thinking_cache_file = self._get_cache_filename(thinking_text_with_prefix, 'thinking')
         if thinking_cache_file.exists():
             self.thinking_reply_audio_cache = str(thinking_cache_file)
             logger.info(f"✅ 加载思考回复音频缓存: {self.THINKING_REPLY}")
@@ -1439,16 +1442,20 @@ class VoiceAssistant:
 
             # 如果没有缓存，则生成新的音频
             if not pcm_file:
-                # 直接使用原始文本，不添加前缀
+                # 对唤醒、思考、打断回复添加"一"前缀
                 tts_text = text
                 cache_key = text  # 用于缓存文件名的key
+                if text in [self.WAKE_REPLY, self.THINKING_REPLY, self.INTERRUPT_REPLY]:
+                    tts_text = "一" + text
+                    cache_key = tts_text  # 使用带前缀的文本作为缓存key
+                    logger.debug(f"🔤 添加前缀: {tts_text}")
 
                 pcm_file = self.text_to_speech(tts_text)
                 if not pcm_file:
                     logger.error("TTS生成失败")
                     return
 
-                # 保存到缓存（使用原始文本作为key）
+                # 保存到缓存（使用带前缀的文本作为key）
                 if use_cache:
                     if text == self.WAKE_REPLY:
                         cache_type = 'wake'

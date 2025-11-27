@@ -5,398 +5,74 @@
         [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
         
   @app.on_event("startup")
-2025-11-26 16:42:33,244 - ASR_Service - INFO - ASR服务启动在端口: 5001
-INFO:     Started server process [235972]
+2025-11-27 00:21:35,750 - ASR_Service - INFO - ASR服务启动在端口: 5001
+INFO:     Started server process [39778]
 INFO:     Waiting for application startup.
-2025-11-26 16:42:33,500 - ASR_Service - INFO - 🚀 ASR服务正在启动...
-2025-11-26 16:42:36,940 - ASR_Service - INFO - ✅ ASR中文模型加载成功: /home/HwHiAiUser/ai_助手/asr_service/CN_model/offline_encoder.om
-2025-11-26 16:42:36,943 - ASR_Service - INFO - ✅ ASR服务启动完成!
+2025-11-27 00:21:36,000 - ASR_Service - INFO - 🚀 ASR服务正在启动...
+2025-11-27 00:21:39,369 - ASR_Service - INFO - ✅ ASR中文模型加载成功: /home/HwHiAiUser/ai_助手/asr_service/CN_model/offline_encoder.om
+2025-11-27 00:21:39,370 - ASR_Service - INFO - ✅ ASR服务启动完成!
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:5001 (Press CTRL+C to quit)
-2025-11-26 16:43:04,829 - ASR_Service - INFO - 正在识别音频: tmpmyxutduq.wav
-2025-11-26 16:43:05,035 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:44676 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:43:06,076 - ASR_Service - INFO - 正在识别音频: tmpwwrzwpce.wav
-2025-11-26 16:43:06,254 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:44688 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:43:20,551 - ASR_Service - INFO - 正在识别音频: tmphqn1n13s.wav
-2025-11-26 16:43:20,819 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:35994 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:43:29,907 - ASR_Service - INFO - 正在识别音频: tmpl08_mhqa.wav
-2025-11-26 16:43:30,195 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:50720 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:43:39,148 - ASR_Service - INFO - 正在识别音频: tmprkwwi2j5.wav
-2025-11-26 16:43:39,419 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42340 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:43:42,893 - ASR_Service - INFO - 正在识别音频: tmpo43a49lt.wav
-2025-11-26 16:43:43,105 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42346 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:43:51,059 - ASR_Service - INFO - 正在识别音频: tmphsf45s9f.wav
-2025-11-26 16:43:51,284 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:56362 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:44:22,004 - ASR_Service - INFO - 正在识别音频: tmppnaxt1f3.wav
-2025-11-26 16:44:22,185 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:39990 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:44:24,500 - ASR_Service - INFO - 正在识别音频: tmpshrz9h9z.wav
-2025-11-26 16:44:24,675 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:40002 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:44:41,095 - ASR_Service - INFO - 正在识别音频: tmp4jxfxbm7.wav
-2025-11-26 16:44:41,276 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38404 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:44:46,215 - ASR_Service - INFO - 正在识别音频: tmptelbwddf.wav
-2025-11-26 16:44:46,394 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38414 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:44:48,160 - ASR_Service - INFO - 正在识别音频: tmp_gdr2r28.wav
-2025-11-26 16:44:48,335 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38420 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:44:59,374 - ASR_Service - INFO - 正在识别音频: tmpmx9g6vzk.wav
-2025-11-26 16:44:59,555 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57574 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:45:06,427 - ASR_Service - INFO - 正在识别音频: tmpozce795o.wav
-2025-11-26 16:45:06,606 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57576 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:45:09,191 - ASR_Service - INFO - 正在识别音频: tmprqbptfdc.wav
-2025-11-26 16:45:09,366 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48172 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:45:31,517 - ASR_Service - INFO - 正在识别音频: tmp984uqqia.wav
-2025-11-26 16:45:31,699 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:51808 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:46:02,350 - ASR_Service - INFO - 正在识别音频: tmp02eqmund.wav
-2025-11-26 16:46:02,532 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47004 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:46:09,549 - ASR_Service - INFO - 正在识别音频: tmpl1ie08v8.wav
-2025-11-26 16:46:09,730 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:52052 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:46:13,028 - ASR_Service - INFO - 正在识别音频: tmpcv2ktqss.wav
-2025-11-26 16:46:13,204 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:52068 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:46:19,565 - ASR_Service - INFO - 正在识别音频: tmpl5h5q_8s.wav
-2025-11-26 16:46:19,744 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:37724 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:46:25,359 - ASR_Service - INFO - 正在识别音频: tmp9a8b8wh3.wav
-2025-11-26 16:46:25,537 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:37728 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:46:37,270 - ASR_Service - INFO - 正在识别音频: tmp2tfg_vs1.wav
-2025-11-26 16:46:37,452 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:35188 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:19,327 - ASR_Service - INFO - 正在识别音频: tmp5_bbruvb.wav
-2025-11-26 16:47:19,508 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42782 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:23,891 - ASR_Service - INFO - 正在识别音频: tmpv0jwd6pi.wav
-2025-11-26 16:47:24,068 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42784 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:27,050 - ASR_Service - INFO - 正在识别音频: tmppwei4g3j.wav
-2025-11-26 16:47:27,226 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42796 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:29,525 - ASR_Service - INFO - 正在识别音频: tmpcxq58dco.wav
-2025-11-26 16:47:29,701 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48978 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:32,746 - ASR_Service - INFO - 正在识别音频: tmpzm0xgcw8.wav
-2025-11-26 16:47:32,921 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48984 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:44,975 - ASR_Service - INFO - 正在识别音频: tmptdkyr9do.wav
-2025-11-26 16:47:45,156 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:59920 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:49,634 - ASR_Service - INFO - 正在识别音频: tmp4sqcp1ew.wav
-2025-11-26 16:47:49,811 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:45890 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:47:53,560 - ASR_Service - INFO - 正在识别音频: tmpns8a3clw.wav
-2025-11-26 16:47:53,736 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:45896 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:48:02,396 - ASR_Service - INFO - 正在识别音频: tmp_in2hgmv.wav
-2025-11-26 16:48:02,577 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:33340 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:48:03,763 - ASR_Service - INFO - 正在识别音频: tmpjqfbufuw.wav
-2025-11-26 16:48:03,937 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:33356 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:48:11,261 - ASR_Service - INFO - 正在识别音频: tmp8mqktrat.wav
-2025-11-26 16:48:11,442 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:46320 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:48:40,356 - ASR_Service - INFO - 正在识别音频: tmp4b4_w3u1.wav
-2025-11-26 16:48:40,537 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:54354 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:48:43,749 - ASR_Service - INFO - 正在识别音频: tmpndg8ql7z.wav
-2025-11-26 16:48:43,925 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:54362 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:48:53,155 - ASR_Service - INFO - 正在识别音频: tmp598cj1hm.wav
-2025-11-26 16:48:53,337 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:44036 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:49:27,195 - ASR_Service - INFO - 正在识别音频: tmph_h4a97t.wav
-2025-11-26 16:49:27,376 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48496 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:49:28,407 - ASR_Service - INFO - 正在识别音频: tmpqvm8l033.wav
-2025-11-26 16:49:28,581 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48500 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:49:33,746 - ASR_Service - INFO - 正在识别音频: tmpt83kz65s.wav
-2025-11-26 16:49:33,924 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48690 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:49:49,259 - ASR_Service - INFO - 正在识别音频: tmpi9p5c20e.wav
-2025-11-26 16:49:49,440 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48858 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:49:51,688 - ASR_Service - INFO - 正在识别音频: tmp5xkgxa1v.wav
-2025-11-26 16:49:51,863 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:48862 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:50:10,307 - ASR_Service - INFO - 正在识别音频: tmpyagnguyh.wav
-2025-11-26 16:50:10,489 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:53630 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:50:14,508 - ASR_Service - INFO - 正在识别音频: tmp6gq_wyib.wav
-2025-11-26 16:50:14,685 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:53644 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:50:54,308 - ASR_Service - INFO - 正在识别音频: tmp8fwqhsbh.wav
-2025-11-26 16:50:54,494 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:44778 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:22,772 - ASR_Service - INFO - 正在识别音频: tmpo0510fy6.wav
-2025-11-26 16:51:22,953 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:32780 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:26,342 - ASR_Service - INFO - 正在识别音频: tmpdhe_w7l6.wav
-2025-11-26 16:51:26,519 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:32794 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:27,908 - ASR_Service - INFO - 正在识别音频: tmpwvjol5q2.wav
-2025-11-26 16:51:28,081 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:32808 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:40,525 - ASR_Service - INFO - 正在识别音频: tmpp8go7hru.wav
-2025-11-26 16:51:40,706 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36934 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:45,133 - ASR_Service - INFO - 正在识别音频: tmpcwayihvg.wav
-2025-11-26 16:51:45,311 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36946 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:48,752 - ASR_Service - INFO - 正在识别音频: tmpl7q10t9m.wav
-2025-11-26 16:51:48,928 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:55476 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:51,460 - ASR_Service - INFO - 正在识别音频: tmpho682ezx.wav
-2025-11-26 16:51:51,636 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:55484 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:51:57,740 - ASR_Service - INFO - 正在识别音频: tmp7gacjbmk.wav
-2025-11-26 16:51:57,921 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:55498 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:52:14,214 - ASR_Service - INFO - 正在识别音频: tmphh6_tuvj.wav
-2025-11-26 16:52:14,395 - ASR_Service - INFO - 识别结果: 小夜小玉
-INFO:     127.0.0.1:40070 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:52:51,103 - ASR_Service - INFO - 正在识别音频: tmp77nzmb2f.wav
-2025-11-26 16:52:51,107 - ASR_Service - INFO - 📊 音频时长 17.14秒，启用分段识别...
-2025-11-26 16:52:51,110 - ASR_Service - INFO - 🔪 将音频切分为 2 段进行识别...
-2025-11-26 16:52:51,299 - ASR_Service - INFO -   ✓ 片段 1/2 (0.0s-11.8s): ...
-2025-11-26 16:52:51,492 - ASR_Service - INFO -   ✓ 片段 2/2 (11.6s-17.1s): ...
-2025-11-26 16:52:51,492 - ASR_Service - INFO - ✅ 分段识别完成，总文本长度: 0 字符
-2025-11-26 16:52:51,492 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:60868 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:08,850 - ASR_Service - INFO - 正在识别音频: tmpdpjw1kep.wav
-2025-11-26 16:53:09,024 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57622 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:18,981 - ASR_Service - INFO - 正在识别音频: tmp1q1h_k2n.wav
-2025-11-26 16:53:19,171 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49264 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:23,125 - ASR_Service - INFO - 正在识别音频: tmpvka084rp.wav
-2025-11-26 16:53:23,299 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49280 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:28,808 - ASR_Service - INFO - 正在识别音频: tmpsffog__k.wav
-2025-11-26 16:53:28,982 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:40724 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:37,229 - ASR_Service - INFO - 正在识别音频: tmpel8i3odn.wav
-2025-11-26 16:53:37,410 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:40732 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:49,065 - ASR_Service - INFO - 正在识别音频: tmp_5rn3m9n.wav
-2025-11-26 16:53:49,247 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57970 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:50,771 - ASR_Service - INFO - 正在识别音频: tmpxw597gjk.wav
-2025-11-26 16:53:50,945 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57972 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:55,158 - ASR_Service - INFO - 正在识别音频: tmpf0fngejx.wav
-2025-11-26 16:53:55,335 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57988 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:53:58,712 - ASR_Service - INFO - 正在识别音频: tmpcs9h_ysb.wav
-2025-11-26 16:53:58,888 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:39638 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:01,096 - ASR_Service - INFO - 正在识别音频: tmpf5sm64wl.wav
-2025-11-26 16:54:01,272 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:39640 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:02,565 - ASR_Service - INFO - 正在识别音频: tmp0s5qbfh6.wav
-2025-11-26 16:54:02,740 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:39644 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:18,794 - ASR_Service - INFO - 正在识别音频: tmpbcl5hoxr.wav
-2025-11-26 16:54:18,976 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:46622 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:22,700 - ASR_Service - INFO - 正在识别音频: tmpyk4bijn1.wav
-2025-11-26 16:54:22,876 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:46628 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:27,767 - ASR_Service - INFO - 正在识别音频: tmp4d8o_qfw.wav
-2025-11-26 16:54:27,947 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:46632 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:32,347 - ASR_Service - INFO - 正在识别音频: tmprybpe10q.wav
-2025-11-26 16:54:32,525 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47908 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:34,934 - ASR_Service - INFO - 正在识别音频: tmpiy6uxlsu.wav
-2025-11-26 16:54:35,109 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47910 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:36,476 - ASR_Service - INFO - 正在识别音频: tmpudodh03g.wav
-2025-11-26 16:54:36,650 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47924 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:39,398 - ASR_Service - INFO - 正在识别音频: tmp7rrh00te.wav
-2025-11-26 16:54:39,574 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42202 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:40,952 - ASR_Service - INFO - 正在识别音频: tmpw5034nds.wav
-2025-11-26 16:54:41,126 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42218 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:47,652 - ASR_Service - INFO - 正在识别音频: tmp4dt7gtqa.wav
-2025-11-26 16:54:47,854 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42228 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:54:59,363 - ASR_Service - INFO - 正在识别音频: tmp2vyvccr6.wav
-2025-11-26 16:54:59,544 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:41070 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:55:47,623 - ASR_Service - INFO - 正在识别音频: tmpo8rfjfax.wav
-2025-11-26 16:55:47,804 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42664 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:55:51,246 - ASR_Service - INFO - 正在识别音频: tmpc4chrcrj.wav
-2025-11-26 16:55:51,423 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:57520 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:56:39,451 - ASR_Service - INFO - 正在识别音频: tmpj2yrb8vt.wav
-2025-11-26 16:56:39,637 - ASR_Service - INFO - 识别结果: 求一小异
-INFO:     127.0.0.1:38462 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:56:46,132 - ASR_Service - INFO - 正在识别音频: tmptk2rkonb.wav
-2025-11-26 16:56:46,308 - ASR_Service - INFO - 识别结果: 我们是北京大学
-INFO:     127.0.0.1:38476 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:07,252 - ASR_Service - INFO - 正在识别音频: tmpjdyuw163.wav
-2025-11-26 16:57:07,427 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:42410 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:09,559 - ASR_Service - INFO - 正在识别音频: tmpweytik7t.wav
-2025-11-26 16:57:09,734 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:54628 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:11,551 - ASR_Service - INFO - 正在识别音频: tmpfdz5lqki.wav
-2025-11-26 16:57:11,726 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:54632 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:13,840 - ASR_Service - INFO - 正在识别音频: tmp7qjg1gp7.wav
-2025-11-26 16:57:14,014 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:54644 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:16,216 - ASR_Service - INFO - 正在识别音频: tmp3ezri48_.wav
-2025-11-26 16:57:16,390 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:54650 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:18,720 - ASR_Service - INFO - 正在识别音频: tmpiha6xx0v.wav
-2025-11-26 16:57:18,896 - ASR_Service - INFO - 识别结果: 是
-INFO:     127.0.0.1:32902 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:21,272 - ASR_Service - INFO - 正在识别音频: tmpjzgmfuy2.wav
-2025-11-26 16:57:21,446 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:32914 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:23,353 - ASR_Service - INFO - 正在识别音频: tmpjyrk807s.wav
-2025-11-26 16:57:23,527 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:32924 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:26,548 - ASR_Service - INFO - 正在识别音频: tmpi68k_r1a.wav
-2025-11-26 16:57:26,725 - ASR_Service - INFO - 识别结果: 我的您都什么
-INFO:     127.0.0.1:32934 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:57,346 - ASR_Service - INFO - 正在识别音频: tmpxxjqnbfb.wav
-2025-11-26 16:57:57,521 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:46258 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:57:59,352 - ASR_Service - INFO - 正在识别音频: tmpnmtojntu.wav
-2025-11-26 16:57:59,527 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49124 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:02,176 - ASR_Service - INFO - 正在识别音频: tmp6kw3xmvt.wav
-2025-11-26 16:58:02,350 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49132 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:04,169 - ASR_Service - INFO - 正在识别音频: tmpqdolry_m.wav
-2025-11-26 16:58:04,343 - ASR_Service - INFO - 识别结果: 迪巴纳
-INFO:     127.0.0.1:49142 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:05,985 - ASR_Service - INFO - 正在识别音频: tmp3el9xwfz.wav
-2025-11-26 16:58:06,159 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49146 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:07,937 - ASR_Service - INFO - 正在识别音频: tmpanjv0f5q.wav
-2025-11-26 16:58:08,112 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49158 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:10,289 - ASR_Service - INFO - 正在识别音频: tmp0x1bler6.wav
-2025-11-26 16:58:10,463 - ASR_Service - INFO - 识别结果: 故事
-INFO:     127.0.0.1:49072 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:12,441 - ASR_Service - INFO - 正在识别音频: tmpfs1xqgvd.wav
-2025-11-26 16:58:12,616 - ASR_Service - INFO - 识别结果: 处理各
-INFO:     127.0.0.1:49088 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:14,811 - ASR_Service - INFO - 正在识别音频: tmp_kb2d65_.wav
-2025-11-26 16:58:14,986 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49102 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:16,953 - ASR_Service - INFO - 正在识别音频: tmp38h8tpko.wav
-2025-11-26 16:58:17,127 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:49112 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:20,854 - ASR_Service - INFO - 正在识别音频: tmpkirbmdjz.wav
-2025-11-26 16:58:21,030 - ASR_Service - INFO - 识别结果: 什么是北京大学
-INFO:     127.0.0.1:60038 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:39,371 - ASR_Service - INFO - 正在识别音频: tmpxh9rjpn6.wav
-2025-11-26 16:58:39,547 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47096 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:41,337 - ASR_Service - INFO - 正在识别音频: tmpkiomgh1i.wav
-2025-11-26 16:58:41,512 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47104 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:43,681 - ASR_Service - INFO - 正在识别音频: tmpa15nu8yc.wav
-2025-11-26 16:58:43,857 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47106 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:45,657 - ASR_Service - INFO - 正在识别音频: tmp5iyvoscg.wav
-2025-11-26 16:58:45,832 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:47112 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:47,969 - ASR_Service - INFO - 正在识别音频: tmpe0b8k6nc.wav
-2025-11-26 16:58:48,147 - ASR_Service - INFO - 识别结果: 京
-INFO:     127.0.0.1:47128 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:50,385 - ASR_Service - INFO - 正在识别音频: tmpnd53m0xx.wav
-2025-11-26 16:58:50,560 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:58464 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:52,657 - ASR_Service - INFO - 正在识别音频: tmptgb7t40_.wav
-2025-11-26 16:58:52,834 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:58470 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:54,602 - ASR_Service - INFO - 正在识别音频: tmp9093lv1z.wav
-2025-11-26 16:58:54,776 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:58484 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:56,251 - ASR_Service - INFO - 正在识别音频: tmp6sca1b3g.wav
-2025-11-26 16:58:56,425 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:58498 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:58:58,233 - ASR_Service - INFO - 正在识别音频: tmpyct6duaq.wav
-2025-11-26 16:58:58,408 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:58506 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:00,137 - ASR_Service - INFO - 正在识别音频: tmpb_hjl91b.wav
-2025-11-26 16:59:00,311 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:35630 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:02,026 - ASR_Service - INFO - 正在识别音频: tmp1jqa05kc.wav
-2025-11-26 16:59:02,200 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:35646 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:05,185 - ASR_Service - INFO - 正在识别音频: tmpqb82vmue.wav
-2025-11-26 16:59:05,361 - ASR_Service - INFO - 识别结果: 进行时停止
-INFO:     127.0.0.1:35656 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:19,475 - ASR_Service - INFO - 正在识别音频: tmpew4mhoh_.wav
-2025-11-26 16:59:19,674 - ASR_Service - INFO - 识别结果: 什么市北京大学
-INFO:     127.0.0.1:54112 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:38,908 - ASR_Service - INFO - 正在识别音频: tmp86029oso.wav
-2025-11-26 16:59:39,082 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36094 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:40,794 - ASR_Service - INFO - 正在识别音频: tmpwos0jq49.wav
-2025-11-26 16:59:40,968 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36098 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:42,554 - ASR_Service - INFO - 正在识别音频: tmp4l3di76z.wav
-2025-11-26 16:59:42,728 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36108 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:44,554 - ASR_Service - INFO - 正在识别音频: tmpue2vdifm.wav
-2025-11-26 16:59:44,729 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36124 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:46,498 - ASR_Service - INFO - 正在识别音频: tmpol5t5dh5.wav
-2025-11-26 16:59:46,674 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:36134 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 16:59:49,365 - ASR_Service - INFO - 正在识别音频: tmpidl1esoi.wav
-2025-11-26 16:59:49,542 - ASR_Service - INFO - 识别结果: 我的名字是什么
-INFO:     127.0.0.1:58154 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:05,419 - ASR_Service - INFO - 正在识别音频: tmpearg8qbg.wav
-2025-11-26 17:00:05,595 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:59392 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:07,426 - ASR_Service - INFO - 正在识别音频: tmp8mvyrly4.wav
-2025-11-26 17:00:07,600 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:59404 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:09,274 - ASR_Service - INFO - 正在识别音频: tmprrocgsse.wav
-2025-11-26 17:00:09,448 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38492 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:11,309 - ASR_Service - INFO - 正在识别音频: tmpubxhrz4l.wav
-2025-11-26 17:00:11,484 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38494 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:13,450 - ASR_Service - INFO - 正在识别音频: tmp25ydbgdm.wav
-2025-11-26 17:00:13,624 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38498 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:16,002 - ASR_Service - INFO - 正在识别音频: tmpgbiztj56.wav
-2025-11-26 17:00:16,176 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38508 - "POST /transcribe HTTP/1.1" 200 OK
-2025-11-26 17:00:18,154 - ASR_Service - INFO - 正在识别音频: tmp1azbw236.wav
-2025-11-26 17:00:18,330 - ASR_Service - INFO - 识别结果: 
-INFO:     127.0.0.1:38514 - "POST /transcribe HTTP/1.1" 200 OK
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [235972]
+2025-11-27 00:22:08,088 - ASR_Service - INFO - 正在识别音频: tmp6vbtpz54.wav
+2025-11-27 00:22:08,296 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:32884 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:22:26,632 - ASR_Service - INFO - 正在识别音频: tmpl9omh1xt.wav
+2025-11-27 00:22:26,893 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:34524 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:22:27,947 - ASR_Service - INFO - 正在识别音频: tmpkdg955d2.wav
+2025-11-27 00:22:28,156 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:34540 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:22:40,525 - ASR_Service - INFO - 正在识别音频: tmpsidqklzi.wav
+2025-11-27 00:22:40,819 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:53282 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:22:45,404 - ASR_Service - INFO - 正在识别音频: tmpxzw8_bzk.wav
+2025-11-27 00:22:45,639 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:53298 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:22:46,884 - ASR_Service - INFO - 正在识别音频: tmp990zt62f.wav
+2025-11-27 00:22:47,087 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:33256 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:22:57,815 - ASR_Service - INFO - 正在识别音频: tmp6sbvkfkl.wav
+2025-11-27 00:22:58,001 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:41988 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:23:04,638 - ASR_Service - INFO - 正在识别音频: tmpldzhdmrr.wav
+2025-11-27 00:23:04,822 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:41998 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:23:07,647 - ASR_Service - INFO - 正在识别音频: tmpdexrt3bg.wav
+2025-11-27 00:23:07,827 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:44482 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:24:02,349 - ASR_Service - INFO - 正在识别音频: tmptsby9p1o.wav
+2025-11-27 00:24:02,538 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:33826 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:25:04,749 - ASR_Service - INFO - 正在识别音频: tmps3snjyfw.wav
+2025-11-27 00:25:04,934 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:41792 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:25:06,221 - ASR_Service - INFO - 正在识别音频: tmpvp0ucvtb.wav
+2025-11-27 00:25:06,399 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:41798 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:25:12,358 - ASR_Service - INFO - 正在识别音频: tmppq77iw8s.wav
+2025-11-27 00:25:12,553 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:35042 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:25:22,424 - ASR_Service - INFO - 正在识别音频: tmpp3aagy2b.wav
+2025-11-27 00:25:22,606 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:51610 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:25:41,580 - ASR_Service - INFO - 正在识别音频: tmpsfi7q3eu.wav
+2025-11-27 00:25:41,762 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:50310 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:26:22,125 - ASR_Service - INFO - 正在识别音频: tmp4s5rjcm_.wav
+2025-11-27 00:26:22,306 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:33184 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:26:25,496 - ASR_Service - INFO - 正在识别音频: tmpvf8oz2uk.wav
+2025-11-27 00:26:25,671 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:33198 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:26:32,376 - ASR_Service - INFO - 正在识别音频: tmp3qzp9zae.wav
+2025-11-27 00:26:32,555 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:55270 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:26:33,379 - ASR_Service - INFO - 正在识别音频: tmp9rrsrdai.wav
+2025-11-27 00:26:33,552 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:55280 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:26:36,007 - ASR_Service - INFO - 正在识别音频: tmphptuj2ts.wav
+2025-11-27 00:26:36,183 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:55290 - "POST /transcribe HTTP/1.1" 200 OK
+2025-11-27 00:27:52,407 - ASR_Service - INFO - 正在识别音频: tmpj9bh742q.wav
+2025-11-27 00:27:52,588 - ASR_Service - INFO - 识别结果: 
+INFO:     127.0.0.1:38096 - "POST /transcribe HTTP/1.1" 200 OK
